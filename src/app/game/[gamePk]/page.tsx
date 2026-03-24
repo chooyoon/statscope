@@ -30,6 +30,8 @@ import {
   InteractivePitchingTable,
 } from "./GameClient";
 import PitchingStaffClient from "./PitchingStaffClient";
+import Collapsible from "@/components/ui/Collapsible";
+import FielderStaffClient from "./FielderStaffClient";
 import RosterAnalysis from "./RosterAnalysis";
 import { getActiveSeason } from "@/lib/sports/mlb/season";
 
@@ -302,9 +304,34 @@ export default async function GameDetailPage({
     }
   }
 
-  const [homeRosterPitchers, awayRosterPitchers] = await Promise.all([
+  async function fetchActiveRosterFielders(teamId: number) {
+    try {
+      const res = await fetch(
+        `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&season=${CURRENT_SEASON}`,
+        { next: { revalidate: 3600 } }
+      );
+      if (!res.ok) return [];
+      const data: RosterResponse = await res.json();
+      return (data.roster ?? [])
+        .filter(
+          (r) => r.position?.type !== "Pitcher" && r.position?.code !== "1"
+        )
+        .map((r) => ({
+          id: r.person.id,
+          fullName: r.person.fullName,
+          jerseyNumber: r.jerseyNumber ?? "",
+          position: r.position?.abbreviation ?? "",
+        }));
+    } catch {
+      return [];
+    }
+  }
+
+  const [homeRosterPitchers, awayRosterPitchers, homeRosterFielders, awayRosterFielders] = await Promise.all([
     fetchActiveRosterPitchers(boxscore.teams.home.team.id),
     fetchActiveRosterPitchers(boxscore.teams.away.team.id),
+    fetchActiveRosterFielders(boxscore.teams.home.team.id),
+    fetchActiveRosterFielders(boxscore.teams.away.team.id),
   ]);
   const awayPitchers = extractPlayers(boxscore.teams.away, "pitchers");
 
@@ -606,6 +633,7 @@ export default async function GameDetailPage({
                 teamColor={awayColor}
                 teamName={awayTeam?.nameKo ?? "원정"}
                 side="원정"
+                showGameStats={gameStarted}
               />
             )}
             {/* Home starter */}
@@ -617,6 +645,7 @@ export default async function GameDetailPage({
                 teamColor={homeColor}
                 teamName={homeTeam?.nameKo ?? "홈"}
                 side="홈"
+                showGameStats={gameStarted}
               />
             )}
           </div>
@@ -693,29 +722,51 @@ export default async function GameDetailPage({
         </section>
       )}
 
-      {/* ===== 3.5 PITCHING STAFF COMPOSITION (Active Roster) ===== */}
+      {/* ===== 3.5 ROSTER COMPOSITION (Collapsible) ===== */}
       <section className="mb-8">
         <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
           <span className="inline-block w-1 h-6 bg-indigo-500 rounded-full" />
-          투수진 구성
+          로스터 구성
         </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <Collapsible title={`${awayTeam?.nameKo ?? "원정"} 투수진 — ${awayRosterPitchers.length}명`} titleColor={awayColor}>
+            <PitchingStaffClient
+              rosterPitchers={awayRosterPitchers}
+              teamColor={awayColor}
+              teamName={awayTeam?.nameKo ?? "원정"}
+              abbreviation={awayTeam?.abbreviation ?? "AWAY"}
+              opposingBatters={homeBatters}
+            />
+          </Collapsible>
+          <Collapsible title={`${homeTeam?.nameKo ?? "홈"} 투수진 — ${homeRosterPitchers.length}명`} titleColor={homeColor}>
+            <PitchingStaffClient
+              rosterPitchers={homeRosterPitchers}
+              teamColor={homeColor}
+              teamName={homeTeam?.nameKo ?? "홈"}
+              abbreviation={homeTeam?.abbreviation ?? "HOME"}
+              opposingBatters={awayBatters}
+            />
+          </Collapsible>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Away pitching staff - active roster */}
-          <PitchingStaffClient
-            rosterPitchers={awayRosterPitchers}
-            teamColor={awayColor}
-            teamName={awayTeam?.nameKo ?? "원정"}
-            abbreviation={awayTeam?.abbreviation ?? "AWAY"}
-            opposingBatters={homeBatters}
-          />
-          {/* Home pitching staff - active roster */}
-          <PitchingStaffClient
-            rosterPitchers={homeRosterPitchers}
-            teamColor={homeColor}
-            teamName={homeTeam?.nameKo ?? "홈"}
-            abbreviation={homeTeam?.abbreviation ?? "HOME"}
-            opposingBatters={awayBatters}
-          />
+          <Collapsible title={`${awayTeam?.nameKo ?? "원정"} 야수진 — ${awayRosterFielders.length}명`} titleColor={awayColor}>
+            <FielderStaffClient
+              rosterFielders={awayRosterFielders}
+              teamColor={awayColor}
+              teamName={awayTeam?.nameKo ?? "원정"}
+              abbreviation={awayTeam?.abbreviation ?? "AWAY"}
+              opposingPitchers={homePitchers}
+            />
+          </Collapsible>
+          <Collapsible title={`${homeTeam?.nameKo ?? "홈"} 야수진 — ${homeRosterFielders.length}명`} titleColor={homeColor}>
+            <FielderStaffClient
+              rosterFielders={homeRosterFielders}
+              teamColor={homeColor}
+              teamName={homeTeam?.nameKo ?? "홈"}
+              abbreviation={homeTeam?.abbreviation ?? "HOME"}
+              opposingPitchers={awayPitchers}
+            />
+          </Collapsible>
         </div>
       </section>
 
@@ -865,10 +916,12 @@ function ComparisonBar({
   lowerIsBetter?: boolean;
   format: (v: number) => string;
 }) {
-  const awayPct = Math.min((awayVal / max) * 100, 100);
-  const homePct = Math.min((homeVal / max) * 100, 100);
-  const awayBetter = lowerIsBetter ? awayVal < homeVal : awayVal > homeVal;
-  const homeBetter = lowerIsBetter ? homeVal < awayVal : homeVal > awayVal;
+  const awayHasData = awayVal > 0;
+  const homeHasData = homeVal > 0;
+  const awayPct = awayHasData ? Math.max(5, Math.min((awayVal / max) * 100, 100)) : 0;
+  const homePct = homeHasData ? Math.max(5, Math.min((homeVal / max) * 100, 100)) : 0;
+  const awayBetter = awayHasData && homeHasData && (lowerIsBetter ? awayVal < homeVal : awayVal > homeVal);
+  const homeBetter = awayHasData && homeHasData && (lowerIsBetter ? homeVal < awayVal : homeVal > awayVal);
 
   return (
     <div>
@@ -922,6 +975,7 @@ function PitcherCard({
   teamColor,
   teamName,
   side,
+  showGameStats,
 }: {
   player: BoxscorePlayer;
   seasonStats: Record<string, unknown> | null;
@@ -929,12 +983,22 @@ function PitcherCard({
   teamColor: string;
   teamName: string;
   side: string;
+  showGameStats: boolean;
 }) {
   const name = displayNameFull(player.person.id, player.person.fullName);
   const gamePitching = player.stats?.pitching;
   const gameIP = gamePitching ? String(gamePitching.inningsPitched ?? "-") : "-";
   const gameK = gamePitching ? num(gamePitching.strikeOuts) : 0;
   const gameER = gamePitching ? num(gamePitching.earnedRuns) : 0;
+  const gameH = gamePitching ? num(gamePitching.hits) : 0;
+  const gameBB = gamePitching ? num(gamePitching.baseOnBalls) : 0;
+  const gamePitchCount = gamePitching ? num(gamePitching.numberOfPitches) : 0;
+
+  // Season summary stats
+  const seasonW = seasonStats ? num(seasonStats.wins) : 0;
+  const seasonL = seasonStats ? num(seasonStats.losses) : 0;
+  const seasonIP = seasonStats ? String(seasonStats.inningsPitched ?? "-") : "-";
+  const seasonK = seasonStats ? num(seasonStats.strikeOuts) : 0;
 
   return (
     <div
@@ -961,12 +1025,31 @@ function PitcherCard({
         </div>
       </div>
 
-      {/* This game stats */}
-      {gamePitching && (
-        <div className="grid grid-cols-3 gap-2 mb-4">
+      {/* This game stats — only show when game has actually started */}
+      {showGameStats && gamePitching && (gameK > 0 || gameER > 0 || num(gamePitching.inningsPitched) > 0) && (
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
           <MiniStat label="이닝" value={gameIP} />
           <MiniStat label="삼진" value={gameK} />
           <MiniStat label="자책" value={gameER} />
+          <MiniStat label="피안타" value={gameH} />
+          <MiniStat label="볼넷" value={gameBB} />
+          <MiniStat label="투구수" value={gamePitchCount} />
+        </div>
+      )}
+
+      {/* Season record summary — always show */}
+      {seasonStats && (
+        <div className="grid grid-cols-4 gap-2 mb-4 border border-slate-100 rounded-lg p-2">
+          <MiniStat label="시즌 성적" value={`${seasonW}승 ${seasonL}패`} />
+          <MiniStat label="시즌 이닝" value={seasonIP} />
+          <MiniStat label="시즌 삼진" value={seasonK} />
+          <MiniStat label="ERA" value={advanced?.era.toFixed(2) ?? "-"} />
+        </div>
+      )}
+
+      {!seasonStats && (
+        <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 mb-4 text-center">
+          <p className="text-xs text-slate-400">시즌 기록 없음 (신인 또는 데이터 미제공)</p>
         </div>
       )}
 
