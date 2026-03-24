@@ -438,30 +438,50 @@ async function generatePreGameAnalysis(
     sections.push({ title: "승률 예측", paragraphs });
   }
 
-  // 5. Key Points to Watch
+  // 5. Key Points to Watch (data-driven)
   {
     const paragraphs: string[] = [];
 
-    if (homeStarter && awayStarter) {
+    if (homeStarter && awayStarter && homeStarterSeason && awayStarterSeason) {
       const homeDisplayName = displayName(homeStarter.id, homeStarter.name);
       const awayDisplayName = displayName(awayStarter.id, awayStarter.name);
+      const homeIP = parseIP((homeStarterSeason.inningsPitched as string | number) ?? 0);
+      const awayIP = parseIP((awayStarterSeason.inningsPitched as string | number) ?? 0);
+      const homeGS = num(homeStarterSeason.gamesStarted);
+      const awayGS = num(awayStarterSeason.gamesStarted);
+      const homeAvgIP = homeGS > 0 ? (homeIP / homeGS).toFixed(1) : "-";
+      const awayAvgIP = awayGS > 0 ? (awayIP / awayGS).toFixed(1) : "-";
+
       paragraphs.push(
-        `${awayDisplayName}과 ${homeDisplayName}의 맞대결에서 누가 더 오래 마운드를 지키느냐가 관건이다. 선발이 빨리 무너질 경우 불펜에 부담이 가중된다.`
+        `이닝 소화력 비교: ${awayDisplayName} 경기당 평균 ${awayAvgIP}이닝 vs ${homeDisplayName} ${homeAvgIP}이닝. 선발이 6이닝 이상 소화하면 팀 불펜 부담이 크게 줄어든다.`
       );
+
+      const homeHR = num(homeStarterSeason.homeRuns);
+      const awayHR = num(awayStarterSeason.homeRuns);
+      if (homeHR >= 10 || awayHR >= 10) {
+        const vulnerable = homeHR > awayHR ? homeDisplayName : awayDisplayName;
+        const hrCount = Math.max(homeHR, awayHR);
+        paragraphs.push(
+          `${vulnerable}의 시즌 피홈런 ${hrCount}개는 장타력 있는 타선 앞에서 위험 요소가 될 수 있다.`
+        );
+      }
     }
 
-    if (venueName && venueName.toLowerCase().includes("coors")) {
-      paragraphs.push(
-        `쿠어스 필드 특성상 후반부 역전극이 빈번하게 나타난다. 초반 리드를 쉽게 안심할 수 없는 경기장이다.`
-      );
+    if (venueName) {
+      const venLower = venueName.toLowerCase();
+      if (venLower.includes("coors")) {
+        paragraphs.push(
+          `쿠어스 필드(해발 1,600m)는 MLB 최고의 타자 천국. 리그 평균 대비 득점이 30% 이상 높아 후반부 역전극이 빈번하다.`
+        );
+      } else if (venLower.includes("oracle") || venLower.includes("petco") || venLower.includes("kauffman")) {
+        paragraphs.push(
+          `${venueName}은 투수 친화적 구장으로 분류된다. 선발 투수의 이닝 소화력이 더욱 중요해진다.`
+        );
+      }
     }
-
-    paragraphs.push(
-      `양 팀 불펜 구성과 체력 소모 상태, 그리고 주요 타자들의 최근 타격감이 승부의 변수가 될 수 있다.`
-    );
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "주목 포인트", paragraphs });
+      sections.push({ title: "전술적 주목 포인트", paragraphs });
     }
   }
 
@@ -733,7 +753,7 @@ function generatePostGameAnalysis(
     if (paragraphs.length > 0) sections.push({ title: "핵심 선수", paragraphs });
   }
 
-  // Pitching Report
+  // Pitching Report (enhanced)
   {
     const paragraphs: string[] = [];
     for (const side of ["away", "home"] as const) {
@@ -746,27 +766,50 @@ function generatePostGameAnalysis(
 
       if (starter) {
         const isQS = starter.ip >= 6 && starter.er <= 3;
-        let starterLine = `${teamName} 선발 ${starter.name}은 ${starter.ipDisplay}이닝 ${starter.hits}피안타 ${starter.er}자책 ${starter.k}탈삼진을 기록했다.`;
-        if (isQS) starterLine += ` 퀄리티 스타트를 달성했다.`;
-        else if (starter.ip < 4 && starter.er >= 4) starterLine += ` 조기 강판으로 불펜에 부담을 안겼다.`;
+        const kPerIP = starter.ip > 0 ? (starter.k / starter.ip).toFixed(2) : "0";
+        const pitchesPerIP = starter.ip > 0 ? (starter.pitchCount / starter.ip).toFixed(1) : "0";
+        const kbbRatio = starter.bb > 0 ? (starter.k / starter.bb).toFixed(1) : starter.k > 0 ? `${starter.k}:0` : "-";
+
+        let starterLine = `${teamName} 선발 ${starter.name}: ${starter.ipDisplay}이닝 ${starter.hits}피안타 ${starter.er}자책 ${starter.k}삼진 ${starter.bb}볼넷(${starter.pitchCount}구).`;
+
+        if (isQS) {
+          starterLine += ` QS 달성. K/IP ${kPerIP}로 ${parseFloat(kPerIP) >= 1.0 ? "지배적인 삼진 능력" : "효율적인 투구"}을 보여줬다.`;
+        } else if (starter.ip >= 7 && starter.er <= 2) {
+          starterLine += ` 7이닝 이상 소화하며 불펜 부담을 최소화했다. 이닝당 투구수 ${pitchesPerIP}로 ${parseFloat(pitchesPerIP) <= 15 ? "효율적" : "다소 많은"} 투구 운용을 보였다.`;
+        } else if (starter.ip < 4 && starter.er >= 4) {
+          starterLine += ` ${starter.ip.toFixed(0)}이닝도 채우지 못한 조기 강판. K/BB ${kbbRatio}로 제구력에 문제가 있었다.`;
+        } else if (starter.ip < 5) {
+          starterLine += ` 5이닝 미달로 불펜에 부담을 전가했다.`;
+        }
+
+        if (starter.hr >= 2) {
+          starterLine += ` ${starter.hr}피홈런은 우려할 만한 장타 허용률이다.`;
+        }
+
         lines.push(starterLine);
       }
 
       if (relievers.length > 0) {
-        const bullpenTotalER = relievers.reduce((sum, p) => sum + p.er, 0);
-        if (bullpenTotalER === 0) {
-          lines.push(`구원진이 무자책으로 완벽하게 마무리했다.`);
-        } else if (bullpenTotalER >= 4) {
-          lines.push(`불펜이 ${bullpenTotalER}자책을 허용하며 아쉬운 모습을 보였다.`);
+        const bullpenIP = relievers.reduce((s, p) => s + p.ip, 0);
+        const bullpenER = relievers.reduce((s, p) => s + p.er, 0);
+        const bullpenK = relievers.reduce((s, p) => s + p.k, 0);
+        const bullpenERA = bullpenIP > 0 ? ((bullpenER / bullpenIP) * 9).toFixed(2) : "-";
+
+        if (bullpenER === 0 && bullpenIP >= 2) {
+          lines.push(`불펜 ${relievers.length}명이 ${bullpenIP.toFixed(1)}이닝 무자책 릴레이(${bullpenK}K). 완벽한 마무리였다.`);
+        } else if (bullpenER >= 4) {
+          lines.push(`불펜 ERA ${bullpenERA} (${bullpenIP.toFixed(1)}이닝 ${bullpenER}자책). 구원 실패가 경기 결과에 직접적 영향을 미쳤다.`);
+        } else if (bullpenIP > 0) {
+          lines.push(`불펜: ${bullpenIP.toFixed(1)}이닝 ${bullpenER}자책 ${bullpenK}K (ERA ${bullpenERA}).`);
         }
       }
 
       if (lines.length > 0) paragraphs.push(lines.join(" "));
     }
-    if (paragraphs.length > 0) sections.push({ title: "투수 리포트", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: "투수 세부 리포트", paragraphs });
   }
 
-  // Hitting Analysis
+  // Hitting Analysis (enhanced)
   {
     const paragraphs: string[] = [];
     for (const side of ["away", "home"] as const) {
@@ -775,17 +818,36 @@ function generatePostGameAnalysis(
       if (batters.length === 0) continue;
 
       const totalHits = batters.reduce((s, b) => s + b.hits, 0);
+      const totalAB = batters.reduce((s, b) => s + b.ab, 0);
       const totalHR = batters.reduce((s, b) => s + b.hr, 0);
       const totalRBI = batters.reduce((s, b) => s + b.rbi, 0);
+      const totalBB = batters.reduce((s, b) => s + b.walks, 0);
+      const totalXBH = batters.reduce((s, b) => s + b.doubles + b.triples + b.hr, 0);
+      const teamAVG = totalAB > 0 ? (totalHits / totalAB).toFixed(3) : ".000";
 
-      let overview = `${teamName} 타선은 총 ${totalHits}안타 ${totalRBI}타점을 기록했다.`;
-      if (totalHR > 0) overview += ` 홈런 ${totalHR}개가 포함됐다.`;
+      let overview = `${teamName}: ${totalHits}안타 ${totalRBI}타점 (팀 타율 ${teamAVG}).`;
+      if (totalXBH >= 3) overview += ` 장타 ${totalXBH}개(홈런 ${totalHR})로 강력한 타격을 보여줬다.`;
+      else if (totalHR > 0) overview += ` 홈런 ${totalHR}개 포함.`;
+      if (totalBB >= 4) overview += ` ${totalBB}볼넷으로 출루율에서도 우위를 점했다.`;
       paragraphs.push(overview);
 
+      // Multi-hit players with detail
       const multiHitters = batters.filter(b => b.hits >= 2);
-      if (multiHitters.length >= 2) {
-        const names = multiHitters.map(b => `${b.name}(${b.ab}타수 ${b.hits}안타)`);
-        paragraphs.push(`멀티히트 타자: ${names.join(", ")}.`);
+      if (multiHitters.length > 0) {
+        const names = multiHitters.map(b => {
+          let detail = `${b.ab}타수 ${b.hits}안타`;
+          if (b.hr > 0) detail += ` ${b.hr}HR`;
+          if (b.rbi >= 2) detail += ` ${b.rbi}타점`;
+          return `${b.name}(${detail})`;
+        });
+        paragraphs.push(`멀티히트: ${names.join(", ")}.`);
+      }
+
+      // Hitless cleanup hitters (3-5 spot)
+      const cleanupHitters = batters.slice(2, 5).filter(b => b.ab >= 3 && b.hits === 0);
+      if (cleanupHitters.length >= 2) {
+        const names = cleanupHitters.map(b => `${b.name}(${b.ab}타수 무안타)`);
+        paragraphs.push(`클린업 부진: ${names.join(", ")}. 중심 타선의 침묵이 뼈아팠다.`);
       }
     }
     if (paragraphs.length > 0) sections.push({ title: "타격 분석", paragraphs });
@@ -911,7 +973,7 @@ export default async function AICommentary({
       <div className={`border-l-4 ${headerColor} bg-slate-50 px-6 py-5`}>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-bold tracking-widest text-blue-600 uppercase">
-            AI Commentary
+            StatScope Analysis
           </span>
           <span className="text-[10px] text-slate-400">|</span>
           <span className="text-[10px] text-slate-500">{headerLabel}</span>

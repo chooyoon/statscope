@@ -18,9 +18,8 @@ const CURRENT_SEASON = new Date().getFullYear();
 
 // Korean players currently in MLB (update as needed)
 const KOREAN_PLAYERS: { id: number; type: "hitting" | "pitching" }[] = [
-  { id: 808982, type: "hitting" },   // 이정후
-  { id: 673490, type: "hitting" },   // 김하성
-  { id: 660271, type: "hitting" },   // 오타니 (일본 but culturally significant)
+  { id: 808982, type: "hitting" },   // 이정후 (SF Giants)
+  { id: 673490, type: "hitting" },   // 김하성 (SD Padres)
 ];
 
 interface KoreanPlayerData {

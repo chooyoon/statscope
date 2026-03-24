@@ -27,9 +27,11 @@ function todayString(): string {
 
 function getGameSortOrder(game: ScheduleGame): number {
   const state = game.status.abstractGameState;
+  const code = game.status.statusCode;
+  const finalCodes = ["F", "FT", "FR", "FO", "O"];
+  if (finalCodes.includes(code) || state === "Final") return 2;
   if (state === "Live") return 0;
-  if (state === "Preview") return 1;
-  return 2; // Final
+  return 1; // Preview
 }
 
 function getGameTypeLabel(game: ScheduleGame): { label: string; className: string } | null {
@@ -49,20 +51,26 @@ function getGameStatusLabel(game: ScheduleGame): {
 } {
   const state = game.status.abstractGameState;
   const detailed = game.status.detailedState;
+  const statusCode = game.status.statusCode;
 
-  if (state === "Live") {
-    const inning = game.linescore?.currentInning ?? "";
-    const half = game.linescore?.inningHalf === "Top" ? "^" : "v";
-    return {
-      text: inning ? `${half}${inning}` : "LIVE",
-      className: "text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200",
-    };
-  }
-
-  if (state === "Final") {
+  // Final states: F=Final, FT=Final:Tied, FR=Final:Resumed, FO=Final:Over
+  // Also check detailedState for "Completed", "Game Over", "Final" etc.
+  const finalCodes = ["F", "FT", "FR", "FO", "O"];
+  if (state === "Final" || finalCodes.includes(statusCode) || detailed?.startsWith("Final") || detailed === "Completed Early" || detailed === "Game Over") {
     return {
       text: detailed === "Completed Early" ? "조기종료" : "종료",
       className: "text-slate-500 bg-slate-100 ring-1 ring-slate-200",
+    };
+  }
+
+  // Live states: check both abstractGameState and statusCode
+  const liveCodes = ["I", "MA", "MF", "MI", "MN"];
+  if (state === "Live" || liveCodes.includes(statusCode)) {
+    const inning = game.linescore?.currentInning ?? "";
+    const half = game.linescore?.inningHalf === "Top" ? "초" : "말";
+    return {
+      text: inning ? `${inning}회 ${half}` : "LIVE",
+      className: "text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200",
     };
   }
 
@@ -144,9 +152,10 @@ export default async function HomePage({
               const awayTeam = getTeamById(game.teams.away.team.id);
               const homeTeam = getTeamById(game.teams.home.team.id);
               const status = getGameStatusLabel(game);
+              const finalCodes = ["F", "FT", "FR", "FO", "O"];
               const isFinished =
-                game.status.abstractGameState === "Final";
-              const isLive = game.status.abstractGameState === "Live";
+                game.status.abstractGameState === "Final" || finalCodes.includes(game.status.statusCode);
+              const isLive = game.status.abstractGameState === "Live" && !isFinished;
               const gameTypeBadge = getGameTypeLabel(game);
 
               const teamColor = homeTeam?.colorPrimary ?? "#6366f1";
