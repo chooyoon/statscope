@@ -4,16 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButton from "@/components/auth/AuthButton";
+import LangToggle from "./LangToggle";
+import { useLang } from "@/contexts/LangContext";
 
-const NAV_ITEMS = [
-  { href: "/", label: "오늘의 경기" },
-  { href: "/standings", label: "팀 순위" },
-  { href: "/news", label: "소식" },
-];
+function useNavItems() {
+  const { t } = useLang();
+  return [
+    { href: "/", label: t("Today's Games", "오늘의 경기") },
+    { href: "/standings", label: t("Standings", "팀 순위") },
+    { href: "/news", label: t("News", "소식") },
+  ];
+}
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const NAV_ITEMS = useNavItems();
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -49,8 +55,9 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Auth */}
-        <div className="hidden md:block">
+        {/* Auth + Lang */}
+        <div className="hidden md:flex items-center gap-2">
+          <LangToggle />
           <AuthButton />
         </div>
 

@@ -12,6 +12,7 @@ import LocalTime from "@/components/game/LocalTime";
 import DateNavigator from "./page.client";
 import DateRedirect from "./DateRedirect";
 import HomeClient from "./HomeClient";
+import { HeroText, NoGamesText, PitcherLabel, UpcomingTitle } from "./HeroClient";
 
 export const metadata: Metadata = {
   title: "StatScope - MLB 심층 분석 플랫폼",
@@ -56,16 +57,16 @@ function getGameStatusLabel(game: ScheduleGame): {
 
   if (state === "Final") {
     return {
-      text: detailed === "Completed Early" ? "조기종료" : "종료",
+      text: detailed === "Completed Early" ? "Early End" : "Final",
       className: "text-slate-500 bg-slate-100 ring-1 ring-slate-200",
     };
   }
 
   if (state === "Live") {
     const inning = game.linescore?.currentInning ?? "";
-    const half = game.linescore?.inningHalf === "Top" ? "초" : "말";
+    const half = game.linescore?.inningHalf === "Top" ? "T" : "B";
     return {
-      text: inning ? `${inning}회 ${half}` : "LIVE",
+      text: inning ? `${half}${inning}` : "LIVE",
       className: "text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200",
     };
   }
@@ -116,7 +117,7 @@ export default async function HomePage({
         </section>
         <div className="mx-auto max-w-7xl px-4 py-16 text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-500" />
-          <p className="text-slate-400 mt-4">경기 일정을 불러오는 중...</p>
+          <p className="text-slate-400 mt-4">Loading schedule...</p>
         </div>
         <DateRedirect />
       </div>
@@ -148,15 +149,7 @@ export default async function HomePage({
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/80" />
         </div>
         <div className="mx-auto max-w-7xl px-4 py-16 sm:py-24 text-center relative z-10">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
-            <span className="text-blue-400">Stat</span><span className="text-white">Scope</span>
-          </h1>
-          <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">
-            MLB 심층 분석 플랫폼
-          </p>
-          <p className="mt-2 text-sm text-blue-200 drop-shadow">
-            경기 일정 &middot; 실시간 스코어 &middot; 선수 스탯 &middot; 팀 순위
-          </p>
+          <HeroText />
         </div>
         {/* Bottom wave decoration */}
         <div className="absolute bottom-0 left-0 right-0 z-10">
@@ -185,10 +178,7 @@ export default async function HomePage({
                 alt=""
                 className="w-24 h-24 object-cover rounded-full mx-auto mb-4 opacity-60"
               />
-              <p className="text-lg text-slate-400">
-                이 날짜에 예정된 경기가 없습니다.
-              </p>
-              <p className="text-sm text-slate-300 mt-1">다른 날짜를 확인해보세요.</p>
+              <NoGamesText />
             </div>
           </div>
         ) : (
@@ -290,9 +280,7 @@ export default async function HomePage({
                   {(game.teams.away.probablePitcher ||
                     game.teams.home.probablePitcher) && (
                     <div className="mt-4 border-t border-slate-100 pt-3">
-                      <p className="mb-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                        선발 투수
-                      </p>
+                      <PitcherLabel />
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-600 font-medium">
                           {game.teams.away.probablePitcher
@@ -300,7 +288,7 @@ export default async function HomePage({
                                 game.teams.away.probablePitcher.id,
                                 game.teams.away.probablePitcher.fullName
                               )
-                            : "미정"}
+                            : "TBD"}
                         </span>
                         <span className="text-slate-500">vs</span>
                         <span className="text-slate-600 font-medium">
@@ -309,7 +297,7 @@ export default async function HomePage({
                                 game.teams.home.probablePitcher.id,
                                 game.teams.home.probablePitcher.fullName
                               )
-                            : "미정"}
+                            : "TBD"}
                         </span>
                       </div>
                     </div>
@@ -362,7 +350,7 @@ async function UpcomingGames({ currentDate }: { currentDate: string }) {
 
   return (
     <section className="mt-12">
-      <h2 className="mb-6 text-xl font-bold text-slate-800">향후 일정</h2>
+      <UpcomingTitle />
       <div className="grid gap-4 md:grid-cols-3">
         {days.map(({ date, label, games }) => (
           <Link
@@ -372,7 +360,7 @@ async function UpcomingGames({ currentDate }: { currentDate: string }) {
           >
             <h3 className="mb-3 text-sm font-bold text-blue-600">{label}</h3>
             {games.length === 0 ? (
-              <p className="text-xs text-slate-400">경기 없음</p>
+              <p className="text-xs text-slate-400">No games</p>
             ) : (
               <div className="space-y-2">
                 {games.slice(0, 6).map((game) => {
@@ -391,7 +379,7 @@ async function UpcomingGames({ currentDate }: { currentDate: string }) {
                   );
                 })}
                 {games.length > 6 && (
-                  <p className="text-xs text-slate-400">+{games.length - 6}경기 더</p>
+                  <p className="text-xs text-slate-400">+{games.length - 6}more games</p>
                 )}
               </div>
             )}

@@ -3,11 +3,12 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import AdBanner from "@/components/ads/AdBanner";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LangProvider } from "@/contexts/LangContext";
 
 export const metadata: Metadata = {
-  title: "StatScope - MLB 심층 분석 플랫폼",
+  title: "StatScope - MLB Deep Analytics Platform",
   description:
-    "MLB 선수 스탯, 팀 순위, 매치업 분석을 한눈에. StatScope와 함께 데이터로 야구를 읽으세요.",
+    "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability. Data-driven baseball analytics.",
 };
 
 export default function RootLayout({
@@ -31,6 +32,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <LangProvider>
         <AuthProvider>
         <Header />
         <div className="mx-auto w-full max-w-7xl px-4 pt-4">
@@ -38,23 +40,24 @@ export default function RootLayout({
         </div>
         <main className="flex-1">{children}</main>
         </AuthProvider>
+        </LangProvider>
         <div className="mx-auto w-full max-w-7xl px-4 pb-4">
           <AdBanner slot="footer" />
         </div>
         <footer className="border-t border-slate-200 bg-white py-8">
           <div className="mx-auto max-w-7xl px-4 text-center">
             <div className="flex items-center justify-center gap-4 mb-3">
-              <a href="/about" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">서비스 소개</a>
+              <a href="/about" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">About</a>
               <span className="text-slate-300">|</span>
-              <a href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">개인정보처리방침</a>
+              <a href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Privacy</a>
               <span className="text-slate-300">|</span>
-              <a href="mailto:statscope.help@gmail.com" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">문의</a>
+              <a href="mailto:statscope.help@gmail.com" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Contact</a>
             </div>
             <p className="text-sm font-medium text-slate-500">
               &copy; {new Date().getFullYear()} StatScope. All rights reserved.
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              MLB 데이터 기반 야구 분석 플랫폼
+              Data-driven MLB analytics platform
             </p>
           </div>
         </footer>
