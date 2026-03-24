@@ -84,8 +84,36 @@ export default async function HomePage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-  const dateParam =
-    typeof params.date === "string" ? params.date : todayStringUTC();
+  const rawDate = params.date;
+  const hasDateParam = typeof rawDate === "string";
+  const dateParam = hasDateParam ? rawDate : todayStringUTC();
+
+  // If no date param, show loading shell — client will redirect to local date
+  if (!hasDateParam) {
+    return (
+      <div>
+        <section className="hero-gradient baseball-pattern relative overflow-hidden">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:py-20 text-center relative z-10">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+              <span className="text-blue-600">Stat</span><span className="text-slate-900">Scope</span>
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl text-slate-900 font-semibold">MLB 심층 분석 플랫폼</p>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
+              <path d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z" fill="#f8fafc" />
+            </svg>
+          </div>
+        </section>
+        <div className="mx-auto max-w-7xl px-4 py-16 text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-500" />
+          <p className="text-slate-400 mt-4">경기 일정을 불러오는 중...</p>
+        </div>
+        <DateRedirect />
+      </div>
+    );
+  }
+
   const schedule = await fetchSchedule(dateParam);
 
   const games: ScheduleGame[] =
@@ -125,9 +153,6 @@ export default async function HomePage({
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Redirect to local date if no date param */}
-        {!params.date && <DateRedirect />}
-
         {/* Personalized Dashboard (logged-in users) */}
         <HomeClient />
 

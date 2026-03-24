@@ -828,14 +828,14 @@ export default async function GameDetailPage({
               teamColor={awayColor}
               teamName={awayTeam?.nameKo ?? "원정"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
-              opposingPitchers={homePitchers}
+              opposingPitchers={homeRosterPitchersFull}
             />
             <InteractiveLineupTable
               teamData={boxscore.teams.home}
               teamColor={homeColor}
               teamName={homeTeam?.nameKo ?? "홈"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
-              opposingPitchers={awayPitchers}
+              opposingPitchers={awayRosterPitchersFull}
             />
           </div>
         </section>
@@ -854,14 +854,14 @@ export default async function GameDetailPage({
               teamColor={awayColor}
               teamName={awayTeam?.nameKo ?? "원정"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
-              opposingBatters={homeBatters}
+              opposingBatters={homeRosterFieldersFull}
             />
             <InteractivePitchingTable
               teamData={boxscore.teams.home}
               teamColor={homeColor}
               teamName={homeTeam?.nameKo ?? "홈"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
-              opposingBatters={awayBatters}
+              opposingBatters={awayRosterFieldersFull}
             />
           </div>
         </section>
