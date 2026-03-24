@@ -334,8 +334,7 @@ async function UpcomingGames({ currentDate }: { currentDate: string }) {
     const dateStr = d.toISOString().slice(0, 10);
     const month = d.getMonth() + 1;
     const day = d.getDate();
-    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-    const label = `${month}/${day} (${weekdays[d.getDay()]})`;
+    const label = `${month}/${day}`;
 
     try {
       const schedule = await fetchSchedule(dateStr);

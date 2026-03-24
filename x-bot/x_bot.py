@@ -14,7 +14,9 @@ Usage:
 """
 
 import argparse
+import hashlib
 import io
+import json
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -409,6 +411,52 @@ def format_korean_tracker() -> str:
     return "\n".join(lines)
 
 
+# ─── Duplicate Prevention ─────────────────────────────────
+HISTORY_FILE = Path(__file__).parent / ".post_history.json"
+
+
+def _load_history() -> dict:
+    if HISTORY_FILE.exists():
+        try:
+            data = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+            # Keep only last 7 days
+            cutoff = (now_et() - timedelta(days=7)).isoformat()
+            return {k: v for k, v in data.items() if v.get("time", "") > cutoff}
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_history(history: dict):
+    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _content_hash(text: str) -> str:
+    """Hash the core content (ignore timestamps, exact stats that change)"""
+    # Strip whitespace and normalize for comparison
+    normalized = text.strip()
+    return hashlib.md5(normalized.encode("utf-8")).hexdigest()[:12]
+
+
+def is_duplicate(text: str) -> bool:
+    """Check if this post was already sent recently"""
+    history = _load_history()
+    h = _content_hash(text)
+    if h in history:
+        prev_time = history[h].get("time", "unknown")
+        print(f"  [SKIP] Duplicate post detected (previously posted at {prev_time})")
+        return True
+    return False
+
+
+def record_post(text: str):
+    """Record a posted message to history"""
+    history = _load_history()
+    h = _content_hash(text)
+    history[h] = {"time": now_et().isoformat(), "preview": text[:80]}
+    _save_history(history)
+
+
 # ─── Bluesky Post ─────────────────────────────────────────
 def send_post(text: str, dry_run: bool = False) -> bool:
     """Send post to Bluesky"""
@@ -422,6 +470,10 @@ def send_post(text: str, dry_run: bool = False) -> bool:
                 text = "\n".join(lines)
             else:
                 break
+
+    # Duplicate check (after trimming so hash is consistent)
+    if not dry_run and is_duplicate(text):
+        return False
 
     print(f"\n{'─' * 50}")
     print(f"Post ({len(text)} chars):")
@@ -473,6 +525,7 @@ def send_post(text: str, dry_run: bool = False) -> bool:
                     })
 
         post = client.send_post(text=text, facets=facets if facets else None)
+        record_post(text)
         print(f"\n✅ Posted!")
         print(f"   https://bsky.app/profile/{BLUESKY_HANDLE}/post/{post.uri.split('/')[-1]}")
         return True
