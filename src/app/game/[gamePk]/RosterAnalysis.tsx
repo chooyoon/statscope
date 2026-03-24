@@ -2,6 +2,7 @@ import { fetchPlayerStats } from "@/lib/sports/mlb/api";
 import { displayName } from "@/data/players";
 import { getTeamById } from "@/data/teams";
 import { getActiveSeason } from "@/lib/sports/mlb/season";
+import Collapsible from "@/components/ui/Collapsible";
 
 function num(val: unknown): number {
   if (typeof val === "number") return val;
@@ -204,8 +205,7 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
       {/* Batter Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {[{ name: awayName, color: awayColor, batters: ab }, { name: homeName, color: homeColor, batters: hb }].map((t) => (
-          <div key={t.name} className="rounded-xl bg-white border border-slate-200 overflow-hidden">
-            <div className="px-4 py-2.5 text-xs font-bold border-b border-slate-100" style={{ color: t.color }}>{t.name} 타선 (wOBA순)</div>
+          <Collapsible key={t.name} title={`${t.name} 타선 (wOBA순) — ${t.batters.length}명`} titleColor={t.color}>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[440px]">
                 <thead><tr className="border-b border-slate-200 text-slate-400">
@@ -232,15 +232,14 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
                 </tbody>
               </table>
             </div>
-          </div>
+          </Collapsible>
         ))}
       </div>
 
       {/* Pitcher Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {[{ name: awayName, color: awayColor, pitchers: ap }, { name: homeName, color: homeColor, pitchers: hp }].map((t) => (
-          <div key={t.name} className="rounded-xl bg-white border border-slate-200 overflow-hidden">
-            <div className="px-4 py-2.5 text-xs font-bold border-b border-slate-100" style={{ color: t.color }}>{t.name} 투수진 (FIP순)</div>
+          <Collapsible key={t.name} title={`${t.name} 투수진 (FIP순) — ${t.pitchers.length}명`} titleColor={t.color}>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[440px]">
                 <thead><tr className="border-b border-slate-200 text-slate-400">
@@ -267,7 +266,7 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
                 </tbody>
               </table>
             </div>
-          </div>
+          </Collapsible>
         ))}
       </div>
     </section>

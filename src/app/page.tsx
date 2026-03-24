@@ -8,6 +8,7 @@ import { getTeamById } from "@/data/teams";
 import { displayName } from "@/data/players";
 import TeamBadge from "@/components/ui/TeamBadge";
 import AdBanner from "@/components/ads/AdBanner";
+import LocalTime from "@/components/game/LocalTime";
 import DateNavigator from "./page.client";
 import HomeClient from "./HomeClient";
 
@@ -27,10 +28,8 @@ function todayString(): string {
 
 function getGameSortOrder(game: ScheduleGame): number {
   const state = game.status.abstractGameState;
-  const code = game.status.statusCode;
-  const finalCodes = ["F", "FT", "FR", "FO", "O"];
-  if (finalCodes.includes(code) || state === "Final") return 2;
   if (state === "Live") return 0;
+  if (state === "Final") return 2;
   return 1; // Preview
 }
 
@@ -48,24 +47,20 @@ function getGameTypeLabel(game: ScheduleGame): { label: string; className: strin
 function getGameStatusLabel(game: ScheduleGame): {
   text: string;
   className: string;
+  isTime?: boolean;
 } {
+  // abstractGameState is the single source of truth from MLB API
   const state = game.status.abstractGameState;
   const detailed = game.status.detailedState;
-  const statusCode = game.status.statusCode;
 
-  // Final states: F=Final, FT=Final:Tied, FR=Final:Resumed, FO=Final:Over
-  // Also check detailedState for "Completed", "Game Over", "Final" etc.
-  const finalCodes = ["F", "FT", "FR", "FO", "O"];
-  if (state === "Final" || finalCodes.includes(statusCode) || detailed?.startsWith("Final") || detailed === "Completed Early" || detailed === "Game Over") {
+  if (state === "Final") {
     return {
       text: detailed === "Completed Early" ? "조기종료" : "종료",
       className: "text-slate-500 bg-slate-100 ring-1 ring-slate-200",
     };
   }
 
-  // Live states: check both abstractGameState and statusCode
-  const liveCodes = ["I", "MA", "MF", "MI", "MN"];
-  if (state === "Live" || liveCodes.includes(statusCode)) {
+  if (state === "Live") {
     const inning = game.linescore?.currentInning ?? "";
     const half = game.linescore?.inningHalf === "Top" ? "초" : "말";
     return {
@@ -74,13 +69,11 @@ function getGameStatusLabel(game: ScheduleGame): {
     };
   }
 
-  // Preview / Scheduled
-  const gameDate = new Date(game.gameDate);
-  const hours = gameDate.getHours().toString().padStart(2, "0");
-  const minutes = gameDate.getMinutes().toString().padStart(2, "0");
+  // Preview / Scheduled — time will be rendered by LocalTime component
   return {
-    text: `${hours}:${minutes}`,
+    text: game.gameDate, // pass raw ISO date, LocalTime will format it
     className: "text-blue-600 bg-blue-50 ring-1 ring-blue-200",
+    isTime: true,
   };
 }
 
@@ -112,13 +105,13 @@ export default async function HomePage({
           <div className="absolute bottom-8 right-[12%] text-5xl opacity-15 select-none" aria-hidden="true">&#9918;</div>
           <div className="absolute top-1/2 right-[5%] text-3xl opacity-10 select-none hidden sm:block" aria-hidden="true">&#9918;</div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
-            <span className="text-blue-400">Stat</span><span className="text-slate-200">Scope</span>
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            <span className="text-blue-600">Stat</span><span className="text-slate-900">Scope</span>
           </h1>
-          <p className="mt-4 text-lg sm:text-xl text-slate-200 font-semibold drop-shadow-md">
+          <p className="mt-4 text-lg sm:text-xl text-slate-900 font-semibold">
             MLB 심층 분석 플랫폼
           </p>
-          <p className="mt-2 text-sm text-blue-300 drop-shadow">
+          <p className="mt-2 text-sm text-slate-600">
             경기 일정 &middot; 실시간 스코어 &middot; 선수 스탯 &middot; 팀 순위
           </p>
         </div>
@@ -152,10 +145,8 @@ export default async function HomePage({
               const awayTeam = getTeamById(game.teams.away.team.id);
               const homeTeam = getTeamById(game.teams.home.team.id);
               const status = getGameStatusLabel(game);
-              const finalCodes = ["F", "FT", "FR", "FO", "O"];
-              const isFinished =
-                game.status.abstractGameState === "Final" || finalCodes.includes(game.status.statusCode);
-              const isLive = game.status.abstractGameState === "Live" && !isFinished;
+              const isFinished = game.status.abstractGameState === "Final";
+              const isLive = game.status.abstractGameState === "Live";
               const gameTypeBadge = getGameTypeLabel(game);
 
               const teamColor = homeTeam?.colorPrimary ?? "#6366f1";
@@ -178,7 +169,11 @@ export default async function HomePage({
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${status.className}`}
                     >
-                      {status.text}
+                      {status.isTime ? (
+                        <LocalTime utcDate={status.text} />
+                      ) : (
+                        status.text
+                      )}
                     </span>
                     <div className="flex items-center gap-2">
                       {gameTypeBadge && (
