@@ -365,42 +365,172 @@ async function generatePreGameAnalysis(
     }
   }
 
-  // 3. Team Strength Comparison
+  // 3. Team Strength & Season Record (always available, doesn't need starters)
   {
     const paragraphs: string[] = [];
+
+    // Fetch team standings for season record
+    try {
+      const season = homeStarterSeason ? new Date().getFullYear() : new Date().getFullYear() - 1;
+      const standingsRes = await fetch(
+        `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=${season}&standingsTypes=regularSeason`,
+        { next: { revalidate: 3600 } }
+      );
+      if (standingsRes.ok) {
+        const standingsData = await standingsRes.json();
+        const homeTeamId = boxscore.teams.home.team.id;
+        const awayTeamId = boxscore.teams.away.team.id;
+
+        let homeRecord: any = null;
+        let awayRecord: any = null;
+        for (const rec of standingsData.records ?? []) {
+          for (const tr of rec.teamRecords ?? []) {
+            if (tr.team.id === homeTeamId) homeRecord = tr;
+            if (tr.team.id === awayTeamId) awayRecord = tr;
+          }
+        }
+
+        if (homeRecord && awayRecord) {
+          const hPct = parseFloat(homeRecord.winningPercentage);
+          const aPct = parseFloat(awayRecord.winningPercentage);
+          const hRS = num(homeRecord.runsScored);
+          const hRA = num(homeRecord.runsAllowed);
+          const aRS = num(awayRecord.runsScored);
+          const aRA = num(awayRecord.runsAllowed);
+          const hRD = hRS - hRA;
+          const aRD = aRS - aRA;
+
+          paragraphs.push(
+            `${season} 시즌 기록: ${awayName} ${awayRecord.wins}승 ${awayRecord.losses}패(승률 ${awayRecord.winningPercentage}), ${homeName} ${homeRecord.wins}승 ${homeRecord.losses}패(승률 ${homeRecord.winningPercentage}).`
+          );
+
+          if (Math.abs(hPct - aPct) >= 0.05) {
+            const better = hPct > aPct ? homeName : awayName;
+            const worse = hPct > aPct ? awayName : homeName;
+            paragraphs.push(`${better}이 시즌 성적에서 앞서 있다. 다만 ${worse}도 상대 전적에 따라 충분히 승산이 있다.`);
+          }
+
+          // Run differential analysis
+          if (hRD > 50 || aRD > 50 || hRD < -50 || aRD < -50) {
+            const hRDStr = hRD > 0 ? `+${hRD}` : `${hRD}`;
+            const aRDStr = aRD > 0 ? `+${aRD}` : `${aRD}`;
+            paragraphs.push(`득실차: ${awayName} ${aRDStr}, ${homeName} ${hRDStr}. ${
+              Math.abs(hRD) > Math.abs(aRD) && hRD > 0
+                ? `${homeName}의 득점력이 뛰어나다.`
+                : Math.abs(aRD) > Math.abs(hRD) && aRD > 0
+                ? `${awayName}의 득점력이 뛰어나다.`
+                : "양 팀 모두 균형 잡힌 전력이다."
+            }`);
+          }
+
+          // Streak info
+          const hStreak = homeRecord.streak?.streakCode ?? "";
+          const aStreak = awayRecord.streak?.streakCode ?? "";
+          if (hStreak || aStreak) {
+            const parts: string[] = [];
+            if (aStreak) parts.push(`${awayName} ${aStreak.startsWith("W") ? aStreak.replace("W","") + "연승 중" : aStreak.replace("L","") + "연패 중"}`);
+            if (hStreak) parts.push(`${homeName} ${hStreak.startsWith("W") ? hStreak.replace("W","") + "연승 중" : hStreak.replace("L","") + "연패 중"}`);
+            paragraphs.push(`최근 흐름: ${parts.join(", ")}.`);
+          }
+        }
+      }
+    } catch {}
 
     if (homeStarterSeason && awayStarterSeason) {
       const homeERA = num(homeStarterSeason.era);
       const awayERA = num(awayStarterSeason.era);
       const pitchAdvantage = homeERA < awayERA ? homeName : awayName;
-      paragraphs.push(
-        `선발 투수력 기준으로 ${pitchAdvantage}이 유리한 위치에 있다. 오늘 경기의 승패는 선발 투수의 이닝 소화력과 불펜 운용에 크게 좌우될 전망이다.`
-      );
+      paragraphs.push(`선발 투수력 기준으로 ${pitchAdvantage}이 유리하다.`);
     }
 
     if (venueName) {
       const venLower = venueName.toLowerCase();
       if (venLower.includes("coors")) {
-        paragraphs.push(
-          `경기장은 쿠어스 필드로, 해발 1,600m의 고도에서 타구가 더 멀리 날아가는 타자 친화적 구장이다. 평소보다 높은 점수가 예상된다.`
-        );
+        paragraphs.push(`쿠어스 필드(해발 1,600m)는 MLB 최고의 타자 친국 구장. 높은 득점 경기 예상.`);
       } else if (venLower.includes("yankee")) {
-        paragraphs.push(
-          `양키 스타디움의 우측 담장이 짧아 좌타자에게 유리한 환경이다.`
-        );
-      } else if (venLower.includes("great american")) {
-        paragraphs.push(
-          `그레이트 아메리칸 볼파크는 홈런이 많이 나오는 타자 친화적 구장이다.`
-        );
-      } else {
-        paragraphs.push(
-          `오늘 경기는 ${venueName}에서 진행된다.`
-        );
+        paragraphs.push(`양키 스타디움은 우측 담장이 짧아 좌타자에게 유리하다.`);
+      } else if (venLower.includes("oracle")) {
+        paragraphs.push(`오라클 파크는 투수 친화적 구장으로 알려져 있다.`);
       }
     }
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "팀 전력 비교", paragraphs });
+      sections.push({ title: "팀 시즌 성적 비교", paragraphs });
+    }
+  }
+
+  // 3.5 Bullpen Analysis (always available)
+  {
+    const paragraphs: string[] = [];
+    const season = homeStarterSeason ? new Date().getFullYear() : new Date().getFullYear() - 1;
+    const rosterYear = new Date().getFullYear();
+
+    try {
+      const [homeRosterRes, awayRosterRes] = await Promise.all([
+        fetch(`https://statsapi.mlb.com/api/v1/teams/${boxscore.teams.home.team.id}/roster?rosterType=active&season=${rosterYear}`, { next: { revalidate: 3600 } }),
+        fetch(`https://statsapi.mlb.com/api/v1/teams/${boxscore.teams.away.team.id}/roster?rosterType=active&season=${rosterYear}`, { next: { revalidate: 3600 } }),
+      ]);
+
+      const homeRoster = homeRosterRes.ok ? (await homeRosterRes.json()).roster ?? [] : [];
+      const awayRoster = awayRosterRes.ok ? (await awayRosterRes.json()).roster ?? [] : [];
+
+      const getRelievers = (roster: any[]) => roster.filter((r: any) =>
+        (r.position?.type === "Pitcher" || r.position?.code === "1") &&
+        r.position?.abbreviation !== "SP"
+      );
+
+      const homeRelievers = getRelievers(homeRoster);
+      const awayRelievers = getRelievers(awayRoster);
+
+      // Fetch a couple key relievers' stats
+      async function getRelieverSummary(relievers: any[], teamName: string): Promise<string | null> {
+        if (relievers.length === 0) return null;
+        const top3 = relievers.slice(0, 3);
+        const stats = await Promise.all(top3.map(async (r: any) => {
+          try {
+            const res = await fetch(
+              `https://statsapi.mlb.com/api/v1/people/${r.person.id}?hydrate=stats(group=[pitching],type=[season],season=${season})`,
+              { next: { revalidate: 3600 } }
+            );
+            if (!res.ok) return null;
+            const data = await res.json();
+            const stat = data.people?.[0]?.stats?.[0]?.splits?.[0]?.stat;
+            if (!stat || num(stat.inningsPitched) < 5) return null;
+            return {
+              name: displayName(r.person.id, r.person.fullName),
+              era: stat.era,
+              k: num(stat.strikeOuts),
+              sv: num(stat.saves),
+              hld: num(stat.holds),
+              ip: stat.inningsPitched,
+            };
+          } catch { return null; }
+        }));
+
+        const valid = stats.filter((s: any) => s !== null);
+        if (valid.length === 0) return null;
+
+        const parts = valid.map((s: any) => {
+          let role = "";
+          if (s.sv >= 5) role = "(마무리)";
+          else if (s.hld >= 5) role = "(셋업)";
+          return `${s.name}${role} ERA ${s.era} ${s.k}K/${s.ip}이닝`;
+        });
+
+        return `${teamName} 불펜 ${relievers.length}명 등록. 주요: ${parts.join(", ")}.`;
+      }
+
+      const [homeBullpen, awayBullpen] = await Promise.all([
+        getRelieverSummary(homeRelievers, homeName),
+        getRelieverSummary(awayRelievers, awayName),
+      ]);
+
+      if (awayBullpen) paragraphs.push(awayBullpen);
+      if (homeBullpen) paragraphs.push(homeBullpen);
+    } catch {}
+
+    if (paragraphs.length > 0) {
+      sections.push({ title: "불펜 전력 분석", paragraphs });
     }
   }
 
