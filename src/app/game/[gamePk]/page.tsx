@@ -104,12 +104,24 @@ export default async function GameDetailPage({
 
   let boxscore: BoxscoreResponse;
   let linescore: LinescoreResponse;
+  let gameState: string = "Preview"; // abstractGameState from schedule
 
   try {
     [boxscore, linescore] = await Promise.all([
       fetchGameBoxscore(pk),
       fetchGameLinescore(pk),
     ]);
+
+    // Fetch actual game status from schedule API (single source of truth)
+    const scheduleRes = await fetch(
+      `https://statsapi.mlb.com/api/v1/schedule?gamePk=${pk}&sportId=1`,
+      { next: { revalidate: 120 } }
+    );
+    if (scheduleRes.ok) {
+      const scheduleData = await scheduleRes.json();
+      const game = scheduleData.dates?.[0]?.games?.[0];
+      if (game) gameState = game.status.abstractGameState ?? "Preview";
+    }
   } catch {
     notFound();
   }
@@ -127,26 +139,21 @@ export default async function GameDetailPage({
   const homeErrors = num(linescore.teams?.home?.errors);
   const awayErrors = num(linescore.teams?.away?.errors);
 
-  const hasInnings = linescore.innings && linescore.innings.length > 0;
-  const hasRuns = (linescore.teams?.home?.runs ?? -1) >= 0 || (linescore.teams?.away?.runs ?? -1) >= 0;
-  const gameStarted = hasInnings && hasRuns;
-  // Finished: has innings with runs data but no currentInning (game ended) OR all innings complete
-  const isFinished = gameStarted && (!linescore.currentInning || (hasInnings && !linescore.inningHalf));
-  // Live: has currentInning AND inningHalf (game is in progress)
-  const isLive = gameStarted && !!linescore.currentInning && !!linescore.inningHalf && !isFinished;
+  // Use abstractGameState as single source of truth
+  const isFinished = gameState === "Final";
+  const isLive = gameState === "Live";
+  const gameStarted = isFinished || isLive;
 
   // Determine game status text
   let statusText = "예정";
   let statusClass = "text-blue-600 bg-blue-600/10";
-  if (linescore.currentInningOrdinal && linescore.inningHalf) {
+  if (isLive) {
+    const inning = linescore.currentInning ?? "";
     const half = linescore.inningHalf === "Top" ? "초" : "말";
-    statusText = `${linescore.currentInningOrdinal} ${half}`;
+    statusText = inning ? `${inning}회 ${half}` : "LIVE";
     statusClass = "text-green-600 bg-green-600/10";
   }
-  if (
-    hasInnings &&
-    !linescore.currentInningOrdinal
-  ) {
+  if (isFinished) {
     statusText = "종료";
     statusClass = "text-slate-400 bg-slate-400/10";
   }
@@ -365,7 +372,7 @@ export default async function GameDetailPage({
           </div>
 
           {/* Inning-by-Inning Linescore Table */}
-          {hasInnings && (
+          {gameStarted && linescore.innings && linescore.innings.length > 0 && (
             <div className="border-t border-slate-200 overflow-x-auto">
               <table className="w-full text-sm min-w-[500px]">
                 <thead>
@@ -473,6 +480,7 @@ export default async function GameDetailPage({
           boxscore={boxscore}
           linescore={linescore}
           gameStarted={gameStarted}
+          gameState={gameState}
           homeStarterSeason={homeStarterSeason as Record<string, unknown> | null}
           awayStarterSeason={awayStarterSeason as Record<string, unknown> | null}
           homeStarter={homeStarter ? { id: homeStarter.person.id, name: homeStarter.person.fullName } : null}

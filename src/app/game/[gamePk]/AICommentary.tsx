@@ -12,6 +12,7 @@ interface AICommentaryProps {
   boxscore: BoxscoreResponse;
   linescore: LinescoreResponse;
   gameStarted: boolean;
+  gameState: string; // "Preview" | "Live" | "Final"
   homeStarterSeason: Record<string, unknown> | null;
   awayStarterSeason: Record<string, unknown> | null;
   homeStarter: StarterInfo | null;
@@ -901,6 +902,7 @@ function generatePostGameAnalysis(
 export default async function AICommentary({
   boxscore,
   linescore,
+  gameState,
   homeStarterSeason,
   awayStarterSeason,
   homeStarter,
@@ -909,11 +911,9 @@ export default async function AICommentary({
 }: AICommentaryProps) {
   const homeName = getTeamName(boxscore, "home");
   const awayName = getTeamName(boxscore, "away");
-  const hasInnings = linescore.innings && linescore.innings.length > 0;
-  const hasRuns = (linescore.teams?.home?.runs ?? -1) >= 0 || (linescore.teams?.away?.runs ?? -1) >= 0;
-  const gameStarted = hasInnings && hasRuns;
-  const isFinished = gameStarted && (!linescore.currentInning || !linescore.inningHalf);
-  const isLive = gameStarted && !!linescore.currentInning && !!linescore.inningHalf && !isFinished;
+  // Use gameState (abstractGameState) as single source of truth
+  const isFinished = gameState === "Final";
+  const isLive = gameState === "Live";
 
   let sections: { title: string; paragraphs: string[] }[] = [];
   let headline = "";
