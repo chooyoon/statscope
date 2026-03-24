@@ -31,8 +31,8 @@ import {
 } from "./GameClient";
 import PitchingStaffClient from "./PitchingStaffClient";
 import RosterAnalysis from "./RosterAnalysis";
+import { getActiveSeason } from "@/lib/sports/mlb/season";
 
-const CURRENT_SEASON = new Date().getFullYear();
 
 function num(val: unknown): number {
   if (typeof val === "number") return val;
@@ -99,6 +99,8 @@ export default async function GameDetailPage({
   const { gamePk } = await params;
   const pk = parseInt(gamePk, 10);
   if (isNaN(pk)) notFound();
+
+  const CURRENT_SEASON = await getActiveSeason();
 
   let boxscore: BoxscoreResponse;
   let linescore: LinescoreResponse;

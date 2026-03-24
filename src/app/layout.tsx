@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
+import AdBanner from "@/components/ads/AdBanner";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
@@ -27,8 +28,14 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
         <AuthProvider>
         <Header />
+        <div className="mx-auto w-full max-w-7xl px-4 pt-4">
+          <AdBanner slot="header" />
+        </div>
         <main className="flex-1">{children}</main>
         </AuthProvider>
+        <div className="mx-auto w-full max-w-7xl px-4 pb-4">
+          <AdBanner slot="footer" />
+        </div>
         <footer className="border-t border-slate-200 bg-white py-8">
           <div className="mx-auto max-w-7xl px-4 text-center">
             <p className="text-sm font-medium text-slate-500">
