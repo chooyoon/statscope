@@ -118,10 +118,11 @@ interface Props {
 
 export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor, awayColor }: Props) {
   const season = await getActiveSeason();
+  const rosterYear = new Date().getFullYear(); // 로스터는 항상 현재 연도
 
   const [homeRoster, awayRoster] = await Promise.all([
-    fetchRoster(homeTeamId, season),
-    fetchRoster(awayTeamId, season),
+    fetchRoster(homeTeamId, rosterYear),
+    fetchRoster(awayTeamId, rosterYear),
   ]);
 
   if (homeRoster.length === 0 && awayRoster.length === 0) return null;

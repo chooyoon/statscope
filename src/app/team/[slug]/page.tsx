@@ -257,8 +257,9 @@ export default async function TeamDetailPage({
   }
 
   // Fetch roster, schedule, and news in parallel
+  const rosterYear = new Date().getFullYear(); // 로스터는 항상 현재 연도
   const [rosterData, recentGames, newsArticles] = await Promise.all([
-    fetchRoster(team.id, activeSeason),
+    fetchRoster(team.id, rosterYear),
     fetchTeamSchedule(team.id, activeSeason),
     fetchTeamNews(team.id),
   ]);

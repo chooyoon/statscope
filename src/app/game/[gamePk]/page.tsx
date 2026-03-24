@@ -284,7 +284,7 @@ export default async function GameDetailPage({
   async function fetchActiveRosterPitchers(teamId: number) {
     try {
       const res = await fetch(
-        `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&season=${CURRENT_SEASON}`,
+        `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&season=${new Date().getFullYear()}`,
         { next: { revalidate: 3600 } }
       );
       if (!res.ok) return [];
@@ -307,7 +307,7 @@ export default async function GameDetailPage({
   async function fetchActiveRosterFielders(teamId: number) {
     try {
       const res = await fetch(
-        `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&season=${CURRENT_SEASON}`,
+        `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&season=${new Date().getFullYear()}`,
         { next: { revalidate: 3600 } }
       );
       if (!res.ok) return [];
@@ -334,6 +334,16 @@ export default async function GameDetailPage({
     fetchActiveRosterFielders(boxscore.teams.away.team.id),
   ]);
   const awayPitchers = extractPlayers(boxscore.teams.away, "pitchers");
+
+  // Full roster pitcher lists for fielder matchup panels (includes bullpen)
+  const homeRosterPitchersFull = homeRosterPitchers.map(p => ({
+    id: p.id,
+    name: displayName(p.id, p.fullName),
+  }));
+  const awayRosterPitchersFull = awayRosterPitchers.map(p => ({
+    id: p.id,
+    name: displayName(p.id, p.fullName),
+  }));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -755,7 +765,7 @@ export default async function GameDetailPage({
               teamColor={awayColor}
               teamName={awayTeam?.nameKo ?? "원정"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
-              opposingPitchers={homePitchers}
+              opposingPitchers={homeRosterPitchersFull}
             />
           </Collapsible>
           <Collapsible title={`${homeTeam?.nameKo ?? "홈"} 야수진 — ${homeRosterFielders.length}명`} titleColor={homeColor}>
@@ -764,7 +774,7 @@ export default async function GameDetailPage({
               teamColor={homeColor}
               teamName={homeTeam?.nameKo ?? "홈"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
-              opposingPitchers={awayPitchers}
+              opposingPitchers={awayRosterPitchersFull}
             />
           </Collapsible>
         </div>
