@@ -14,7 +14,7 @@ import {
   type User,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { getFirebaseAuth, getFirebaseDb, googleProvider } from "@/lib/firebase";
+import { getFirebaseAuth, getFirebaseDb, googleProvider, isFirebaseConfigured } from "@/lib/firebase";
 
 export interface UserProfile {
   uid: string;
@@ -46,15 +46,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !isFirebaseConfigured) {
       setLoading(false);
       return;
     }
     const authInstance = getFirebaseAuth();
+    if (!authInstance) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(authInstance, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
         const dbInstance = getFirebaseDb();
+        if (!dbInstance) { setLoading(false); return; }
         const profileDoc = await getDoc(doc(dbInstance, "users", firebaseUser.uid));
         if (profileDoc.exists()) {
           setProfile(profileDoc.data() as UserProfile);
@@ -80,17 +85,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function signInWithGoogle() {
-    await signInWithPopup(getFirebaseAuth(), googleProvider);
+    const authInstance = getFirebaseAuth();
+    if (!authInstance) return;
+    await signInWithPopup(authInstance, googleProvider);
   }
 
   async function signOut() {
-    await firebaseSignOut(getFirebaseAuth());
+    const authInstance = getFirebaseAuth();
+    if (!authInstance) return;
+    await firebaseSignOut(authInstance);
     setProfile(null);
   }
 
   async function updateProfile(data: Partial<UserProfile>) {
     if (!user) return;
-    const ref = doc(getFirebaseDb(), "users", user.uid);
+    const dbInstance = getFirebaseDb();
+    if (!dbInstance) return;
+    const ref = doc(dbInstance, "users", user.uid);
     await setDoc(ref, data, { merge: true });
     setProfile((prev) => (prev ? { ...prev, ...data } : null));
   }

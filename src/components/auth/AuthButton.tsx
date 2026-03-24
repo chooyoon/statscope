@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { isFirebaseConfigured } from "@/lib/firebase";
 
 export default function AuthButton() {
   const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  if (!isFirebaseConfigured) return null;
 
   if (loading) {
     return (
