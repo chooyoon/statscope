@@ -335,12 +335,20 @@ export default async function GameDetailPage({
   ]);
   const awayPitchers = extractPlayers(boxscore.teams.away, "pitchers");
 
-  // Full roster pitcher lists for fielder matchup panels (includes bullpen)
+  // Full roster lists for matchup panels
   const homeRosterPitchersFull = homeRosterPitchers.map(p => ({
     id: p.id,
     name: displayName(p.id, p.fullName),
   }));
   const awayRosterPitchersFull = awayRosterPitchers.map(p => ({
+    id: p.id,
+    name: displayName(p.id, p.fullName),
+  }));
+  const homeRosterFieldersFull = homeRosterFielders.map(p => ({
+    id: p.id,
+    name: displayName(p.id, p.fullName),
+  }));
+  const awayRosterFieldersFull = awayRosterFielders.map(p => ({
     id: p.id,
     name: displayName(p.id, p.fullName),
   }));
@@ -745,7 +753,7 @@ export default async function GameDetailPage({
               teamColor={awayColor}
               teamName={awayTeam?.nameKo ?? "원정"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
-              opposingBatters={homeBatters}
+              opposingBatters={homeRosterFieldersFull}
             />
           </Collapsible>
           <Collapsible title={`${homeTeam?.nameKo ?? "홈"} 투수진 — ${homeRosterPitchers.length}명`} titleColor={homeColor}>
@@ -754,7 +762,7 @@ export default async function GameDetailPage({
               teamColor={homeColor}
               teamName={homeTeam?.nameKo ?? "홈"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
-              opposingBatters={awayBatters}
+              opposingBatters={awayRosterFieldersFull}
             />
           </Collapsible>
         </div>
