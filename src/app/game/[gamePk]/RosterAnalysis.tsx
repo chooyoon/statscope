@@ -86,7 +86,7 @@ async function fetchPitcher(id: number, name: string, pos: string, season: numbe
       fip: Math.round(fip * 100) / 100,
       kPct: bf > 0 ? Math.round((num(stat.strikeOuts) / bf) * 1000) / 10 : 0,
       bbPct: bf > 0 ? Math.round((num(stat.baseOnBalls) / bf) * 1000) / 10 : 0,
-      record: `${num(stat.wins)}승 ${num(stat.losses)}패`,
+      record: `${num(stat.wins)}W ${num(stat.losses)}L`,
     };
   } catch { return null; }
 }
@@ -94,20 +94,20 @@ async function fetchPitcher(id: number, name: string, pos: string, season: numbe
 function getInsights(batters: BatterRow[]): string[] {
   const r: string[] = [];
   const hot = batters.filter(b => b.wOBA >= 0.350);
-  if (hot.length >= 2) r.push(`wOBA .350+ ${hot.length}명 — 상위권 공격력`);
+  if (hot.length >= 2) r.push(`wOBA .350+: ${hot.length} players — elite offense`);
   const power = batters.filter(b => b.hr >= 15);
-  if (power.length >= 1) r.push(`장타력: ${power.map(b=>`${b.name} ${b.hr}HR`).join(", ")}`);
+  if (power.length >= 1) r.push(`Power: ${power.map(b=>`${b.name} ${b.hr}HR`).join(", ")}`);
   const kHeavy = batters.filter(b => b.kPct >= 28);
-  if (kHeavy.length >= 2) r.push(`삼진 취약(K%28%+) ${kHeavy.length}명`);
+  if (kHeavy.length >= 2) r.push(`High K% (28%+): ${kHeavy.length} players`);
   return r;
 }
 
 function getPInsights(pitchers: PitcherRow[]): string[] {
   const r: string[] = [];
   const elite = pitchers.filter(p => p.fip <= 3.50);
-  if (elite.length >= 1) r.push(`FIP 3.50↓: ${elite.map(p=>`${p.name} ${p.fip}`).join(", ")}`);
+  if (elite.length >= 1) r.push(`FIP 3.50 or below: ${elite.map(p=>`${p.name} ${p.fip}`).join(", ")}`);
   const kArms = pitchers.filter(p => p.kPct >= 25);
-  if (kArms.length >= 1) r.push(`탈삼진(K%25%+): ${kArms.map(p=>`${p.name} ${p.kPct}%`).join(", ")}`);
+  if (kArms.length >= 1) r.push(`Strikeout (K% 25%+): ${kArms.map(p=>`${p.name} ${p.kPct}%`).join(", ")}`);
   return r;
 }
 
@@ -118,7 +118,7 @@ interface Props {
 
 export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor, awayColor }: Props) {
   const season = await getActiveSeason();
-  const rosterYear = new Date().getFullYear(); // 로스터는 항상 현재 연도
+  const rosterYear = new Date().getFullYear(); // roster always uses current year
 
   const [homeRoster, awayRoster] = await Promise.all([
     fetchRoster(homeTeamId, rosterYear),
@@ -129,8 +129,8 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
 
   const homeTeam = getTeamById(homeTeamId);
   const awayTeam = getTeamById(awayTeamId);
-  const homeName = homeTeam?.nameKo ?? "홈";
-  const awayName = awayTeam?.nameKo ?? "원정";
+  const homeName = homeTeam?.nameKo ?? "Home";
+  const awayName = awayTeam?.nameKo ?? "Away";
 
   const isPitcherPos = (r: RosterEntry) => r.position?.type === "Pitcher" || r.position?.code === "1";
 
@@ -161,15 +161,15 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
     <section className="mb-8">
       <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
         <span className="inline-block w-1 h-6 bg-amber-500 rounded-full" />
-        로스터 세이버매트릭스 비교
+        Roster Sabermetrics Comparison
       </h2>
-      <p className="text-xs text-slate-400 mb-4 ml-3">{season} 시즌 기준{season < new Date().getFullYear() ? " (현재 시즌 미개막)" : ""}</p>
+      <p className="text-xs text-slate-400 mb-4 ml-3">{season} season{season < new Date().getFullYear() ? " (Pre-season)" : ""}</p>
 
       {/* Team Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {[
-          { name: awayName, abbr: awayTeam?.abbreviation ?? "", color: awayColor, batters: ab, pitchers: ap, side: "원정" },
-          { name: homeName, abbr: homeTeam?.abbreviation ?? "", color: homeColor, batters: hb, pitchers: hp, side: "홈" },
+          { name: awayName, abbr: awayTeam?.abbreviation ?? "", color: awayColor, batters: ab, pitchers: ap, side: "Away" },
+          { name: homeName, abbr: homeTeam?.abbreviation ?? "", color: homeColor, batters: hb, pitchers: hp, side: "Home" },
         ].map((t) => (
           <div key={t.side} className="rounded-xl bg-white border border-slate-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-3" style={{ borderLeftWidth: "4px", borderLeftColor: t.color }}>
@@ -179,10 +179,10 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
               <h3 className="text-sm font-bold" style={{ color: t.color }}>{t.name} ({t.side})</h3>
             </div>
             <div className="px-4 py-3 grid grid-cols-4 gap-2 border-b border-slate-100">
-              <Mini label="평균 wOBA" value={avg(t.batters.map(b => b.wOBA))} />
-              <Mini label="평균 OPS" value={avg(t.batters.map(b => parseFloat(b.ops)))} />
-              <Mini label="투수 FIP" value={avgF(t.pitchers.map(p => p.fip))} />
-              <Mini label="투수 K%" value={`${avgF(t.pitchers.map(p => p.kPct))}%`} />
+              <Mini label="Avg wOBA" value={avg(t.batters.map(b => b.wOBA))} />
+              <Mini label="Avg OPS" value={avg(t.batters.map(b => parseFloat(b.ops)))} />
+              <Mini label="Pitching FIP" value={avgF(t.pitchers.map(p => p.fip))} />
+              <Mini label="Pitching K%" value={`${avgF(t.pitchers.map(p => p.kPct))}%`} />
             </div>
             <div className="px-4 py-3 space-y-1.5">
               {getInsights(t.batters).map((s, i) => (
@@ -196,7 +196,7 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
                 </p>
               ))}
               {getInsights(t.batters).length === 0 && getPInsights(t.pitchers).length === 0 && (
-                <p className="text-xs text-slate-400">분석 데이터 수집 중</p>
+                <p className="text-xs text-slate-400">Collecting data...</p>
               )}
             </div>
           </div>
@@ -206,12 +206,12 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
       {/* Batter Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {[{ name: awayName, color: awayColor, batters: ab }, { name: homeName, color: homeColor, batters: hb }].map((t) => (
-          <Collapsible key={t.name} title={`${t.name} 타선 (wOBA순) — ${t.batters.length}명`} titleColor={t.color}>
+          <Collapsible key={t.name} title={`${t.name} Batting (by wOBA) — ${t.batters.length} players`} titleColor={t.color}>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[440px]">
                 <thead><tr className="border-b border-slate-200 text-slate-400">
-                  <th className="px-3 py-2 text-left">선수</th>
-                  <th className="px-2 py-2 text-center">타율</th>
+                  <th className="px-3 py-2 text-left">Player</th>
+                  <th className="px-2 py-2 text-center">AVG</th>
                   <th className="px-2 py-2 text-center">OPS</th>
                   <th className="px-2 py-2 text-center font-bold text-slate-500">wOBA</th>
                   <th className="px-2 py-2 text-center">HR</th>
@@ -240,17 +240,17 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
       {/* Pitcher Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {[{ name: awayName, color: awayColor, pitchers: ap }, { name: homeName, color: homeColor, pitchers: hp }].map((t) => (
-          <Collapsible key={t.name} title={`${t.name} 투수진 (FIP순) — ${t.pitchers.length}명`} titleColor={t.color}>
+          <Collapsible key={t.name} title={`${t.name} Pitching (by FIP) — ${t.pitchers.length} players`} titleColor={t.color}>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[440px]">
                 <thead><tr className="border-b border-slate-200 text-slate-400">
-                  <th className="px-3 py-2 text-left">투수</th>
+                  <th className="px-3 py-2 text-left">Pitcher</th>
                   <th className="px-2 py-2 text-center">ERA</th>
                   <th className="px-2 py-2 text-center font-bold text-slate-500">FIP</th>
                   <th className="px-2 py-2 text-center">WHIP</th>
                   <th className="px-2 py-2 text-center">K%</th>
                   <th className="px-2 py-2 text-center">BB%</th>
-                  <th className="px-2 py-2 text-center">성적</th>
+                  <th className="px-2 py-2 text-center">Record</th>
                 </tr></thead>
                 <tbody>
                   {t.pitchers.map((p) => (

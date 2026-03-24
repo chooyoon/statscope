@@ -40,9 +40,9 @@ export default function Dashboard() {
           )}
           <div>
             <p className="text-sm font-bold text-slate-800">
-              {user.displayName ?? "사용자"}님의 대시보드
+              {user.displayName ?? "User"}'s Dashboard
             </p>
-            <p className="text-xs text-slate-400">관심 팀과 선수를 설정하세요</p>
+            <p className="text-xs text-slate-400">Set your favorite teams and players</p>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function Dashboard() {
         {!hasAny ? (
           <div className="text-center py-6">
             <p className="text-sm text-slate-500 mb-4">
-              아직 관심 팀이나 선수가 없습니다. 아래에서 추가해보세요!
+              No favorite teams or players yet. Add some below!
             </p>
           </div>
         ) : (
@@ -59,7 +59,7 @@ export default function Dashboard() {
             {/* Favorite Teams */}
             {favoriteTeamData.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-slate-400 mb-2">관심 팀</p>
+                <p className="text-xs font-semibold text-slate-400 mb-2">Favorite Teams</p>
                 <div className="flex flex-wrap gap-2">
                   {favoriteTeamData.map((t) => (
                     <Link
@@ -88,7 +88,7 @@ export default function Dashboard() {
                           toggleFavoriteTeam(t.id);
                         }}
                         className="ml-1 text-slate-400 hover:text-red-500 transition-colors"
-                        title="관심 팀 해제"
+                        title="Remove from favorites"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -103,7 +103,7 @@ export default function Dashboard() {
             {/* Favorite Players */}
             {favoritePlayerData.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-slate-400 mb-2">관심 선수</p>
+                <p className="text-xs font-semibold text-slate-400 mb-2">Favorite Players</p>
                 <div className="flex flex-wrap gap-2">
                   {favoritePlayerData.map((p) => (
                     <Link
@@ -120,7 +120,7 @@ export default function Dashboard() {
                           toggleFavoritePlayer(p.id);
                         }}
                         className="ml-1 text-slate-400 hover:text-red-500 transition-colors"
-                        title="관심 선수 해제"
+                        title="Remove from favorites"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -136,7 +136,7 @@ export default function Dashboard() {
 
         {/* Quick add teams */}
         <div className="mt-4 pt-4 border-t border-slate-100">
-          <p className="text-xs font-semibold text-slate-400 mb-2">빠른 팀 추가</p>
+          <p className="text-xs font-semibold text-slate-400 mb-2">Quick Add Teams</p>
           <div className="flex flex-wrap gap-1.5">
             {Object.values(allTeams)
               .sort((a, b) => a.nameKo.localeCompare(b.nameKo))

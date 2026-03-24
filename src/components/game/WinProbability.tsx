@@ -9,9 +9,9 @@ interface WinProbabilityProps {
 }
 
 const confidenceLabel = {
-  high: "신뢰도 높음",
-  medium: "신뢰도 보통",
-  low: "신뢰도 낮음",
+  high: "High confidence",
+  medium: "Medium confidence",
+  low: "Low confidence",
 };
 
 const confidenceStyle = {
@@ -34,7 +34,7 @@ export default function WinProbability({
       <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
         <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
           <span className="inline-block w-1 h-5 bg-indigo-500 rounded-full" />
-          StatScope 승률 예측
+          StatScope Win Probability
         </h3>
         <span
           className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${confidenceStyle[confidence]}`}
@@ -101,7 +101,7 @@ export default function WinProbability({
         </div>
 
         <p className="mt-3 text-[10px] text-slate-400 text-center">
-          선발 투수 성적, 팀 최근 폼, 홈 어드밴티지 기반 자체 분석
+          Based on starter stats, team form, and home advantage
         </p>
       </div>
     </div>

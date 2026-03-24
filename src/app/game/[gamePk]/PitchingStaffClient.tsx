@@ -40,10 +40,10 @@ export default function PitchingStaffClient({
           className="px-4 py-2.5 text-sm font-bold"
           style={{ color: teamColor, backgroundColor: `${teamColor}10` }}
         >
-          {teamName} ({abbreviation}) 투수진
+          {teamName} ({abbreviation}) Pitching Staff
         </div>
         <div className="p-4">
-          <p className="text-xs text-slate-600">투수 정보가 없습니다.</p>
+          <p className="text-xs text-slate-600">No pitching information available.</p>
         </div>
       </div>
     );
@@ -58,9 +58,9 @@ export default function PitchingStaffClient({
         className="px-4 py-2.5 text-sm font-bold flex items-center justify-between"
         style={{ color: teamColor, backgroundColor: `${teamColor}10` }}
       >
-        <span>{teamName} ({abbreviation}) 액티브 로스터 투수진</span>
+        <span>{teamName} ({abbreviation}) Active Roster Pitching Staff</span>
         <span className="text-[10px] font-normal text-slate-500">
-          {rosterPitchers.length}명
+          {rosterPitchers.length} players
         </span>
       </div>
 

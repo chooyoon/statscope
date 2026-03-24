@@ -221,11 +221,11 @@ function timeAgo(dateStr: string): string {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffMin < 1) return "방금 전";
-  if (diffMin < 60) return `${diffMin}분 전`;
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  if (diffDay < 30) return `${diffDay}일 전`;
-  return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHour < 24) return `${diffHour}h ago`;
+  if (diffDay < 30) return `${diffDay}d ago`;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export default function NewsClient({ articles }: { articles: NewsArticle[] }) {
@@ -267,7 +267,7 @@ export default function NewsClient({ articles }: { articles: NewsArticle[] }) {
             <path d="M2 12h20" />
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
-          {koreanMode ? "영어 원문" : "한국어 번역"}
+          {koreanMode ? "Original (EN)" : "Korean (KR)"}
         </button>
       </div>
 
@@ -318,7 +318,7 @@ export default function NewsClient({ articles }: { articles: NewsArticle[] }) {
                   {koreanMode && tags.length === 0 && (
                     <div className="mb-2">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-50 text-slate-500 border border-slate-200">
-                        MLB 소식
+                        MLB News
                       </span>
                     </div>
                   )}
@@ -342,10 +342,10 @@ export default function NewsClient({ articles }: { articles: NewsArticle[] }) {
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-12 text-center">
           <p className="text-slate-500 text-lg mb-2">
-            뉴스를 불러올 수 없습니다.
+            Unable to load news.
           </p>
           <p className="text-slate-400 text-sm">
-            잠시 후 다시 시도해 주세요.
+            Please try again later.
           </p>
         </div>
       )}

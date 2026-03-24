@@ -57,7 +57,7 @@ export function InteractiveLineupTable({
   if (!order || order.length === 0) {
     return (
       <div className="rounded-xl bg-white border border-slate-200 p-5">
-        <p className="text-sm text-slate-500">라인업 정보가 없습니다.</p>
+        <p className="text-sm text-slate-500">No lineup information available.</p>
       </div>
     );
   }
@@ -80,22 +80,22 @@ export function InteractiveLineupTable({
               #
             </th>
             <th className="px-3 py-2 text-left text-xs text-slate-500">
-              선수
+              Player
             </th>
             <th className="px-3 py-2 text-center text-xs text-slate-500 w-10">
-              포지션
+              Pos
             </th>
             <th className="px-3 py-2 text-center text-xs text-slate-500 w-14">
-              타수
+              AB
             </th>
             <th className="px-3 py-2 text-center text-xs text-slate-500 w-14">
-              안타
+              H
             </th>
             <th className="px-3 py-2 text-center text-xs text-slate-500 w-14">
               HR
             </th>
             <th className="px-3 py-2 text-center text-xs text-slate-500 w-14">
-              타점
+              RBI
             </th>
           </tr>
         </thead>
@@ -205,7 +205,7 @@ export function InteractivePitchingTable({
   if (!pitcherIds || pitcherIds.length === 0) {
     return (
       <div className="rounded-xl bg-white border border-slate-200 p-5">
-        <p className="text-sm text-slate-500">투수 기록이 없습니다.</p>
+        <p className="text-sm text-slate-500">No pitching records available.</p>
       </div>
     );
   }
@@ -226,13 +226,13 @@ export function InteractivePitchingTable({
           <thead>
             <tr className="border-b border-slate-200">
               <th className="px-3 py-2 text-left text-xs text-slate-500">
-                투수
+                Pitcher
               </th>
               <th className="px-3 py-2 text-center text-xs text-slate-500 w-12">
                 IP
               </th>
               <th className="px-3 py-2 text-center text-xs text-slate-500 w-12">
-                투구
+                Pitches
               </th>
               <th className="px-3 py-2 text-center text-xs text-slate-500 w-10">
                 H
@@ -253,7 +253,7 @@ export function InteractivePitchingTable({
                 HR
               </th>
               <th className="px-3 py-2 text-center text-xs text-slate-500 w-16">
-                결과
+                Result
               </th>
             </tr>
           </thead>
@@ -277,11 +277,11 @@ export function InteractivePitchingTable({
 
               let outcome = "";
               if (hasPitchingStats) {
-                if (p.wins && num(p.wins) > 0) outcome = "승";
-                else if (p.losses && num(p.losses) > 0) outcome = "패";
-                else if (p.saves && num(p.saves) > 0) outcome = "세이브";
-                else if (p.holds && num(p.holds) > 0) outcome = "홀드";
-                else if (p.blownSaves && num(p.blownSaves) > 0) outcome = "블론";
+                if (p.wins && num(p.wins) > 0) outcome = "W";
+                else if (p.losses && num(p.losses) > 0) outcome = "L";
+                else if (p.saves && num(p.saves) > 0) outcome = "SV";
+                else if (p.holds && num(p.holds) > 0) outcome = "HLD";
+                else if (p.blownSaves && num(p.blownSaves) > 0) outcome = "BS";
               }
 
               const ipFloat = hasPitchingStats ? parseIP(p.inningsPitched ?? 0) : 0;
@@ -295,11 +295,11 @@ export function InteractivePitchingTable({
               else if (isBad) rowClass += " bg-red-500/5";
 
               let outcomeClass = "text-slate-500";
-              if (outcome === "승" || outcome === "세이브")
+              if (outcome === "W" || outcome === "SV")
                 outcomeClass = "text-green-600 font-bold";
-              else if (outcome === "패" || outcome === "블론")
+              else if (outcome === "L" || outcome === "BS")
                 outcomeClass = "text-red-600 font-bold";
-              else if (outcome === "홀드") outcomeClass = "text-blue-600";
+              else if (outcome === "HLD") outcomeClass = "text-blue-600";
 
               const nameText = displayName(
                 player.person.id,
@@ -386,7 +386,7 @@ export function InteractivePitchingTable({
         return (
           <div className="border-t border-slate-200 px-4 py-3">
             <p className="text-xs font-semibold text-slate-500 mb-2">
-              벤치 투수 (미등판)
+              Bench Pitchers (Did Not Pitch)
             </p>
             <div className="flex flex-wrap gap-2">
               {benchPitchers.map((player) => {

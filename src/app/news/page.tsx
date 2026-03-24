@@ -3,9 +3,9 @@ import { teams } from "@/data/teams";
 import NewsClient from "./NewsClient";
 
 export const metadata: Metadata = {
-  title: "MLB 소식 | StatScope",
+  title: "MLB News | StatScope",
   description:
-    "MLB 최신 뉴스와 팀별 소식을 한눈에 확인하세요. 모든 30개 팀의 뉴스를 실시간으로 제공합니다.",
+    "Latest MLB news and team updates. Real-time news for all 30 teams.",
 };
 
 // --- RSS slug mapping (mirrors team page) ---
@@ -155,12 +155,12 @@ export default async function NewsPage({
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-slate-900 mb-2">
-            MLB 소식
+            MLB News
           </h1>
           <p className="text-slate-500">
             {activeTeam
-              ? `${activeTeam.nameKo} 최신 뉴스`
-              : "메이저리그 최신 뉴스와 팀별 소식"}
+              ? `${activeTeam.name} Latest News`
+              : "Latest MLB news and team updates"}
           </p>
         </div>
 
@@ -176,7 +176,7 @@ export default async function NewsPage({
                   : "bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600 shadow-sm"
               }`}
             >
-              전체
+              All
             </a>
             {teamList.map((t) => {
               const tRssSlug = TEAM_RSS_SLUGS[t.id];

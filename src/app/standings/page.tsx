@@ -7,18 +7,18 @@ import TeamBadge from "@/components/ui/TeamBadge";
 const CURRENT_YEAR = new Date().getFullYear();
 
 export const metadata: Metadata = {
-  title: "MLB 팀 순위 | StatScope",
-  description: `MLB 팀 순위. 아메리칸리그, 내셔널리그 디비전별 순위를 확인하세요.`,
+  title: "MLB Standings | StatScope",
+  description: `MLB Standings. Check division standings for the American League and National League.`,
 };
 
-// Division ID -> Korean name mapping (MLB API returns ID, not name)
+// Division ID -> name mapping (MLB API returns ID, not name)
 const DIVISION_KO: Record<number, string> = {
-  201: "AL 동부",
-  202: "AL 중부",
-  200: "AL 서부",
-  204: "NL 동부",
-  205: "NL 중부",
-  203: "NL 서부",
+  201: "AL East",
+  202: "AL Central",
+  200: "AL West",
+  204: "NL East",
+  205: "NL Central",
+  203: "NL West",
 };
 
 const DIVISION_ORDER = [201, 202, 200, 204, 205, 203];
@@ -53,10 +53,10 @@ export default async function StandingsPage() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">
-          팀 순위
+          MLB Standings
         </h1>
         <p className="mt-2 text-sm text-slate-500">
-          {season} 시즌 {season < CURRENT_YEAR ? "(지난 시즌)" : ""} 정규시즌 순위
+          {season} {season < CURRENT_YEAR ? "(Previous Season) " : ""}Regular Season Standings
         </p>
       </div>
 
@@ -85,10 +85,10 @@ export default async function StandingsPage() {
 
               {/* Header */}
               <div className="grid grid-cols-[1fr_48px_48px_64px_56px] items-center gap-2 border-b border-slate-100 px-5 py-2.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                <span>팀</span>
-                <span className="text-center">승</span>
-                <span className="text-center">패</span>
-                <span className="text-center">승률</span>
+                <span>Team</span>
+                <span className="text-center">W</span>
+                <span className="text-center">L</span>
+                <span className="text-center">PCT</span>
                 <span className="text-center">GB</span>
               </div>
 

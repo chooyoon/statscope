@@ -1,8 +1,8 @@
 /**
- * 선수 폼 지수 (Hot/Cold Index)
+ * Player Form Index (Hot/Cold Index)
  *
- * 최근 경기 성적 기반으로 선수의 현재 컨디션을 점수화.
- * 100 = 리그 평균, 150+ = 극호조, 50- = 극부진
+ * Scores a player's current form based on recent game stats.
+ * 100 = league average, 150+ = on fire, 50- = ice cold
  */
 
 interface GameLogStat {
@@ -36,7 +36,7 @@ export function calcHittingForm(stat: GameLogStat): FormIndex {
   const ab = stat.atBats ?? 0;
 
   if (ab < 5) {
-    return { score: 100, trend: "neutral", label: "데이터 부족", color: "#94a3b8" };
+    return { score: 100, trend: "neutral", label: "Not enough data", color: "#94a3b8" };
   }
 
   // OPS-based scoring (league avg OPS ~.720)
@@ -60,7 +60,7 @@ export function calcPitchingForm(stat: GameLogStat): FormIndex {
   const ip = parseFloat(stat.inningsPitched ?? "0") || 0;
 
   if (ip < 3) {
-    return { score: 100, trend: "neutral", label: "데이터 부족", color: "#94a3b8" };
+    return { score: 100, trend: "neutral", label: "Not enough data", color: "#94a3b8" };
   }
 
   // ERA-based scoring (league avg ERA ~4.00, inverted)
@@ -77,9 +77,9 @@ export function calcPitchingForm(stat: GameLogStat): FormIndex {
 }
 
 function getFormMeta(score: number): { trend: FormIndex["trend"]; label: string; color: string } {
-  if (score >= 140) return { trend: "hot", label: "극호조", color: "#dc2626" };
-  if (score >= 115) return { trend: "warm", label: "호조", color: "#f97316" };
-  if (score >= 85) return { trend: "neutral", label: "보통", color: "#6b7280" };
-  if (score >= 60) return { trend: "cold", label: "부진", color: "#3b82f6" };
-  return { trend: "freezing", label: "극부진", color: "#1e40af" };
+  if (score >= 140) return { trend: "hot", label: "On Fire", color: "#dc2626" };
+  if (score >= 115) return { trend: "warm", label: "Hot", color: "#f97316" };
+  if (score >= 85) return { trend: "neutral", label: "Average", color: "#6b7280" };
+  if (score >= 60) return { trend: "cold", label: "Cold", color: "#3b82f6" };
+  return { trend: "freezing", label: "Ice Cold", color: "#1e40af" };
 }

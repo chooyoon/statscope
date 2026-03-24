@@ -73,21 +73,21 @@ export async function generateMetadata({
   const { gamePk } = await params;
   const pk = parseInt(gamePk, 10);
   if (isNaN(pk)) {
-    return { title: "경기를 찾을 수 없습니다 | StatScope" };
+    return { title: "Game not found | StatScope" };
   }
 
   try {
     const boxscore = await fetchGameBoxscore(pk);
     const homeTeam = getTeamById(boxscore.teams.home.team.id);
     const awayTeam = getTeamById(boxscore.teams.away.team.id);
-    const homeName = homeTeam?.nameKo ?? boxscore.teams.home.team.name;
-    const awayName = awayTeam?.nameKo ?? boxscore.teams.away.team.name;
+    const homeName = homeTeam?.name ?? boxscore.teams.home.team.name;
+    const awayName = awayTeam?.name ?? boxscore.teams.away.team.name;
     return {
-      title: `${awayName} vs ${homeName} - 경기 분석 | StatScope`,
-      description: `${awayName} vs ${homeName} 경기의 심층 분석, 라인스코어, 투수 비교, 타선 분석을 StatScope에서 확인하세요.`,
+      title: `${awayName} vs ${homeName} - Game Analysis | StatScope`,
+      description: `In-depth analysis of ${awayName} vs ${homeName}: linescore, pitcher comparison, and lineup breakdown on StatScope.`,
     };
   } catch {
-    return { title: "경기 분석 | StatScope" };
+    return { title: "Game Analysis | StatScope" };
   }
 }
 
@@ -164,16 +164,16 @@ export default async function GameDetailPage({
   const gameStarted = isFinished || isLive;
 
   // Determine game status text
-  let statusText = "예정";
+  let statusText = "Scheduled";
   let statusClass = "text-blue-600 bg-blue-600/10";
   if (isLive) {
     const inning = linescore.currentInning ?? "";
-    const half = linescore.inningHalf === "Top" ? "초" : "말";
-    statusText = inning ? `${inning}회 ${half}` : "LIVE";
+    const half = linescore.inningHalf === "Top" ? "T" : "B";
+    statusText = inning ? `${half}${inning}` : "LIVE";
     statusClass = "text-green-600 bg-green-600/10";
   }
   if (isFinished) {
-    statusText = "종료";
+    statusText = "Final";
     statusClass = "text-slate-400 bg-slate-400/10";
   }
 
@@ -414,7 +414,7 @@ export default async function GameDetailPage({
                   {awayRuns}
                 </span>
               )}
-              <span className="text-xs text-slate-500">원정</span>
+              <span className="text-xs text-slate-500">Away</span>
             </div>
 
             <div className="flex flex-col items-center gap-1">
@@ -439,7 +439,7 @@ export default async function GameDetailPage({
                   {homeRuns}
                 </span>
               )}
-              <span className="text-xs text-slate-500">홈</span>
+              <span className="text-xs text-slate-500">Home</span>
             </div>
           </div>
 
@@ -450,7 +450,7 @@ export default async function GameDetailPage({
                 <thead>
                   <tr className="border-b border-slate-200">
                     <th className="px-3 py-2 text-left text-xs font-semibold text-slate-500 w-24">
-                      팀
+                      Team
                     </th>
                     {linescore.innings.map((inn) => (
                       <th
@@ -538,8 +538,8 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <WinProbability
             prediction={prediction}
-            homeTeamName={homeTeam?.nameKo ?? "홈"}
-            awayTeamName={awayTeam?.nameKo ?? "원정"}
+            homeTeamName={homeTeam?.name ?? "Home"}
+            awayTeamName={awayTeam?.name ?? "Away"}
             homeColor={homeColor}
             awayColor={awayColor}
           />
@@ -566,44 +566,44 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-            팀 스탯 비교
+            Team Stats Comparison
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Batting comparison */}
             <div className="rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                타격
+                Batting
               </h3>
               <TeamStatRow
-                label="안타"
+                label="Hits"
                 away={num(boxscore.teams.away.teamStats?.batting?.hits)}
                 home={num(boxscore.teams.home.teamStats?.batting?.hits)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="득점"
+                label="Runs"
                 away={num(boxscore.teams.away.teamStats?.batting?.runs)}
                 home={num(boxscore.teams.home.teamStats?.batting?.runs)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="홈런"
+                label="Home Runs"
                 away={num(boxscore.teams.away.teamStats?.batting?.homeRuns)}
                 home={num(boxscore.teams.home.teamStats?.batting?.homeRuns)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="볼넷"
+                label="Walks"
                 away={num(boxscore.teams.away.teamStats?.batting?.baseOnBalls)}
                 home={num(boxscore.teams.home.teamStats?.batting?.baseOnBalls)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="삼진"
+                label="Strikeouts"
                 away={num(boxscore.teams.away.teamStats?.batting?.strikeOuts)}
                 home={num(boxscore.teams.home.teamStats?.batting?.strikeOuts)}
                 awayColor={awayColor}
@@ -615,17 +615,17 @@ export default async function GameDetailPage({
             {/* Pitching comparison */}
             <div className="rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                투구
+                Pitching
               </h3>
               <TeamStatRow
-                label="탈삼진"
+                label="Strikeouts"
                 away={num(boxscore.teams.away.teamStats?.pitching?.strikeOuts)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.strikeOuts)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="피안타"
+                label="Hits Allowed"
                 away={num(boxscore.teams.away.teamStats?.pitching?.hits)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.hits)}
                 awayColor={awayColor}
@@ -633,7 +633,7 @@ export default async function GameDetailPage({
                 lowerIsBetter
               />
               <TeamStatRow
-                label="볼넷허용"
+                label="Walks Allowed"
                 away={num(boxscore.teams.away.teamStats?.pitching?.baseOnBalls)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.baseOnBalls)}
                 awayColor={awayColor}
@@ -641,7 +641,7 @@ export default async function GameDetailPage({
                 lowerIsBetter
               />
               <TeamStatRow
-                label="자책점"
+                label="Earned Runs"
                 away={num(boxscore.teams.away.teamStats?.pitching?.earnedRuns)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.earnedRuns)}
                 awayColor={awayColor}
@@ -649,7 +649,7 @@ export default async function GameDetailPage({
                 lowerIsBetter
               />
               <TeamStatRow
-                label="피홈런"
+                label="HR Allowed"
                 away={num(boxscore.teams.away.teamStats?.pitching?.homeRuns)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.homeRuns)}
                 awayColor={awayColor}
@@ -666,7 +666,7 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-purple-500 rounded-full" />
-            선발 투수 분석
+            Starting Pitcher Analysis
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Away starter */}
@@ -676,8 +676,8 @@ export default async function GameDetailPage({
                 seasonStats={awayStarterSeason}
                 advanced={awayAdv}
                 teamColor={awayColor}
-                teamName={awayTeam?.nameKo ?? "원정"}
-                side="원정"
+                teamName={awayTeam?.name ?? "Away"}
+                side="Away"
                 showGameStats={gameStarted}
               />
             )}
@@ -688,8 +688,8 @@ export default async function GameDetailPage({
                 seasonStats={homeStarterSeason}
                 advanced={homeAdv}
                 teamColor={homeColor}
-                teamName={homeTeam?.nameKo ?? "홈"}
-                side="홈"
+                teamName={homeTeam?.name ?? "Home"}
+                side="Home"
                 showGameStats={gameStarted}
               />
             )}
@@ -699,7 +699,7 @@ export default async function GameDetailPage({
           {(awayAdv || homeAdv) && (
             <div className="mt-4 rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                시즌 성적 비교 (선발 투수)
+                Season Stats Comparison (Starting Pitchers)
               </h3>
               <div className="space-y-4">
                 <ComparisonBar
@@ -771,43 +771,43 @@ export default async function GameDetailPage({
       <section className="mb-8">
         <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
           <span className="inline-block w-1 h-6 bg-indigo-500 rounded-full" />
-          로스터 구성
+          Roster Composition
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <Collapsible title={`${awayTeam?.nameKo ?? "원정"} 투수진 — ${awayRosterPitchers.length}명`} titleColor={awayColor}>
+          <Collapsible title={`${awayTeam?.name ?? "Away"} Pitching Staff — ${awayRosterPitchers.length}`} titleColor={awayColor}>
             <PitchingStaffClient
               rosterPitchers={awayRosterPitchers}
               teamColor={awayColor}
-              teamName={awayTeam?.nameKo ?? "원정"}
+              teamName={awayTeam?.name ?? "Away"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
               opposingBatters={homeRosterFieldersFull}
             />
           </Collapsible>
-          <Collapsible title={`${homeTeam?.nameKo ?? "홈"} 투수진 — ${homeRosterPitchers.length}명`} titleColor={homeColor}>
+          <Collapsible title={`${homeTeam?.name ?? "Home"} Pitching Staff — ${homeRosterPitchers.length}`} titleColor={homeColor}>
             <PitchingStaffClient
               rosterPitchers={homeRosterPitchers}
               teamColor={homeColor}
-              teamName={homeTeam?.nameKo ?? "홈"}
+              teamName={homeTeam?.name ?? "Home"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
               opposingBatters={awayRosterFieldersFull}
             />
           </Collapsible>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Collapsible title={`${awayTeam?.nameKo ?? "원정"} 야수진 — ${awayRosterFielders.length}명`} titleColor={awayColor}>
+          <Collapsible title={`${awayTeam?.name ?? "Away"} Position Players — ${awayRosterFielders.length}`} titleColor={awayColor}>
             <FielderStaffClient
               rosterFielders={awayRosterFielders}
               teamColor={awayColor}
-              teamName={awayTeam?.nameKo ?? "원정"}
+              teamName={awayTeam?.name ?? "Away"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
               opposingPitchers={homeRosterPitchersFull}
             />
           </Collapsible>
-          <Collapsible title={`${homeTeam?.nameKo ?? "홈"} 야수진 — ${homeRosterFielders.length}명`} titleColor={homeColor}>
+          <Collapsible title={`${homeTeam?.name ?? "Home"} Position Players — ${homeRosterFielders.length}`} titleColor={homeColor}>
             <FielderStaffClient
               rosterFielders={homeRosterFielders}
               teamColor={homeColor}
-              teamName={homeTeam?.nameKo ?? "홈"}
+              teamName={homeTeam?.name ?? "Home"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
               opposingPitchers={awayRosterPitchersFull}
             />
@@ -820,20 +820,20 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-green-500 rounded-full" />
-            타선
+            Batting Lineup
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <InteractiveLineupTable
               teamData={boxscore.teams.away}
               teamColor={awayColor}
-              teamName={awayTeam?.nameKo ?? "원정"}
+              teamName={awayTeam?.name ?? "Away"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
               opposingPitchers={homeRosterPitchersFull}
             />
             <InteractiveLineupTable
               teamData={boxscore.teams.home}
               teamColor={homeColor}
-              teamName={homeTeam?.nameKo ?? "홈"}
+              teamName={homeTeam?.name ?? "Home"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
               opposingPitchers={awayRosterPitchersFull}
             />
@@ -846,20 +846,20 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-red-500 rounded-full" />
-            투수 기록
+            Pitching Results
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <InteractivePitchingTable
               teamData={boxscore.teams.away}
               teamColor={awayColor}
-              teamName={awayTeam?.nameKo ?? "원정"}
+              teamName={awayTeam?.name ?? "Away"}
               abbreviation={awayTeam?.abbreviation ?? "AWAY"}
               opposingBatters={homeRosterFieldersFull}
             />
             <InteractivePitchingTable
               teamData={boxscore.teams.home}
               teamColor={homeColor}
-              teamName={homeTeam?.nameKo ?? "홈"}
+              teamName={homeTeam?.name ?? "Home"}
               abbreviation={homeTeam?.abbreviation ?? "HOME"}
               opposingBatters={awayRosterFieldersFull}
             />
@@ -886,7 +886,7 @@ export default async function GameDetailPage({
           className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-900 transition-colors"
         >
           <span>&larr;</span>
-          전체 경기 목록으로
+          Back to all games
         </Link>
       </div>
     </div>
@@ -1065,7 +1065,7 @@ function PitcherCard({
             {name}
           </Link>
           <p className="text-xs text-slate-500">
-            {teamName} {side} 선발
+            {teamName} {side} Starter
           </p>
         </div>
       </div>
@@ -1073,35 +1073,35 @@ function PitcherCard({
       {/* This game stats — only show when game has actually started */}
       {showGameStats && gamePitching && (gameK > 0 || gameER > 0 || num(gamePitching.inningsPitched) > 0) && (
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
-          <MiniStat label="이닝" value={gameIP} />
-          <MiniStat label="삼진" value={gameK} />
-          <MiniStat label="자책" value={gameER} />
-          <MiniStat label="피안타" value={gameH} />
-          <MiniStat label="볼넷" value={gameBB} />
-          <MiniStat label="투구수" value={gamePitchCount} />
+          <MiniStat label="IP" value={gameIP} />
+          <MiniStat label="K" value={gameK} />
+          <MiniStat label="ER" value={gameER} />
+          <MiniStat label="H" value={gameH} />
+          <MiniStat label="BB" value={gameBB} />
+          <MiniStat label="Pitches" value={gamePitchCount} />
         </div>
       )}
 
       {/* Season record summary — always show */}
       {seasonStats && (
         <div className="grid grid-cols-4 gap-2 mb-4 border border-slate-100 rounded-lg p-2">
-          <MiniStat label="시즌 성적" value={`${seasonW}승 ${seasonL}패`} />
-          <MiniStat label="시즌 이닝" value={seasonIP} />
-          <MiniStat label="시즌 삼진" value={seasonK} />
+          <MiniStat label="W-L" value={`${seasonW}-${seasonL}`} />
+          <MiniStat label="Season IP" value={seasonIP} />
+          <MiniStat label="Season K" value={seasonK} />
           <MiniStat label="ERA" value={advanced?.era.toFixed(2) ?? "-"} />
         </div>
       )}
 
       {!seasonStats && (
         <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 mb-4 text-center">
-          <p className="text-xs text-slate-400">시즌 기록 없음 (신인 또는 데이터 미제공)</p>
+          <p className="text-xs text-slate-400">No season data available</p>
         </div>
       )}
 
       {/* Season advanced stats */}
       {advanced && (
         <div className="border-t border-slate-200 pt-3 mt-3">
-          <p className="text-xs text-slate-500 mb-3">시즌 성적</p>
+          <p className="text-xs text-slate-500 mb-3">Season Record</p>
           <div className="space-y-2">
             <StatBar
               label="ERA"

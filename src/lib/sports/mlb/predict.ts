@@ -1,12 +1,12 @@
 /**
- * StatScope 독자 승률 예측 모델
+ * StatScope Win Probability Model
  *
- * 팩터:
- * 1. 선발 투수 ERA (낮을수록 유리)
- * 2. 선발 투수 WHIP (낮을수록 유리)
- * 3. 팀 최근 10경기 승률
- * 4. 홈/원정 보정 (홈팀 +3.5% 보정)
- * 5. 선발 투수 시즌 K/BB ratio
+ * Factors:
+ * 1. Starter ERA (lower is better)
+ * 2. Starter WHIP (lower is better)
+ * 3. Team recent 10-game win rate
+ * 4. Home/away adjustment (home team +3.5%)
+ * 5. Starter season K/BB ratio
  */
 
 interface PredictionInput {
@@ -99,7 +99,7 @@ export function predictWinProbability(input: PredictionInput): PredictionResult 
   // Build factors
   const factors: PredictionFactor[] = [
     {
-      label: "선발 ERA",
+      label: "Starter ERA",
       homeValue: input.homePitcherERA > 0 ? input.homePitcherERA.toFixed(2) : "-",
       awayValue: input.awayPitcherERA > 0 ? input.awayPitcherERA.toFixed(2) : "-",
       advantage:
@@ -112,7 +112,7 @@ export function predictWinProbability(input: PredictionInput): PredictionResult 
           : "even",
     },
     {
-      label: "선발 WHIP",
+      label: "Starter WHIP",
       homeValue: input.homePitcherWHIP > 0 ? input.homePitcherWHIP.toFixed(2) : "-",
       awayValue: input.awayPitcherWHIP > 0 ? input.awayPitcherWHIP.toFixed(2) : "-",
       advantage:
@@ -125,7 +125,7 @@ export function predictWinProbability(input: PredictionInput): PredictionResult 
           : "even",
     },
     {
-      label: "최근 승률",
+      label: "Recent Win%",
       homeValue: `${(input.homeRecentWinPct * 100).toFixed(0)}%`,
       awayValue: `${(input.awayRecentWinPct * 100).toFixed(0)}%`,
       advantage:
@@ -136,7 +136,7 @@ export function predictWinProbability(input: PredictionInput): PredictionResult 
           : "even",
     },
     {
-      label: "홈 어드밴티지",
+      label: "Home Advantage",
       homeValue: "+3.5%",
       awayValue: "-",
       advantage: "home",

@@ -35,7 +35,7 @@ function parseIP(ip: string | number): number {
 
 function getTeamName(boxscore: BoxscoreResponse, side: "home" | "away"): string {
   const team = getTeamById(boxscore.teams[side].team.id);
-  return team?.nameKo ?? boxscore.teams[side].team.name;
+  return team?.name ?? boxscore.teams[side].team.name;
 }
 
 // ============================================================
@@ -157,16 +157,16 @@ function generateMatchupInsights(analysis: MatchupAnalysis): string[] {
     const top = struggles.slice(0, 3);
     if (top.length === 1) {
       const m = top[0];
-      const extra = m.homeRuns > 0 ? ` ${m.homeRuns}홈런 포함` : "";
+      const extra = m.homeRuns > 0 ? `, including ${m.homeRuns} HR` : "";
       paragraphs.push(
-        `${pitcherDisplayName}는 ${opposingTeamName} ${m.orderPosition}번 타자 ${m.batterDisplayName}에게 통산 ${m.atBats}타수 ${m.hits}안타(${formatAvg(m.avg)})를 허용하며 약점을 보이고 있다.${extra}`
+        `${pitcherDisplayName} has struggled against ${opposingTeamName}'s No. ${m.orderPosition} hitter ${m.batterDisplayName}, allowing a ${formatAvg(m.avg)} career average (${m.hits}-for-${m.atBats})${extra}.`
       );
     } else {
       const names = top.map(
-        (m) => `${m.batterDisplayName}(${m.atBats}타수 ${m.hits}안타, ${formatAvg(m.avg)})`
+        (m) => `${m.batterDisplayName} (${m.hits}-for-${m.atBats}, ${formatAvg(m.avg)})`
       );
       paragraphs.push(
-        `${pitcherDisplayName}는 ${opposingTeamName} 타선에서 ${names.join(", ")}에게 높은 피안타율을 허용해왔다. 이들에 대한 대비가 필요하다.`
+        `${pitcherDisplayName} has allowed high batting averages to several ${opposingTeamName} hitters: ${names.join(", ")}. These matchups bear watching.`
       );
     }
   }
@@ -177,14 +177,14 @@ function generateMatchupInsights(analysis: MatchupAnalysis): string[] {
     if (top.length === 1) {
       const m = top[0];
       paragraphs.push(
-        `반면 ${m.batterDisplayName}는 ${pitcherDisplayName}를 상대로 ${m.atBats}타수 ${m.hits}안타(${formatAvg(m.avg)})로 크게 고전 중이다.`
+        `On the flip side, ${m.batterDisplayName} has been overmatched by ${pitcherDisplayName}, going just ${m.hits}-for-${m.atBats} (${formatAvg(m.avg)}) in their career matchup.`
       );
     } else {
       const names = top.map(
-        (m) => `${m.batterDisplayName}(${m.atBats}타수 ${m.hits}안타)`
+        (m) => `${m.batterDisplayName} (${m.hits}-for-${m.atBats})`
       );
       paragraphs.push(
-        `반면 ${names.join(", ")} 등은 ${pitcherDisplayName}를 상대로 크게 고전해왔다.`
+        `On the flip side, ${names.join(", ")} have all been largely shut down by ${pitcherDisplayName} in their careers.`
       );
     }
   }
@@ -193,10 +193,10 @@ function generateMatchupInsights(analysis: MatchupAnalysis): string[] {
   const hrDangerous = withAB.filter((m) => m.homeRuns >= 2);
   if (hrDangerous.length > 0) {
     const hrNames = hrDangerous.map(
-      (m) => `${m.batterDisplayName}(${m.homeRuns}홈런/${m.atBats}타수)`
+      (m) => `${m.batterDisplayName} (${m.homeRuns} HR in ${m.atBats} AB)`
     );
     paragraphs.push(
-      `장타력 경계 대상: ${hrNames.join(", ")}. ${pitcherDisplayName}는 이들의 장타에 특히 주의해야 한다.`
+      `Power threat alert: ${hrNames.join(", ")}. ${pitcherDisplayName} must be careful with these hitters' extra-base pop.`
     );
   }
 
@@ -204,15 +204,15 @@ function generateMatchupInsights(analysis: MatchupAnalysis): string[] {
   if (totalAtBats >= 15) {
     if (overallAvg <= 0.220) {
       paragraphs.push(
-        `${pitcherDisplayName}의 ${opposingTeamName} 상위 타선 통산 피안타율 ${formatAvg(overallAvg)}(${totalAtBats}타수 ${totalHits}안타)를 감안하면 안정적인 호투가 기대된다.`
+        `${pitcherDisplayName} owns a ${formatAvg(overallAvg)} career batting average against (${totalHits}-for-${totalAtBats}) vs. ${opposingTeamName}'s top of the order — a strong sign for a quality outing.`
       );
     } else if (overallAvg >= 0.300) {
       paragraphs.push(
-        `${pitcherDisplayName}의 ${opposingTeamName} 상위 타선 통산 피안타율이 ${formatAvg(overallAvg)}(${totalAtBats}타수 ${totalHits}안타)로 높아 초반 실점 가능성에 주의해야 한다.`
+        `${pitcherDisplayName} has a concerning ${formatAvg(overallAvg)} career BAA (${totalHits}-for-${totalAtBats}) vs. ${opposingTeamName}'s top of the order — early damage is a real possibility.`
       );
     } else {
       paragraphs.push(
-        `${pitcherDisplayName}의 ${opposingTeamName} 상위 타선 통산 피안타율은 ${formatAvg(overallAvg)}(${totalAtBats}타수 ${totalHits}안타)로 무난한 수준이다.`
+        `${pitcherDisplayName} carries a ${formatAvg(overallAvg)} career BAA (${totalHits}-for-${totalAtBats}) vs. ${opposingTeamName}'s top of the order — a neutral track record.`
       );
     }
   }
@@ -273,15 +273,15 @@ async function generatePreGameAnalysis(
     const awayFIP = calcFIPSimple(awayStarterSeason);
 
     const eraDesc = (era: number) => {
-      if (era <= 2.5) return "엘리트급";
-      if (era <= 3.5) return "안정적인";
-      if (era <= 4.5) return "평균적인";
-      if (era <= 5.5) return "불안한";
-      return "부진한";
+      if (era <= 2.5) return "elite";
+      if (era <= 3.5) return "solid";
+      if (era <= 4.5) return "league-average";
+      if (era <= 5.5) return "shaky";
+      return "struggling";
     };
 
     paragraphs.push(
-      `${awayName} ${awayDisplayName}(${awayW}승 ${awayL}패, ERA ${awayERA.toFixed(2)})과 ${homeName} ${homeDisplayName}(${homeW}승 ${homeL}패, ERA ${homeERA.toFixed(2)})의 선발 맞대결이다.`
+      `Today's starting pitching matchup features ${awayName}'s ${awayDisplayName} (${awayW}-${awayL}, ${awayERA.toFixed(2)} ERA) against ${homeName}'s ${homeDisplayName} (${homeW}-${homeL}, ${homeERA.toFixed(2)} ERA).`
     );
 
     if (Math.abs(homeERA - awayERA) >= 1.0) {
@@ -291,19 +291,19 @@ async function generatePreGameAnalysis(
       const worse = homeERA < awayERA ? awayDisplayName : homeDisplayName;
       const worseERA = Math.max(homeERA, awayERA);
       paragraphs.push(
-        `${betterTeam} ${better}는 시즌 ERA ${betterERA.toFixed(2)}로 ${eraDesc(betterERA)} 모습을 보이는 반면, ${worse}는 ERA ${worseERA.toFixed(2)}로 ${eraDesc(worseERA)} 모습을 보이고 있다. 선발 투수 역량에서 뚜렷한 차이가 나타난다.`
+        `${betterTeam}'s ${better} posts an ${eraDesc(betterERA)} ${betterERA.toFixed(2)} ERA this season, while ${worse} has been ${eraDesc(worseERA)} at ${worseERA.toFixed(2)}. There is a clear gap in starting pitching quality.`
       );
     } else {
       paragraphs.push(
-        `양 선발 모두 비슷한 수준의 ERA를 기록하고 있어 치열한 투수전이 예상된다. WHIP는 ${awayDisplayName} ${awayWHIP.toFixed(2)}, ${homeDisplayName} ${homeWHIP.toFixed(2)}이다.`
+        `Both starters carry similar ERAs, setting the stage for a potential pitchers' duel. WHIP: ${awayDisplayName} ${awayWHIP.toFixed(2)}, ${homeDisplayName} ${homeWHIP.toFixed(2)}.`
       );
     }
 
     paragraphs.push(
-      `세부 지표: ${awayDisplayName} - FIP ${awayFIP.toFixed(2)}, K% ${awayKPct}%, ${awayIP.toFixed(1)}이닝 / ${homeDisplayName} - FIP ${homeFIP.toFixed(2)}, K% ${homeKPct}%, ${homeIP.toFixed(1)}이닝`
+      `Advanced metrics: ${awayDisplayName} — FIP ${awayFIP.toFixed(2)}, K% ${awayKPct}%, ${awayIP.toFixed(1)} IP / ${homeDisplayName} — FIP ${homeFIP.toFixed(2)}, K% ${homeKPct}%, ${homeIP.toFixed(1)} IP`
     );
 
-    sections.push({ title: "오늘의 선발 매치업", paragraphs });
+    sections.push({ title: "Today's Starting Matchup", paragraphs });
   } else if (homeStarter || awayStarter) {
     const paragraphs: string[] = [];
     const knownStarter = homeStarter ?? awayStarter;
@@ -312,11 +312,11 @@ async function generatePreGameAnalysis(
     if (knownStarter && knownSeason) {
       const dn = displayName(knownStarter.id, knownStarter.name);
       paragraphs.push(
-        `${knownTeam} 선발 ${dn}은 시즌 ERA ${num(knownSeason.era).toFixed(2)}, ${num(knownSeason.wins)}승 ${num(knownSeason.losses)}패를 기록 중이다. 상대팀 선발 투수는 아직 확정되지 않았다.`
+        `${knownTeam} starter ${dn} carries a ${num(knownSeason.era).toFixed(2)} ERA with a ${num(knownSeason.wins)}-${num(knownSeason.losses)} record this season. The opposing starter has not yet been announced.`
       );
     }
     if (paragraphs.length > 0) {
-      sections.push({ title: "오늘의 선발 매치업", paragraphs });
+      sections.push({ title: "Today's Starting Matchup", paragraphs });
     }
   }
 
@@ -361,7 +361,7 @@ async function generatePreGameAnalysis(
     }
 
     if (matchupParagraphs.length > 0) {
-      sections.push({ title: "통산 상대 전적 분석", paragraphs: matchupParagraphs });
+      sections.push({ title: "Career H2H Analysis", paragraphs: matchupParagraphs });
     }
   }
 
@@ -401,25 +401,25 @@ async function generatePreGameAnalysis(
           const aRD = aRS - aRA;
 
           paragraphs.push(
-            `${season} 시즌 기록: ${awayName} ${awayRecord.wins}승 ${awayRecord.losses}패(승률 ${awayRecord.winningPercentage}), ${homeName} ${homeRecord.wins}승 ${homeRecord.losses}패(승률 ${homeRecord.winningPercentage}).`
+            `${season} season record: ${awayName} ${awayRecord.wins}-${awayRecord.losses} (${awayRecord.winningPercentage}), ${homeName} ${homeRecord.wins}-${homeRecord.losses} (${homeRecord.winningPercentage}).`
           );
 
           if (Math.abs(hPct - aPct) >= 0.05) {
             const better = hPct > aPct ? homeName : awayName;
             const worse = hPct > aPct ? awayName : homeName;
-            paragraphs.push(`${better}이 시즌 성적에서 앞서 있다. 다만 ${worse}도 상대 전적에 따라 충분히 승산이 있다.`);
+            paragraphs.push(`${better} holds the edge in the season standings, though ${worse} can't be counted out based on head-to-head matchups.`);
           }
 
           // Run differential analysis
           if (hRD > 50 || aRD > 50 || hRD < -50 || aRD < -50) {
             const hRDStr = hRD > 0 ? `+${hRD}` : `${hRD}`;
             const aRDStr = aRD > 0 ? `+${aRD}` : `${aRD}`;
-            paragraphs.push(`득실차: ${awayName} ${aRDStr}, ${homeName} ${hRDStr}. ${
+            paragraphs.push(`Run differential: ${awayName} ${aRDStr}, ${homeName} ${hRDStr}. ${
               Math.abs(hRD) > Math.abs(aRD) && hRD > 0
-                ? `${homeName}의 득점력이 뛰어나다.`
+                ? `${homeName} boasts superior run production.`
                 : Math.abs(aRD) > Math.abs(hRD) && aRD > 0
-                ? `${awayName}의 득점력이 뛰어나다.`
-                : "양 팀 모두 균형 잡힌 전력이다."
+                ? `${awayName} boasts superior run production.`
+                : "Both clubs are evenly matched in run production."
             }`);
           }
 
@@ -428,9 +428,9 @@ async function generatePreGameAnalysis(
           const aStreak = awayRecord.streak?.streakCode ?? "";
           if (hStreak || aStreak) {
             const parts: string[] = [];
-            if (aStreak) parts.push(`${awayName} ${aStreak.startsWith("W") ? aStreak.replace("W","") + "연승 중" : aStreak.replace("L","") + "연패 중"}`);
-            if (hStreak) parts.push(`${homeName} ${hStreak.startsWith("W") ? hStreak.replace("W","") + "연승 중" : hStreak.replace("L","") + "연패 중"}`);
-            paragraphs.push(`최근 흐름: ${parts.join(", ")}.`);
+            if (aStreak) parts.push(`${awayName} on a ${aStreak.startsWith("W") ? aStreak.replace("W","") + "-game win streak" : aStreak.replace("L","") + "-game losing streak"}`);
+            if (hStreak) parts.push(`${homeName} on a ${hStreak.startsWith("W") ? hStreak.replace("W","") + "-game win streak" : hStreak.replace("L","") + "-game losing streak"}`);
+            paragraphs.push(`Recent form: ${parts.join(", ")}.`);
           }
         }
       }
@@ -440,22 +440,22 @@ async function generatePreGameAnalysis(
       const homeERA = num(homeStarterSeason.era);
       const awayERA = num(awayStarterSeason.era);
       const pitchAdvantage = homeERA < awayERA ? homeName : awayName;
-      paragraphs.push(`선발 투수력 기준으로 ${pitchAdvantage}이 유리하다.`);
+      paragraphs.push(`Based on starting pitching, ${pitchAdvantage} holds the edge.`);
     }
 
     if (venueName) {
       const venLower = venueName.toLowerCase();
       if (venLower.includes("coors")) {
-        paragraphs.push(`쿠어스 필드(해발 1,600m)는 MLB 최고의 타자 친국 구장. 높은 득점 경기 예상.`);
+        paragraphs.push(`Coors Field (5,280 ft elevation) is the most hitter-friendly park in MLB. Expect elevated scoring.`);
       } else if (venLower.includes("yankee")) {
-        paragraphs.push(`양키 스타디움은 우측 담장이 짧아 좌타자에게 유리하다.`);
+        paragraphs.push(`Yankee Stadium's short right-field porch gives left-handed hitters a built-in advantage.`);
       } else if (venLower.includes("oracle")) {
-        paragraphs.push(`오라클 파크는 투수 친화적 구장으로 알려져 있다.`);
+        paragraphs.push(`Oracle Park is widely considered one of the most pitcher-friendly venues in baseball.`);
       }
     }
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "팀 시즌 성적 비교", paragraphs });
+      sections.push({ title: "Team Season Comparison", paragraphs });
     }
   }
 
@@ -512,12 +512,12 @@ async function generatePreGameAnalysis(
 
         const parts = valid.map((s: any) => {
           let role = "";
-          if (s.sv >= 5) role = "(마무리)";
-          else if (s.hld >= 5) role = "(셋업)";
-          return `${s.name}${role} ERA ${s.era} ${s.k}K/${s.ip}이닝`;
+          if (s.sv >= 5) role = " (Closer)";
+          else if (s.hld >= 5) role = " (Setup)";
+          return `${s.name}${role} ${s.era} ERA, ${s.k} K in ${s.ip} IP`;
         });
 
-        return `${teamName} 불펜 ${relievers.length}명 등록. 주요: ${parts.join(", ")}.`;
+        return `${teamName} bullpen: ${relievers.length} relievers on the active roster. Key arms: ${parts.join(", ")}.`;
       }
 
       const [homeBullpen, awayBullpen] = await Promise.all([
@@ -530,7 +530,7 @@ async function generatePreGameAnalysis(
     } catch {}
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "불펜 전력 분석", paragraphs });
+      sections.push({ title: "Bullpen Analysis", paragraphs });
     }
   }
 
@@ -551,22 +551,22 @@ async function generatePreGameAnalysis(
     const awayWinPct = 100 - homeWinPct;
 
     paragraphs.push(
-      `예상 승률: ${awayName} ${awayWinPct}% vs ${homeName} ${homeWinPct}%`
+      `Projected win probability: ${awayName} ${awayWinPct}% vs ${homeName} ${homeWinPct}%`
     );
 
     const reasons: string[] = [];
     if (homeERA < awayERA) {
-      reasons.push(`${homeName}의 선발 투수 ERA가 더 낮고`);
+      reasons.push(`${homeName}'s starter owns the lower ERA`);
     } else if (awayERA < homeERA) {
-      reasons.push(`${awayName}의 선발 투수 ERA가 더 낮고`);
+      reasons.push(`${awayName}'s starter owns the lower ERA`);
     }
-    reasons.push(`${homeName}의 홈 어드밴티지`);
+    reasons.push(`${homeName}'s home-field advantage`);
 
     paragraphs.push(
-      `근거: ${reasons.join(", ")}를 종합적으로 반영한 결과이다. 다만 야구는 변수가 많은 스포츠인 만큼 실제 결과는 달라질 수 있다.`
+      `Factors: ${reasons.join(", ")}. Of course, baseball's inherent randomness means actual results may differ.`
     );
 
-    sections.push({ title: "승률 예측", paragraphs });
+    sections.push({ title: "Win Probability", paragraphs });
   }
 
   // 5. Key Points to Watch (data-driven)
@@ -584,7 +584,7 @@ async function generatePreGameAnalysis(
       const awayAvgIP = awayGS > 0 ? (awayIP / awayGS).toFixed(1) : "-";
 
       paragraphs.push(
-        `이닝 소화력 비교: ${awayDisplayName} 경기당 평균 ${awayAvgIP}이닝 vs ${homeDisplayName} ${homeAvgIP}이닝. 선발이 6이닝 이상 소화하면 팀 불펜 부담이 크게 줄어든다.`
+        `Workload comparison: ${awayDisplayName} averages ${awayAvgIP} IP per start vs. ${homeDisplayName} at ${homeAvgIP} IP. Getting six-plus innings from the starter significantly eases the bullpen burden.`
       );
 
       const homeHR = num(homeStarterSeason.homeRuns);
@@ -593,7 +593,7 @@ async function generatePreGameAnalysis(
         const vulnerable = homeHR > awayHR ? homeDisplayName : awayDisplayName;
         const hrCount = Math.max(homeHR, awayHR);
         paragraphs.push(
-          `${vulnerable}의 시즌 피홈런 ${hrCount}개는 장타력 있는 타선 앞에서 위험 요소가 될 수 있다.`
+          `${vulnerable} has allowed ${hrCount} HR this season — a concern against a lineup with extra-base power.`
         );
       }
     }
@@ -602,17 +602,17 @@ async function generatePreGameAnalysis(
       const venLower = venueName.toLowerCase();
       if (venLower.includes("coors")) {
         paragraphs.push(
-          `쿠어스 필드(해발 1,600m)는 MLB 최고의 타자 천국. 리그 평균 대비 득점이 30% 이상 높아 후반부 역전극이 빈번하다.`
+          `Coors Field (5,280 ft elevation) is the premier hitter's park in MLB. Scoring runs 30%+ above league average, late-inning comebacks are common here.`
         );
       } else if (venLower.includes("oracle") || venLower.includes("petco") || venLower.includes("kauffman")) {
         paragraphs.push(
-          `${venueName}은 투수 친화적 구장으로 분류된다. 선발 투수의 이닝 소화력이 더욱 중요해진다.`
+          `${venueName} is classified as a pitcher-friendly park. Starter endurance becomes even more critical.`
         );
       }
     }
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "전술적 주목 포인트", paragraphs });
+      sections.push({ title: "Key Tactical Points", paragraphs });
     }
   }
 
@@ -632,13 +632,13 @@ function generateLiveStatus(
   const homeRuns = num(linescore.teams?.home?.runs);
   const awayRuns = num(linescore.teams?.away?.runs);
   const currentInning = linescore.currentInning ?? 0;
-  const half = linescore.inningHalf === "Top" ? "초" : "말";
+  const half = linescore.inningHalf === "Top" ? "Top" : "Bot";
 
   const paragraphs: string[] = [];
 
   if (homeRuns === awayRuns) {
     paragraphs.push(
-      `${currentInning}회${half} 현재, ${awayName}과 ${homeName}이 ${homeRuns}-${awayRuns} 동점으로 팽팽한 접전을 벌이고 있다.`
+      `${half} ${currentInning}: ${awayName} and ${homeName} are locked in a tight battle, knotted at ${homeRuns}-${awayRuns}.`
     );
   } else {
     const leader = homeRuns > awayRuns ? homeName : awayName;
@@ -646,11 +646,11 @@ function generateLiveStatus(
     const leadScore = Math.max(homeRuns, awayRuns);
     const trailScore = Math.min(homeRuns, awayRuns);
     paragraphs.push(
-      `${currentInning}회${half} 현재, ${leader}이 ${leadScore}-${trailScore}으로 앞서고 있다. ${trailer}의 반격이 필요한 상황이다.`
+      `${half} ${currentInning}: ${leader} leads ${leadScore}-${trailScore}. ${trailer} needs to mount a rally.`
     );
   }
 
-  return [{ title: "경기 진행중", paragraphs }];
+  return [{ title: "Live Game", paragraphs }];
 }
 
 // ============================================================
@@ -783,23 +783,23 @@ function generatePostGameAnalysis(
 
     if (homeRuns === awayRuns) {
       paragraphs.push(
-        `${awayName}과 ${homeName}의 경기는 ${homeRuns}-${awayRuns} 동점으로 마무리됐다. 양 팀 모두 결정적인 한 방을 만들어내지 못한 채 팽팽한 접전을 벌였다.`
+        `${awayName} and ${homeName} finished deadlocked at ${homeRuns}-${awayRuns}. Neither side could land the decisive blow in a tightly contested affair.`
       );
     } else if (diff >= 7) {
       paragraphs.push(
-        `${winnerName}이 ${loserName}을 상대로 ${winScore}-${loseScore}으로 대승을 거뒀다. 경기는 일찌감치 한쪽으로 기울며 일방적인 전개를 보였다.`
+        `${winnerName} cruised to a blowout victory over ${loserName}, ${winScore}-${loseScore}. The game tilted early and never looked back.`
       );
     } else if (diff >= 4) {
       paragraphs.push(
-        `${winnerName}이 ${loserName}을 ${winScore}-${loseScore}으로 꺾었다. ${diff}점 차 승리로, ${winnerName}은 안정적인 경기 운영을 보여줬다.`
+        `${winnerName} topped ${loserName} ${winScore}-${loseScore}. A comfortable ${diff}-run margin reflected ${winnerName}'s steady command of the game.`
       );
     } else if (diff === 1) {
       paragraphs.push(
-        `${winnerName}이 ${loserName}을 상대로 ${winScore}-${loseScore}, 1점 차 진땀승을 거뒀다. 경기 내내 긴장감이 이어진 접전이었다.`
+        `${winnerName} squeaked out a narrow win over ${loserName}, ${winScore}-${loseScore}. Tension ran high from start to finish in this one-run thriller.`
       );
     } else {
       paragraphs.push(
-        `${winnerName}이 ${loserName}을 ${winScore}-${loseScore}으로 물리쳤다.`
+        `${winnerName} defeated ${loserName} ${winScore}-${loseScore}.`
       );
     }
 
@@ -818,9 +818,9 @@ function generatePostGameAnalysis(
       }
       if (biggestInning.runs >= 3) {
         const bigTeam = biggestInning.side === "home" ? homeName : awayName;
-        const half = biggestInning.side === "home" ? "말" : "초";
+        const half = biggestInning.side === "home" ? "bottom" : "top";
         paragraphs.push(
-          `경기의 분수령은 ${biggestInning.num}회${half}이었다. ${bigTeam}은 이 이닝에서 ${biggestInning.runs}점을 올리며 경기의 흐름을 가져왔다.`
+          `The turning point came in the ${half} of the ${biggestInning.num}${biggestInning.num === 1 ? "st" : biggestInning.num === 2 ? "nd" : biggestInning.num === 3 ? "rd" : "th"}. ${bigTeam} pushed across ${biggestInning.runs} runs to seize control of the game.`
         );
       }
     }
@@ -833,15 +833,15 @@ function generatePostGameAnalysis(
 
     if (totalRuns <= 4 && totalK >= 15) {
       paragraphs.push(
-        `양 팀 합계 ${totalK}삼진이 나온 전형적인 투수전이었다.`
+        `A classic pitchers' duel: ${totalK} combined strikeouts between the two staffs.`
       );
     } else if (totalRuns >= 15) {
       paragraphs.push(
-        `양 팀 합산 ${totalRuns}득점, ${totalHits}안타가 터진 화려한 타격전이었다.`
+        `A full-blown slugfest: ${totalRuns} combined runs and ${totalHits} hits on the day.`
       );
     }
 
-    sections.push({ title: "경기 요약", paragraphs });
+    sections.push({ title: "Game Summary", paragraphs });
   }
 
   // Key Players
@@ -862,26 +862,26 @@ function generatePostGameAnalysis(
         : null;
 
       if (bestHitter && bestHitter.impact > 0) {
-        let hitDetail = `${bestHitter.ab}타수 ${bestHitter.hits}안타`;
-        if (bestHitter.hr > 0) hitDetail += ` ${bestHitter.hr}홈런`;
-        if (bestHitter.rbi > 0) hitDetail += ` ${bestHitter.rbi}타점`;
-        lines.push(`${teamName} 타선에서는 ${bestHitter.name}이 ${hitDetail}으로 팀 공격을 주도했다.`);
+        let hitDetail = `${bestHitter.hits}-for-${bestHitter.ab}`;
+        if (bestHitter.hr > 0) hitDetail += `, ${bestHitter.hr} HR`;
+        if (bestHitter.rbi > 0) hitDetail += `, ${bestHitter.rbi} RBI`;
+        lines.push(`${bestHitter.name} led ${teamName}'s offense, going ${hitDetail}.`);
       }
 
       if (bestPitcher) {
-        const pitcherDesc = bestPitcher.isStarter ? "선발" : "구원";
-        let pitchDetail = `${bestPitcher.ipDisplay}이닝 ${bestPitcher.er}자책 ${bestPitcher.k}탈삼진`;
+        const pitcherDesc = bestPitcher.isStarter ? "starter" : "reliever";
+        let pitchDetail = `${bestPitcher.ipDisplay} IP, ${bestPitcher.er} ER, ${bestPitcher.k} K`;
         let resultTag = "";
-        if (bestPitcher.wins > 0) resultTag = " 승리투수가 됐다.";
-        else if (bestPitcher.saves > 0) resultTag = " 세이브를 기록했다.";
-        else if (bestPitcher.holds > 0) resultTag = " 홀드를 추가했다.";
-        else resultTag = " 팀 투수진을 이끌었다.";
-        lines.push(`${teamName} ${pitcherDesc} ${bestPitcher.name}은 ${pitchDetail}으로${resultTag}`);
+        if (bestPitcher.wins > 0) resultTag = " and earned the win.";
+        else if (bestPitcher.saves > 0) resultTag = " and recorded the save.";
+        else if (bestPitcher.holds > 0) resultTag = " and picked up a hold.";
+        else resultTag = " and anchored the pitching staff.";
+        lines.push(`${teamName} ${pitcherDesc} ${bestPitcher.name} threw ${pitchDetail}${resultTag}`);
       }
 
       if (lines.length > 0) paragraphs.push(lines.join(" "));
     }
-    if (paragraphs.length > 0) sections.push({ title: "핵심 선수", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: "Key Players", paragraphs });
   }
 
   // Pitching Report (enhanced)
@@ -901,20 +901,20 @@ function generatePostGameAnalysis(
         const pitchesPerIP = starter.ip > 0 ? (starter.pitchCount / starter.ip).toFixed(1) : "0";
         const kbbRatio = starter.bb > 0 ? (starter.k / starter.bb).toFixed(1) : starter.k > 0 ? `${starter.k}:0` : "-";
 
-        let starterLine = `${teamName} 선발 ${starter.name}: ${starter.ipDisplay}이닝 ${starter.hits}피안타 ${starter.er}자책 ${starter.k}삼진 ${starter.bb}볼넷(${starter.pitchCount}구).`;
+        let starterLine = `${teamName} starter ${starter.name}: ${starter.ipDisplay} IP, ${starter.hits} H, ${starter.er} ER, ${starter.k} K, ${starter.bb} BB (${starter.pitchCount} pitches).`;
 
         if (isQS) {
-          starterLine += ` QS 달성. K/IP ${kPerIP}로 ${parseFloat(kPerIP) >= 1.0 ? "지배적인 삼진 능력" : "효율적인 투구"}을 보여줬다.`;
+          starterLine += ` Quality start. K/IP of ${kPerIP} reflects ${parseFloat(kPerIP) >= 1.0 ? "dominant strikeout stuff" : "efficient pitching"}.`;
         } else if (starter.ip >= 7 && starter.er <= 2) {
-          starterLine += ` 7이닝 이상 소화하며 불펜 부담을 최소화했다. 이닝당 투구수 ${pitchesPerIP}로 ${parseFloat(pitchesPerIP) <= 15 ? "효율적" : "다소 많은"} 투구 운용을 보였다.`;
+          starterLine += ` Seven-plus innings minimized bullpen usage. Pitches per inning: ${pitchesPerIP} — ${parseFloat(pitchesPerIP) <= 15 ? "a model of efficiency" : "on the high side"}.`;
         } else if (starter.ip < 4 && starter.er >= 4) {
-          starterLine += ` ${starter.ip.toFixed(0)}이닝도 채우지 못한 조기 강판. K/BB ${kbbRatio}로 제구력에 문제가 있었다.`;
+          starterLine += ` An early exit before recording ${starter.ip.toFixed(0)} full innings. K/BB ratio of ${kbbRatio} points to command issues.`;
         } else if (starter.ip < 5) {
-          starterLine += ` 5이닝 미달로 불펜에 부담을 전가했다.`;
+          starterLine += ` Failed to complete five innings, leaving extra burden on the bullpen.`;
         }
 
         if (starter.hr >= 2) {
-          starterLine += ` ${starter.hr}피홈런은 우려할 만한 장타 허용률이다.`;
+          starterLine += ` ${starter.hr} HR allowed is a troubling rate of long-ball damage.`;
         }
 
         lines.push(starterLine);
@@ -927,17 +927,17 @@ function generatePostGameAnalysis(
         const bullpenERA = bullpenIP > 0 ? ((bullpenER / bullpenIP) * 9).toFixed(2) : "-";
 
         if (bullpenER === 0 && bullpenIP >= 2) {
-          lines.push(`불펜 ${relievers.length}명이 ${bullpenIP.toFixed(1)}이닝 무자책 릴레이(${bullpenK}K). 완벽한 마무리였다.`);
+          lines.push(`The bullpen (${relievers.length} pitchers) was scoreless over ${bullpenIP.toFixed(1)} IP with ${bullpenK} K — a flawless relief effort.`);
         } else if (bullpenER >= 4) {
-          lines.push(`불펜 ERA ${bullpenERA} (${bullpenIP.toFixed(1)}이닝 ${bullpenER}자책). 구원 실패가 경기 결과에 직접적 영향을 미쳤다.`);
+          lines.push(`Bullpen ERA ${bullpenERA} (${bullpenIP.toFixed(1)} IP, ${bullpenER} ER). Relief failures directly impacted the outcome.`);
         } else if (bullpenIP > 0) {
-          lines.push(`불펜: ${bullpenIP.toFixed(1)}이닝 ${bullpenER}자책 ${bullpenK}K (ERA ${bullpenERA}).`);
+          lines.push(`Bullpen: ${bullpenIP.toFixed(1)} IP, ${bullpenER} ER, ${bullpenK} K (ERA ${bullpenERA}).`);
         }
       }
 
       if (lines.length > 0) paragraphs.push(lines.join(" "));
     }
-    if (paragraphs.length > 0) sections.push({ title: "투수 세부 리포트", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: "Pitching Report", paragraphs });
   }
 
   // Hitting Analysis (enhanced)
@@ -956,32 +956,32 @@ function generatePostGameAnalysis(
       const totalXBH = batters.reduce((s, b) => s + b.doubles + b.triples + b.hr, 0);
       const teamAVG = totalAB > 0 ? (totalHits / totalAB).toFixed(3) : ".000";
 
-      let overview = `${teamName}: ${totalHits}안타 ${totalRBI}타점 (팀 타율 ${teamAVG}).`;
-      if (totalXBH >= 3) overview += ` 장타 ${totalXBH}개(홈런 ${totalHR})로 강력한 타격을 보여줬다.`;
-      else if (totalHR > 0) overview += ` 홈런 ${totalHR}개 포함.`;
-      if (totalBB >= 4) overview += ` ${totalBB}볼넷으로 출루율에서도 우위를 점했다.`;
+      let overview = `${teamName}: ${totalHits} H, ${totalRBI} RBI (team AVG ${teamAVG}).`;
+      if (totalXBH >= 3) overview += ` ${totalXBH} extra-base hits (${totalHR} HR) — impressive power display.`;
+      else if (totalHR > 0) overview += ` Includes ${totalHR} HR.`;
+      if (totalBB >= 4) overview += ` Drew ${totalBB} walks, boosting on-base production.`;
       paragraphs.push(overview);
 
       // Multi-hit players with detail
       const multiHitters = batters.filter(b => b.hits >= 2);
       if (multiHitters.length > 0) {
         const names = multiHitters.map(b => {
-          let detail = `${b.ab}타수 ${b.hits}안타`;
-          if (b.hr > 0) detail += ` ${b.hr}HR`;
-          if (b.rbi >= 2) detail += ` ${b.rbi}타점`;
-          return `${b.name}(${detail})`;
+          let detail = `${b.hits}-for-${b.ab}`;
+          if (b.hr > 0) detail += `, ${b.hr} HR`;
+          if (b.rbi >= 2) detail += `, ${b.rbi} RBI`;
+          return `${b.name} (${detail})`;
         });
-        paragraphs.push(`멀티히트: ${names.join(", ")}.`);
+        paragraphs.push(`Multi-hit games: ${names.join(", ")}.`);
       }
 
       // Hitless cleanup hitters (3-5 spot)
       const cleanupHitters = batters.slice(2, 5).filter(b => b.ab >= 3 && b.hits === 0);
       if (cleanupHitters.length >= 2) {
-        const names = cleanupHitters.map(b => `${b.name}(${b.ab}타수 무안타)`);
-        paragraphs.push(`클린업 부진: ${names.join(", ")}. 중심 타선의 침묵이 뼈아팠다.`);
+        const names = cleanupHitters.map(b => `${b.name} (0-for-${b.ab})`);
+        paragraphs.push(`Cleanup cold: ${names.join(", ")}. The silence from the heart of the order proved costly.`);
       }
     }
-    if (paragraphs.length > 0) sections.push({ title: "타격 분석", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: "Hitting Analysis", paragraphs });
   }
 
   // Key Moments
@@ -1006,7 +1006,7 @@ function generatePostGameAnalysis(
 
       if (leadChanges >= 2) {
         paragraphs.push(
-          `이 경기에서는 ${leadChanges}차례 리드가 바뀌는 접전이 이어졌다.`
+          `This game featured ${leadChanges} lead changes — a true back-and-forth contest.`
         );
       }
 
@@ -1015,11 +1015,11 @@ function generatePostGameAnalysis(
         const shutoutTeam = homeRuns === 0 ? awayName : homeName;
         const shutTeam = homeRuns === 0 ? homeName : awayName;
         paragraphs.push(
-          `${shutoutTeam} 투수진이 ${shutTeam} 타선을 완봉으로 틀어막았다.`
+          `${shutoutTeam}'s pitching staff threw a shutout, blanking ${shutTeam}'s lineup.`
         );
       }
     }
-    if (paragraphs.length > 0) sections.push({ title: "승부 포인트", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: "Turning Points", paragraphs });
   }
 
   return sections;
@@ -1052,7 +1052,7 @@ export default async function AICommentary({
 
   if (isFinished) {
     // POST-GAME
-    headerLabel = "경기 결과 분석";
+    headerLabel = "Post-Game Analysis";
     headerColor = "border-slate-500";
     sections = generatePostGameAnalysis(boxscore, linescore);
 
@@ -1063,26 +1063,26 @@ export default async function AICommentary({
     const loser = homeRuns >= awayRuns ? awayName : homeName;
 
     if (homeRuns !== awayRuns) {
-      if (diff >= 5) headline = `${winner}, ${loser} 상대 ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)} 대승`;
-      else if (diff === 1) headline = `${winner}, ${loser}와 접전 끝에 ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)} 신승`;
-      else headline = `${winner}, ${loser} 꺾고 ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)} 승리`;
+      if (diff >= 5) headline = `${winner} routs ${loser} ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)}`;
+      else if (diff === 1) headline = `${winner} edges ${loser} ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)}`;
+      else headline = `${winner} tops ${loser} ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)}`;
     } else {
       headline = `${awayName} ${awayRuns} - ${homeRuns} ${homeName}`;
     }
   } else if (isLive) {
     // LIVE
-    headerLabel = "실시간 경기";
+    headerLabel = "Live Game";
     headerColor = "border-green-500";
     sections = generateLiveStatus(boxscore, linescore);
 
     const homeRuns = num(linescore.teams?.home?.runs);
     const awayRuns = num(linescore.teams?.away?.runs);
     const inning = linescore.currentInningOrdinal ?? "";
-    const half = linescore.inningHalf === "Top" ? "초" : "말";
-    headline = `${awayName} ${awayRuns} - ${homeRuns} ${homeName} (${inning} ${half})`;
+    const half = linescore.inningHalf === "Top" ? "Top" : "Bot";
+    headline = `${awayName} ${awayRuns} - ${homeRuns} ${homeName} (${half} ${inning})`;
   } else {
     // PRE-GAME (async - fetches matchup data)
-    headerLabel = "경기 전 분석";
+    headerLabel = "Pre-Game Analysis";
     headerColor = "border-blue-500";
     sections = await generatePreGameAnalysis(
       boxscore,
@@ -1092,7 +1092,7 @@ export default async function AICommentary({
       awayStarter,
       venueName,
     );
-    headline = `${awayName} vs ${homeName} 프리뷰`;
+    headline = `${awayName} vs ${homeName} Preview`;
   }
 
   if (sections.length === 0) return null;
@@ -1146,10 +1146,10 @@ export default async function AICommentary({
       <div className="border-t border-slate-200 px-6 py-3 flex items-center justify-between">
         <span className="text-[10px] text-slate-500">
           {isFinished
-            ? "본 기사는 박스스코어 데이터를 기반으로 자동 생성되었습니다."
+            ? "This article was auto-generated from box score data."
             : isLive
-            ? "경기 진행중 - 데이터가 실시간으로 업데이트됩니다."
-            : "본 분석은 시즌 성적 및 통산 상대 전적 데이터를 기반으로 자동 생성되었습니다."}
+            ? "Game in progress — data updates in real time."
+            : "This analysis was auto-generated from season stats and career head-to-head data."}
         </span>
         <span className="text-[10px] text-slate-500 font-mono">
           StatScope AI Engine

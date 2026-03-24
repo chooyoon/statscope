@@ -33,7 +33,7 @@ export default function FielderStaffClient({
   if (rosterFielders.length === 0) {
     return (
       <div className="p-4">
-        <p className="text-xs text-slate-500">야수 정보가 없습니다.</p>
+        <p className="text-xs text-slate-500">No fielder information available.</p>
       </div>
     );
   }

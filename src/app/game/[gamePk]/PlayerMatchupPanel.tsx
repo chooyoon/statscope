@@ -105,8 +105,8 @@ export default function PlayerMatchupPanel({
     if (ab <= 10) return null;
     const avg = parseFloat(stat.avg ?? "0");
     if (isNaN(avg)) return null;
-    if (avg >= 0.3) return { label: "강점", color: "text-green-600 bg-green-500/10" };
-    if (avg < 0.2) return { label: "약점", color: "text-red-600 bg-red-500/10" };
+    if (avg >= 0.3) return { label: "Strength", color: "text-green-600 bg-green-500/10" };
+    if (avg < 0.2) return { label: "Weakness", color: "text-red-600 bg-red-500/10" };
     return null;
   }
 
@@ -117,7 +117,7 @@ export default function PlayerMatchupPanel({
         type="button"
         onClick={() => setIsOpen(true)}
         className="text-left hover:underline cursor-pointer transition-colors inline-flex items-center gap-1 group"
-        title="클릭하여 상대 전적 보기"
+        title="View H2H stats"
       >
         {playerName}
         <svg className="w-3 h-3 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -147,7 +147,7 @@ export default function PlayerMatchupPanel({
           <div>
             <h2 className="text-base font-bold text-slate-800">{playerName}</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              {isPitcher ? "투수" : "타자"} - 통산 상대 전적
+              {isPitcher ? "Pitcher" : "Batter"} - Career H2H Stats
             </p>
           </div>
           <button
@@ -176,7 +176,7 @@ export default function PlayerMatchupPanel({
               className="inline-block w-1 h-4 rounded-full"
               style={{ backgroundColor: teamColor }}
             />
-            {isPitcher ? "상대 타자별 통산 기록" : "상대 투수별 통산 기록"}
+            {isPitcher ? "Career Stats vs Opposing Batters" : "Career Stats vs Opposing Pitchers"}
           </h3>
 
           {/* Table */}
@@ -185,25 +185,25 @@ export default function PlayerMatchupPanel({
               <thead>
                 <tr className="border-b border-slate-100">
                   <th className="px-3 py-2 text-left text-xs text-slate-500">
-                    {isPitcher ? "타자" : "투수"}
+                    {isPitcher ? "Batter" : "Pitcher"}
                   </th>
                   <th className="px-2 py-2 text-center text-xs text-slate-500 w-10">
-                    타수
+                    AB
                   </th>
                   <th className="px-2 py-2 text-center text-xs text-slate-500 w-12">
-                    타율
+                    AVG
                   </th>
                   <th className="px-2 py-2 text-center text-xs text-slate-500 w-10">
-                    안타
+                    H
                   </th>
                   <th className="px-2 py-2 text-center text-xs text-slate-500 w-10">
-                    홈런
+                    HR
                   </th>
                   <th className="px-2 py-2 text-center text-xs text-slate-500 w-10">
-                    삼진
+                    K
                   </th>
                   <th className="px-2 py-2 text-center text-xs text-slate-500 w-10">
-                    볼넷
+                    BB
                   </th>
                 </tr>
               </thead>
@@ -258,7 +258,7 @@ export default function PlayerMatchupPanel({
                           colSpan={6}
                           className="px-2 py-2.5 text-center text-xs text-slate-600"
                         >
-                          기록 없음
+                          No record
                         </td>
                       ) : (
                         <>
@@ -300,7 +300,7 @@ export default function PlayerMatchupPanel({
               {matchups.filter(m => !m.loading && m.stat && (m.stat.atBats ?? 0) > 0).length > 0 && (
                 <tfoot>
                   <tr className="border-t-2 border-slate-200 bg-slate-100">
-                    <td className="px-3 py-2.5 text-xs font-bold text-slate-700">합계/평균</td>
+                    <td className="px-3 py-2.5 text-xs font-bold text-slate-700">Total/AVG</td>
                     {(() => {
                       const valid = matchups.filter(m => !m.loading && m.stat && (m.stat.atBats ?? 0) > 0);
                       const totalAB = valid.reduce((s, m) => s + (m.stat!.atBats ?? 0), 0);
@@ -330,7 +330,7 @@ export default function PlayerMatchupPanel({
           {matchups.some((m) => !m.loading && m.stat) && (
             <div className="mt-5">
               <h4 className="text-xs font-semibold text-slate-500 mb-3">
-                상성 분석
+                Matchup Analysis
               </h4>
               <div className="space-y-2">
                 {matchups
@@ -360,10 +360,10 @@ export default function PlayerMatchupPanel({
                             isStrength ? "text-green-600" : "text-red-600"
                           }`}
                         >
-                          {isStrength ? "강점" : "약점"}
+                          {isStrength ? "Strength" : "Weakness"}
                         </span>
                         <span className="text-slate-500 ml-2">
-                          vs {m.opposingName}: {ab}타수 {m.stat!.hits ?? 0}안타 (
+                          vs {m.opposingName}: {ab} AB, {m.stat!.hits ?? 0} H (
                           {m.stat!.avg})
                         </span>
                       </div>
@@ -378,8 +378,7 @@ export default function PlayerMatchupPanel({
                   return avg >= 0.3 || avg < 0.2;
                 }).length === 0 && (
                   <p className="text-xs text-slate-600">
-                    충분한 상대 기록(11타수 이상)이 있는 뚜렷한 강점/약점이
-                    없습니다.
+                    No significant H2H patterns found (11+ AB required).
                   </p>
                 )}
               </div>
