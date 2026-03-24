@@ -322,6 +322,7 @@ export default async function GameDetailPage({
                 nameKo={awayTeam?.nameKo ?? boxscore.teams.away.team.name}
                 colorPrimary={awayColor}
                 colorAccent={awayTeam?.colorAccent ?? "#818cf8"}
+                teamId={boxscore.teams.away.team.id}
                 size="lg"
               />
               {gameStarted && (
@@ -346,6 +347,7 @@ export default async function GameDetailPage({
                 nameKo={homeTeam?.nameKo ?? boxscore.teams.home.team.name}
                 colorPrimary={homeColor}
                 colorAccent={homeTeam?.colorAccent ?? "#818cf8"}
+                teamId={boxscore.teams.home.team.id}
                 size="lg"
               />
               {gameStarted && (

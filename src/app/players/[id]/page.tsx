@@ -108,7 +108,7 @@ export async function generateMetadata({
     const name = displayNameFull(player.id, player.fullName);
     return {
       title: `${name} - 선수 분석 | StatScope`,
-      description: `${name}의 시즌 성적, 세이버메트릭스 분석을 StatScope에서 확인하세요.`,
+      description: `${name}의 시즌 성적, 세이버매트릭스 분석을 StatScope에서 확인하세요.`,
     };
   } catch {
     return { title: "선수 분석 | StatScope" };
@@ -412,6 +412,7 @@ export default async function PlayerDetailPage({
                     nameKo={team.nameKo}
                     colorPrimary={team.colorPrimary}
                     colorAccent={team.colorAccent}
+                    teamId={team.id}
                     size="sm"
                   />
                 </div>
@@ -426,7 +427,7 @@ export default async function PlayerDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-            세이버메트릭스 분석
+            세이버매트릭스 분석
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-xl bg-white border border-slate-200 p-4">

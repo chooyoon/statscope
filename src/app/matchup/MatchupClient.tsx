@@ -414,7 +414,7 @@ export default function MatchupClient() {
       {radarChartData && playerA && playerB && (
         <section className="rounded-xl bg-white border border-slate-200 p-6">
           <h2 className="text-lg font-bold text-slate-800 mb-4 text-center">
-            세이버메트릭스 비교 (100 = 리그 평균)
+            세이버매트릭스 비교 (100 = 리그 평균)
           </h2>
           <ResponsiveContainer width="100%" height={380}>
             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarChartData}>

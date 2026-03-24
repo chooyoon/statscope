@@ -295,6 +295,7 @@ export default async function TeamDetailPage({
               nameKo={team.nameKo}
               colorPrimary={tc}
               colorAccent={tcAccent}
+              teamId={team.id}
               size="lg"
               dark
             />

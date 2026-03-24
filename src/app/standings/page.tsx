@@ -118,6 +118,7 @@ export default async function StandingsPage() {
                         nameKo={team?.nameKo ?? record.team.name}
                         colorPrimary={team?.colorPrimary ?? "#6366f1"}
                         colorAccent={team?.colorAccent ?? "#818cf8"}
+                        teamId={record.team.id}
                         size="sm"
                       />
                     </div>

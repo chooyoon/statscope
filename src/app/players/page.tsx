@@ -9,7 +9,7 @@ import SearchBar from "./SearchBar";
 export const metadata: Metadata = {
   title: "MLB 선수 분석 | StatScope",
   description:
-    "MLB 주요 선수들의 타격, 투구 스탯과 세이버메트릭스 분석을 확인하세요.",
+    "MLB 주요 선수들의 타격, 투구 스탯과 세이버매트릭스 분석을 확인하세요.",
 };
 
 const FEATURED_HITTERS = [
@@ -142,7 +142,7 @@ export default async function PlayersPage({
           MLB 선수 분석
         </h1>
         <p className="text-slate-500 max-w-2xl mx-auto mb-8">
-          선수를 검색하거나 주요 스타 선수들의 성적과 세이버메트릭스를
+          선수를 검색하거나 주요 스타 선수들의 성적과 세이버매트릭스를
           확인하세요.
         </p>
         <Suspense>

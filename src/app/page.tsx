@@ -112,13 +112,13 @@ export default async function HomePage({
           <div className="absolute bottom-8 right-[12%] text-5xl opacity-15 select-none" aria-hidden="true">&#9918;</div>
           <div className="absolute top-1/2 right-[5%] text-3xl opacity-10 select-none hidden sm:block" aria-hidden="true">&#9918;</div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white drop-shadow-lg">
-            Stat<span className="text-blue-300">Scope</span>
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
+            <span className="text-amber-400">Stat</span><span className="text-cyan-300">Scope</span>
           </h1>
-          <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">
+          <p className="mt-4 text-lg sm:text-xl text-amber-200 font-semibold drop-shadow-md">
             MLB 심층 분석 플랫폼
           </p>
-          <p className="mt-2 text-sm text-blue-200 drop-shadow">
+          <p className="mt-2 text-sm text-cyan-200/90 drop-shadow">
             경기 일정 &middot; 실시간 스코어 &middot; 선수 스탯 &middot; 팀 순위
           </p>
         </div>
@@ -204,6 +204,7 @@ export default async function HomePage({
                         nameKo={awayTeam?.nameKo ?? game.teams.away.team.name}
                         colorPrimary={awayTeam?.colorPrimary ?? "#6366f1"}
                         colorAccent={awayTeam?.colorAccent ?? "#818cf8"}
+                        teamId={game.teams.away.team.id}
                         size="sm"
                       />
                       {(isFinished || isLive) &&
@@ -226,6 +227,7 @@ export default async function HomePage({
                         nameKo={homeTeam?.nameKo ?? game.teams.home.team.name}
                         colorPrimary={homeTeam?.colorPrimary ?? "#6366f1"}
                         colorAccent={homeTeam?.colorAccent ?? "#818cf8"}
+                        teamId={game.teams.home.team.id}
                         size="sm"
                       />
                       {(isFinished || isLive) &&

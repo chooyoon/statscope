@@ -116,10 +116,13 @@ export default function PlayerMatchupPanel({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="text-left hover:underline cursor-pointer transition-colors"
-        title="상대 전적 보기"
+        className="text-left hover:underline cursor-pointer transition-colors inline-flex items-center gap-1 group"
+        title="클릭하여 상대 전적 보기"
       >
         {playerName}
+        <svg className="w-3 h-3 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+        </svg>
       </button>
 
       {/* Backdrop */}
@@ -293,6 +296,33 @@ export default function PlayerMatchupPanel({
                   );
                 })}
               </tbody>
+              {/* Average summary */}
+              {matchups.filter(m => !m.loading && m.stat && (m.stat.atBats ?? 0) > 0).length > 0 && (
+                <tfoot>
+                  <tr className="border-t-2 border-slate-200 bg-slate-100">
+                    <td className="px-3 py-2.5 text-xs font-bold text-slate-700">합계/평균</td>
+                    {(() => {
+                      const valid = matchups.filter(m => !m.loading && m.stat && (m.stat.atBats ?? 0) > 0);
+                      const totalAB = valid.reduce((s, m) => s + (m.stat!.atBats ?? 0), 0);
+                      const totalH = valid.reduce((s, m) => s + (m.stat!.hits ?? 0), 0);
+                      const totalHR = valid.reduce((s, m) => s + (m.stat!.homeRuns ?? 0), 0);
+                      const totalK = valid.reduce((s, m) => s + (m.stat!.strikeOuts ?? 0), 0);
+                      const totalBB = valid.reduce((s, m) => s + (m.stat!.baseOnBalls ?? 0), 0);
+                      const avg = totalAB > 0 ? (totalH / totalAB).toFixed(3) : "-";
+                      return (
+                        <>
+                          <td className="px-2 py-2.5 text-center text-xs font-mono font-bold text-slate-700">{totalAB}</td>
+                          <td className={`px-2 py-2.5 text-center text-xs font-mono font-bold ${getAvgColor(avg)}`}>{avg}</td>
+                          <td className="px-2 py-2.5 text-center text-xs font-mono font-bold text-slate-700">{totalH}</td>
+                          <td className="px-2 py-2.5 text-center text-xs font-mono font-bold text-slate-700">{totalHR}</td>
+                          <td className="px-2 py-2.5 text-center text-xs font-mono font-bold text-slate-700">{totalK}</td>
+                          <td className="px-2 py-2.5 text-center text-xs font-mono font-bold text-slate-700">{totalBB}</td>
+                        </>
+                      );
+                    })()}
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
 
