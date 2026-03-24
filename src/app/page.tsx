@@ -10,6 +10,7 @@ import TeamBadge from "@/components/ui/TeamBadge";
 import AdBanner from "@/components/ads/AdBanner";
 import LocalTime from "@/components/game/LocalTime";
 import DateNavigator from "./page.client";
+import DateRedirect from "./DateRedirect";
 import HomeClient from "./HomeClient";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     "오늘의 MLB 경기 일정, 스코어, 선발 투수 정보를 확인하세요. StatScope에서 데이터로 야구를 읽으세요.",
 };
 
-function todayString(): string {
+function todayStringUTC(): string {
   const now = new Date();
   const y = now.getFullYear();
   const m = (now.getMonth() + 1).toString().padStart(2, "0");
@@ -84,7 +85,7 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const dateParam =
-    typeof params.date === "string" ? params.date : todayString();
+    typeof params.date === "string" ? params.date : todayStringUTC();
   const schedule = await fetchSchedule(dateParam);
 
   const games: ScheduleGame[] =
@@ -124,6 +125,9 @@ export default async function HomePage({
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Redirect to local date if no date param */}
+        {!params.date && <DateRedirect />}
+
         {/* Personalized Dashboard (logged-in users) */}
         <HomeClient />
 

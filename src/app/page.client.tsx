@@ -7,11 +7,21 @@ function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function formatDateKo(dateStr: string): string {
+function formatDateLocal(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-  return `${y}년 ${m}월 ${d}일 (${weekdays[date.getDay()]})`;
+  // Use browser locale for formatting
+  try {
+    return date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "short",
+    });
+  } catch {
+    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+    return `${y}년 ${m}월 ${d}일 (${weekdays[date.getDay()]})`;
+  }
 }
 
 function shiftDate(dateStr: string, days: number): string {
@@ -43,7 +53,7 @@ export default function DateNavigator({ date }: { date: string }) {
       </button>
 
       <h2 className="min-w-[200px] text-center text-lg font-semibold text-slate-800">
-        {formatDateKo(date)}
+        {formatDateLocal(date)}
       </h2>
 
       <button
