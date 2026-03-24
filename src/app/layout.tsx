@@ -38,6 +38,13 @@ export default function RootLayout({
         </div>
         <footer className="border-t border-slate-200 bg-white py-8">
           <div className="mx-auto max-w-7xl px-4 text-center">
+            <div className="flex items-center justify-center gap-4 mb-3">
+              <a href="/about" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">서비스 소개</a>
+              <span className="text-slate-300">|</span>
+              <a href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">개인정보처리방침</a>
+              <span className="text-slate-300">|</span>
+              <a href="mailto:statscope.help@gmail.com" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">문의</a>
+            </div>
             <p className="text-sm font-medium text-slate-500">
               &copy; {new Date().getFullYear()} StatScope. All rights reserved.
             </p>
