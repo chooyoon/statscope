@@ -106,23 +106,40 @@ export default async function GameDetailPage({
 
   let boxscore: BoxscoreResponse;
   let linescore: LinescoreResponse;
-  let gameState: string = "Preview"; // abstractGameState from schedule
+  let gameState: string = "Preview";
+  let scheduleProbableHome: { id: number; fullName: string } | null = null;
+  let scheduleProbableAway: { id: number; fullName: string } | null = null;
 
   try {
-    [boxscore, linescore] = await Promise.all([
+    const [boxRes, lineRes, schedRes] = await Promise.all([
       fetchGameBoxscore(pk),
       fetchGameLinescore(pk),
+      fetch(
+        `https://statsapi.mlb.com/api/v1/schedule?gamePk=${pk}&sportId=1&hydrate=probablePitcher`,
+        { next: { revalidate: 120 } }
+      ),
     ]);
+    boxscore = boxRes;
+    linescore = lineRes;
 
-    // Fetch actual game status from schedule API (single source of truth)
-    const scheduleRes = await fetch(
-      `https://statsapi.mlb.com/api/v1/schedule?gamePk=${pk}&sportId=1`,
-      { next: { revalidate: 120 } }
-    );
-    if (scheduleRes.ok) {
-      const scheduleData = await scheduleRes.json();
-      const game = scheduleData.dates?.[0]?.games?.[0];
-      if (game) gameState = game.status.abstractGameState ?? "Preview";
+    if (schedRes.ok) {
+      const schedData = await schedRes.json();
+      const game = schedData.dates?.[0]?.games?.[0];
+      if (game) {
+        gameState = game.status?.abstractGameState ?? "Preview";
+        if (game.teams?.away?.probablePitcher) {
+          scheduleProbableAway = {
+            id: game.teams.away.probablePitcher.id,
+            fullName: game.teams.away.probablePitcher.fullName,
+          };
+        }
+        if (game.teams?.home?.probablePitcher) {
+          scheduleProbableHome = {
+            id: game.teams.home.probablePitcher.id,
+            fullName: game.teams.home.probablePitcher.fullName,
+          };
+        }
+      }
     }
   } catch {
     notFound();
@@ -161,15 +178,25 @@ export default async function GameDetailPage({
   }
 
   // --- Starting Pitchers Season Stats ---
-  // Identify starters from first pitcher in pitchers array
-  const homeStarterId = boxscore.teams.home.pitchers[0];
-  const awayStarterId = boxscore.teams.away.pitchers[0];
+  // Identify starters: boxscore pitchers[0] first, fallback to schedule probablePitcher
+  const homeStarterId = boxscore.teams.home.pitchers[0] ?? scheduleProbableHome?.id;
+  const awayStarterId = boxscore.teams.away.pitchers[0] ?? scheduleProbableAway?.id;
 
   const homeStarter = homeStarterId
-    ? boxscore.teams.home.players[`ID${homeStarterId}`]
+    ? (boxscore.teams.home.players[`ID${homeStarterId}`] ?? (scheduleProbableHome ? {
+        person: { id: scheduleProbableHome.id, fullName: scheduleProbableHome.fullName },
+        jerseyNumber: "",
+        position: { abbreviation: "P" },
+        stats: { batting: {}, pitching: {}, fielding: {} },
+      } as BoxscorePlayer : undefined))
     : undefined;
   const awayStarter = awayStarterId
-    ? boxscore.teams.away.players[`ID${awayStarterId}`]
+    ? (boxscore.teams.away.players[`ID${awayStarterId}`] ?? (scheduleProbableAway ? {
+        person: { id: scheduleProbableAway.id, fullName: scheduleProbableAway.fullName },
+        jerseyNumber: "",
+        position: { abbreviation: "P" },
+        stats: { batting: {}, pitching: {}, fielding: {} },
+      } as BoxscorePlayer : undefined))
     : undefined;
 
   // Fetch season stats for both starters in parallel
