@@ -122,30 +122,88 @@ function generateKoreanSummary(title: string): string {
     ko = ko.replace(new RegExp(en, 'gi'), kr);
   }
 
-  // Replace common baseball action words
+  // Replace common baseball terms (order matters - longer phrases first)
   const WORD_MAP: [RegExp, string][] = [
+    // Multi-word phrases first
+    [/\bspring training\b/gi, '스프링 트레이닝'],
+    [/\bopening day\b/gi, '개막전'],
+    [/\bworld series\b/gi, '월드시리즈'],
+    [/\ball[- ]star\b/gi, '올스타'],
+    [/\bfree agents?\b/gi, 'FA'],
+    [/\bhome runs?\b/gi, '홈런'],
+    [/\bgrand slam\b/gi, '그랜드슬램'],
+    [/\bwalk[- ]off\b/gi, '끝내기'],
+    [/\bno[- ]hit(?:ter)?\b/gi, '노히트노런'],
+    [/\binjured list\b/gi, '부상자명단'],
+    [/\bstarting lineup\b/gi, '선발라인업'],
+    [/\bstarting pitcher\b/gi, '선발투수'],
+    [/\brelief pitcher\b/gi, '구원투수'],
+    [/\bbatting order\b/gi, '타순'],
+    [/\bbatting average\b/gi, '타율'],
+    [/\bpower rankings?\b/gi, '파워랭킹'],
+    [/\btrade deadline\b/gi, '트레이드 마감'],
+    [/\bminor league\b/gi, '마이너리그'],
+    [/\bmajor league\b/gi, '메이저리그'],
+    [/\bfarm system\b/gi, '팜 시스템'],
+    [/\bbullpen\b/gi, '불펜'],
+    [/\blineup\b/gi, '라인업'],
+    [/\brookie\b/gi, '루키'],
+    // Single words
     [/\bagreed?\b/gi, '합의'],
     [/\bsigns?\b/gi, '계약'],
+    [/\bsigned\b/gi, '계약'],
     [/\btraded?\b/gi, '트레이드'],
+    [/\btrades?\b/gi, '트레이드'],
     [/\binjur(?:ed|y|ies)\b/gi, '부상'],
     [/\broster\b/gi, '로스터'],
     [/\bextension\b/gi, '연장 계약'],
-    [/\bfree agents?\b/gi, 'FA'],
-    [/\bopening day\b/gi, '개막전'],
-    [/\bspring training\b/gi, '스프링 트레이닝'],
-    [/\bworld series\b/gi, '월드시리즈'],
-    [/\ball[- ]star\b/gi, '올스타'],
-    [/\bwalk[- ]off\b/gi, '끝내기'],
-    [/\bno[- ]hit(?:ter)?\b/gi, '노히트노런'],
     [/\bshutout\b/gi, '완봉'],
     [/\bprospects?\b/gi, '유망주'],
     [/\bplayoffs?\b/gi, '포스트시즌'],
     [/\bpostseason\b/gi, '포스트시즌'],
-    [/\bhome run\b/gi, '홈런'],
-    [/\bgrand slam\b/gi, '그랜드슬램'],
-    [/\bstrikeout\b/gi, '삼진'],
-    [/\bpitcher\b/gi, '투수'],
-    [/\bbatter\b/gi, '타자'],
+    [/\bstrikeouts?\b/gi, '삼진'],
+    [/\bpitchers?\b/gi, '투수'],
+    [/\bbatters?\b/gi, '타자'],
+    [/\bmanager\b/gi, '감독'],
+    [/\bcoach\b/gi, '코치'],
+    [/\bumpires?\b/gi, '심판'],
+    [/\binning(?:s)?\b/gi, '이닝'],
+    [/\bdoubleheader\b/gi, '더블헤더'],
+    [/\bsweep\b/gi, '스윕'],
+    [/\bcomeback\b/gi, '역전'],
+    [/\brecap\b/gi, '경기 요약'],
+    [/\bhighlights?\b/gi, '하이라이트'],
+    [/\bscout(?:ing)?\b/gi, '스카우팅'],
+    [/\bdraft\b/gi, '드래프트'],
+    [/\bclutch\b/gi, '클러치'],
+    [/\bslump\b/gi, '슬럼프'],
+    [/\bslider\b/gi, '슬라이더'],
+    [/\bfastball\b/gi, '패스트볼'],
+    [/\bcurveball\b/gi, '커브볼'],
+    [/\bchangeup\b/gi, '체인지업'],
+    [/\bsaves?\b/gi, '세이브'],
+    [/\bholds?\b/gi, '홀드'],
+    [/\bDFA(?:'?d)?\b/g, '지명할당(DFA)'],
+    [/\bcall(?:ed)?[- ]?up\b/gi, '콜업'],
+    [/\bopt(?:ion)?(?:ed)?\b/gi, '옵션'],
+    [/\bwaiv(?:er|ed)\b/gi, '웨이버'],
+    [/\breleased?\b/gi, '방출'],
+    [/\bacquired?\b/gi, '영입'],
+    [/\bbeat\b/gi, '승리'],
+    [/\bdefeated?\b/gi, '격파'],
+    [/\bwins?\b/gi, '승'],
+    [/\bloss(?:es)?\b/gi, '패'],
+    [/\bvictory\b/gi, '승리'],
+    [/\bweeks?\b/gi, '주'],
+    [/\bmonths?\b/gi, '개월'],
+    [/\bseason\b/gi, '시즌'],
+    [/\bseries\b/gi, '시리즈'],
+    [/\bgame\b/gi, '경기'],
+    [/\bteam\b/gi, '팀'],
+    [/\bplayer\b/gi, '선수'],
+    [/\bstar\b/gi, '스타'],
+    [/\bveteran\b/gi, '베테랑'],
+    [/\bcaptain\b/gi, '주장'],
   ];
   for (const [regex, kr] of WORD_MAP) {
     ko = ko.replace(regex, kr);
@@ -239,15 +297,8 @@ export default function NewsClient({ articles }: { articles: NewsArticle[] }) {
                 )}
                 <div className="p-5">
                   <h3 className="text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors mb-1 leading-snug">
-                    {article.title}
+                    {koreanMode && koreanSummary && koreanSummary !== article.title ? koreanSummary : article.title}
                   </h3>
-
-                  {/* Korean summary sentence */}
-                  {koreanMode && koreanSummary && (
-                    <p className="text-[13px] italic text-slate-600 line-clamp-2 mb-2 leading-relaxed">
-                      {koreanSummary}
-                    </p>
-                  )}
 
                   {/* Korean keyword tags */}
                   {koreanMode && tags.length > 0 && (

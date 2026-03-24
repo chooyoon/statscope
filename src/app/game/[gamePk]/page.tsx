@@ -661,7 +661,7 @@ export default async function GameDetailPage({
           </div>
 
           {/* Side-by-side comparison bars */}
-          {awayAdv && homeAdv && (
+          {(awayAdv || homeAdv) && (
             <div className="mt-4 rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
                 시즌 성적 비교 (선발 투수)
@@ -669,8 +669,8 @@ export default async function GameDetailPage({
               <div className="space-y-4">
                 <ComparisonBar
                   label="ERA"
-                  awayVal={awayAdv.era}
-                  homeVal={homeAdv.era}
+                  awayVal={(awayAdv?.era ?? 0)}
+                  homeVal={(homeAdv?.era ?? 0)}
                   awayColor={awayColor}
                   homeColor={homeColor}
                   awayName={awayTeam?.abbreviation ?? "AWAY"}
@@ -681,8 +681,8 @@ export default async function GameDetailPage({
                 />
                 <ComparisonBar
                   label="FIP"
-                  awayVal={awayAdv.fip}
-                  homeVal={homeAdv.fip}
+                  awayVal={(awayAdv?.fip ?? 0)}
+                  homeVal={(homeAdv?.fip ?? 0)}
                   awayColor={awayColor}
                   homeColor={homeColor}
                   awayName={awayTeam?.abbreviation ?? "AWAY"}
@@ -693,8 +693,8 @@ export default async function GameDetailPage({
                 />
                 <ComparisonBar
                   label="WHIP"
-                  awayVal={awayAdv.whip}
-                  homeVal={homeAdv.whip}
+                  awayVal={(awayAdv?.whip ?? 0)}
+                  homeVal={(homeAdv?.whip ?? 0)}
                   awayColor={awayColor}
                   homeColor={homeColor}
                   awayName={awayTeam?.abbreviation ?? "AWAY"}
@@ -705,8 +705,8 @@ export default async function GameDetailPage({
                 />
                 <ComparisonBar
                   label="K%"
-                  awayVal={awayAdv.kPct}
-                  homeVal={homeAdv.kPct}
+                  awayVal={(awayAdv?.kPct ?? 0)}
+                  homeVal={(homeAdv?.kPct ?? 0)}
                   awayColor={awayColor}
                   homeColor={homeColor}
                   awayName={awayTeam?.abbreviation ?? "AWAY"}
@@ -716,8 +716,8 @@ export default async function GameDetailPage({
                 />
                 <ComparisonBar
                   label="BB%"
-                  awayVal={awayAdv.bbPct}
-                  homeVal={homeAdv.bbPct}
+                  awayVal={(awayAdv?.bbPct ?? 0)}
+                  homeVal={(homeAdv?.bbPct ?? 0)}
                   awayColor={awayColor}
                   homeColor={homeColor}
                   awayName={awayTeam?.abbreviation ?? "AWAY"}

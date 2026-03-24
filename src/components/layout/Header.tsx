@@ -8,9 +8,6 @@ import AuthButton from "@/components/auth/AuthButton";
 const NAV_ITEMS = [
   { href: "/", label: "오늘의 경기" },
   { href: "/standings", label: "팀 순위" },
-  { href: "/players", label: "선수 분석" },
-  { href: "/matchup", label: "매치업" },
-  { href: "/korean", label: "코리안 메이저리거" },
   { href: "/news", label: "소식" },
 ];
 
