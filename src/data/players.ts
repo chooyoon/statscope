@@ -145,17 +145,9 @@ export const playerNamesKo: Record<number, string> = {
  * Returns only the Korean name if available, otherwise the English name.
  */
 export function displayName(id: number, englishName: string): string {
-  return playerNamesKo[id] ?? englishName;
+  return englishName;
 }
 
-/**
- * Get a full display string showing both Korean and English names.
- * Format: "한글이름 (English Name)" or just "English Name" if no Korean name exists.
- */
 export function displayNameFull(id: number, englishName: string): string {
-  const ko = playerNamesKo[id];
-  if (ko) {
-    return `${ko} (${englishName})`;
-  }
   return englishName;
 }

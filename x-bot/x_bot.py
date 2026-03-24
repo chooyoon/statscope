@@ -1,32 +1,32 @@
 """
-StatScope Bluesky 자동 포스팅 봇
-=====================================
-MLB 경기 결과, 선수 통계, 한국 선수 성적을 Bluesky에 자동 포스팅합니다.
+StatScope Bluesky Auto-Posting Bot
+====================================
+Automatically posts MLB game previews, recaps, and stats to Bluesky.
+Optimized for US audience with ET timezone scheduling.
 
-사용법:
-    python x_bot.py recap          # 오늘 완료된 경기 결과
-    python x_bot.py preview        # 오늘 경기 프리뷰
-    python x_bot.py leaders        # 리그 리더
-    python x_bot.py korean         # 한국 선수 성적
-    python x_bot.py auto           # 시간대에 맞는 포스트 자동 선택
-    python x_bot.py --dry-run ...  # 포스팅 안 하고 미리보기만
+Usage:
+    python x_bot.py preview        # Today's game previews with analysis
+    python x_bot.py recap          # Game results & highlights
+    python x_bot.py leaders        # League leaders
+    python x_bot.py korean         # Korean player tracker
+    python x_bot.py auto           # Auto-select based on ET time
+    python x_bot.py --dry-run ...  # Preview without posting
 """
 
 import argparse
 import io
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-# Windows 콘솔 UTF-8 출력 설정
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 import requests
 
-# ─── 설정 ────────────────────────────────────────────────
+# ─── Config ───────────────────────────────────────────────
 try:
     from dotenv import load_dotenv
     load_dotenv(Path(__file__).parent / ".env")
@@ -36,55 +36,72 @@ except ImportError:
 STATSCOPE_URL = os.getenv("STATSCOPE_URL", "https://statscope.vercel.app")
 MLB_API = "https://statsapi.mlb.com/api/v1"
 
-# Bluesky 설정
 BLUESKY_HANDLE = os.getenv("BLUESKY_HANDLE", "")
 BLUESKY_PASSWORD = os.getenv("BLUESKY_PASSWORD", "")
 
-# 한국 선수
+# US Eastern Time (UTC-4 during DST, UTC-5 otherwise)
+ET = timezone(timedelta(hours=-4))  # EDT (March-November)
+
+BASE_TAGS = "#MLB #Baseball #StatScope"
+
+# Korean players
 KOREAN_PLAYERS = {
-    "김혜성": {"id": 664285, "team": "MIN", "pos": "2B"},
-    "이정후": {"id": 808967, "team": "SF", "pos": "OF"},
-    "배지환": {"id": 666166, "team": "PIT", "pos": "IF"},
-    "김하성": {"id": 673490, "team": "SD", "pos": "SS"},
+    "Hye-seong Kim": {"id": 664285, "team": "MIN", "pos": "2B", "kr": "김혜성"},
+    "Jung Hoo Lee": {"id": 808967, "team": "SF", "pos": "OF", "kr": "이정후"},
+    "Ji Hwan Bae": {"id": 666166, "team": "PIT", "pos": "IF", "kr": "배지환"},
+    "Ha-Seong Kim": {"id": 673490, "team": "SD", "pos": "SS", "kr": "김하성"},
 }
 
-# 해시태그
-BASE_TAGS = "#MLB #StatScope"
-KOREAN_TAGS = "#MLB #코리안리거 #StatScope"
-
-# 팀 약칭 → 한글
-TEAM_KR = {
-    "New York Yankees": "양키스", "New York Mets": "메츠",
-    "Los Angeles Dodgers": "다저스", "Los Angeles Angels": "에인절스",
-    "San Diego Padres": "파드리스", "San Francisco Giants": "자이언츠",
-    "Houston Astros": "애스트로스", "Atlanta Braves": "브레이브스",
-    "Philadelphia Phillies": "필리스", "Texas Rangers": "레인저스",
-    "Minnesota Twins": "트윈스", "Pittsburgh Pirates": "파이리츠",
-    "Boston Red Sox": "레드삭스", "Chicago Cubs": "컵스",
-    "Chicago White Sox": "화이트삭스", "Toronto Blue Jays": "블루제이스",
-    "Baltimore Orioles": "오리올스", "Tampa Bay Rays": "레이스",
-    "Seattle Mariners": "매리너스", "Cleveland Guardians": "가디언스",
-    "Detroit Tigers": "타이거스", "Kansas City Royals": "로열스",
-    "Oakland Athletics": "애슬레틱스", "Milwaukee Brewers": "브루어스",
-    "St. Louis Cardinals": "카디널스", "Cincinnati Reds": "레즈",
-    "Arizona Diamondbacks": "다이아몬드백스", "Colorado Rockies": "로키스",
-    "Miami Marlins": "말린스", "Washington Nationals": "내셔널스",
+# Team abbreviations
+TEAM_ABBR = {
+    "New York Yankees": "NYY", "New York Mets": "NYM",
+    "Los Angeles Dodgers": "LAD", "Los Angeles Angels": "LAA",
+    "San Diego Padres": "SD", "San Francisco Giants": "SF",
+    "Houston Astros": "HOU", "Atlanta Braves": "ATL",
+    "Philadelphia Phillies": "PHI", "Texas Rangers": "TEX",
+    "Minnesota Twins": "MIN", "Pittsburgh Pirates": "PIT",
+    "Boston Red Sox": "BOS", "Chicago Cubs": "CHC",
+    "Chicago White Sox": "CWS", "Toronto Blue Jays": "TOR",
+    "Baltimore Orioles": "BAL", "Tampa Bay Rays": "TB",
+    "Seattle Mariners": "SEA", "Cleveland Guardians": "CLE",
+    "Detroit Tigers": "DET", "Kansas City Royals": "KC",
+    "Oakland Athletics": "OAK", "Milwaukee Brewers": "MIL",
+    "St. Louis Cardinals": "STL", "Cincinnati Reds": "CIN",
+    "Arizona Diamondbacks": "ARI", "Colorado Rockies": "COL",
+    "Miami Marlins": "MIA", "Washington Nationals": "WSH",
 }
 
 
-def kr_team(name: str) -> str:
-    return TEAM_KR.get(name, name)
+def abbr(name: str) -> str:
+    return TEAM_ABBR.get(name, name)
+
+
+def now_et() -> datetime:
+    return datetime.now(ET)
 
 
 # ─── MLB API ──────────────────────────────────────────────
 def fetch_schedule(date_str: str) -> list:
-    url = f"{MLB_API}/schedule?date={date_str}&sportId=1&hydrate=team,linescore,decisions,probablePitcher"
+    url = f"{MLB_API}/schedule?date={date_str}&sportId=1&hydrate=team,linescore,decisions,probablePitcher,stats"
     resp = requests.get(url, timeout=10)
     data = resp.json()
     games = []
     for d in data.get("dates", []):
         games.extend(d.get("games", []))
     return games
+
+
+def fetch_team_record(team_id: int) -> dict:
+    url = f"{MLB_API}/teams/{team_id}/stats?stats=season&group=overall&season=2025"
+    resp = requests.get(url, timeout=10)
+    return resp.json()
+
+
+def fetch_pitcher_stats(player_id: int) -> dict:
+    url = f"{MLB_API}/people/{player_id}?hydrate=stats(group=[pitching],type=season)"
+    resp = requests.get(url, timeout=10)
+    data = resp.json()
+    return data["people"][0] if data.get("people") else {}
 
 
 def fetch_player_stats(player_id: int) -> dict:
@@ -94,7 +111,7 @@ def fetch_player_stats(player_id: int) -> dict:
     return data["people"][0] if data.get("people") else {}
 
 
-def fetch_leaders(category: str, limit: int = 3) -> list:
+def fetch_leaders(category: str, limit: int = 5) -> list:
     url = f"{MLB_API}/stats/leaders?leaderCategories={category}&season=2025&limit={limit}"
     resp = requests.get(url, timeout=10)
     data = resp.json()
@@ -103,94 +120,214 @@ def fetch_leaders(category: str, limit: int = 3) -> list:
     return []
 
 
-# ─── 포스트 포맷터 ────────────────────────────────────────
-def format_game_recap(game: dict) -> str:
-    """경기 결과 포맷"""
+def fetch_team_standings() -> dict:
+    """Get team W-L records"""
+    url = f"{MLB_API}/standings?leagueId=103,104&season=2025&standingsTypes=regularSeason"
+    resp = requests.get(url, timeout=10)
+    data = resp.json()
+    records = {}
+    for rec in data.get("records", []):
+        for team_rec in rec.get("teamRecords", []):
+            tid = team_rec["team"]["id"]
+            w = team_rec.get("wins", 0)
+            l = team_rec.get("losses", 0)
+            pct = team_rec.get("winningPercentage", ".000")
+            streak = team_rec.get("streak", {}).get("streakCode", "")
+            records[tid] = {"w": w, "l": l, "pct": pct, "streak": streak}
+    return records
+
+
+def get_pitcher_line(pitcher: dict) -> str:
+    """Get pitcher's season stats one-liner"""
+    if not pitcher:
+        return ""
+    pid = pitcher.get("id")
+    name = pitcher.get("fullName", "TBD")
+    if not pid:
+        return name
+
+    try:
+        p = fetch_pitcher_stats(pid)
+        for sg in p.get("stats", []):
+            splits = sg.get("splits", [])
+            if not splits:
+                continue
+            s = splits[-1].get("stat", {})
+            era = s.get("era", "-")
+            w = s.get("wins", 0)
+            l = s.get("losses", 0)
+            so = s.get("strikeOuts", 0)
+            whip = s.get("whip", "-")
+            return f"{name} ({w}-{l}, {era} ERA, {whip} WHIP)"
+    except Exception:
+        pass
+    return name
+
+
+# ─── Post Formatters ─────────────────────────────────────
+def format_single_preview(game: dict, standings: dict) -> str:
+    """Detailed single game preview with analysis"""
     home = game["teams"]["home"]
     away = game["teams"]["away"]
-    home_name = kr_team(home["team"]["name"])
-    away_name = kr_team(away["team"]["name"])
+    home_name = home["team"]["name"]
+    away_name = away["team"]["name"]
+    home_id = home["team"]["id"]
+    away_id = away["team"]["id"]
+
+    # Records
+    hr = standings.get(home_id, {})
+    ar = standings.get(away_id, {})
+    home_rec = f"{hr.get('w', 0)}-{hr.get('l', 0)}" if hr else ""
+    away_rec = f"{ar.get('w', 0)}-{ar.get('l', 0)}" if ar else ""
+    home_streak = hr.get("streak", "") if hr else ""
+    away_streak = ar.get("streak", "") if ar else ""
+
+    # Probable pitchers
+    pp_away = away.get("probablePitcher", {})
+    pp_home = home.get("probablePitcher", {})
+    away_sp = get_pitcher_line(pp_away)
+    home_sp = get_pitcher_line(pp_home)
+
+    # Game time
+    game_date = game.get("gameDate", "")
+    try:
+        gt = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
+        et_time = gt.astimezone(ET).strftime("%-I:%M %p ET")
+    except Exception:
+        et_time = "TBD"
+
+    lines = [
+        f"🔎 GAME PREVIEW",
+        f"",
+        f"{abbr(away_name)} ({away_rec}) @ {abbr(home_name)} ({home_rec})",
+        f"⏰ {et_time}",
+    ]
+
+    if away_streak or home_streak:
+        lines.append(f"")
+        if away_streak:
+            lines.append(f"{abbr(away_name)}: {away_streak}")
+        if home_streak:
+            lines.append(f"{abbr(home_name)}: {home_streak}")
+
+    lines.append(f"")
+    lines.append(f"⚾ Pitching Matchup:")
+    if away_sp:
+        lines.append(f"  {abbr(away_name)}: {away_sp}")
+    if home_sp:
+        lines.append(f"  {abbr(home_name)}: {home_sp}")
+
+    lines.append(f"")
+    lines.append(f"Full analysis 👉 {STATSCOPE_URL}")
+    lines.append(BASE_TAGS)
+
+    return "\n".join(lines)
+
+
+def format_daily_slate(games: list, standings: dict) -> str:
+    """Today's full slate overview"""
+    et = now_et()
+    date_str = et.strftime("%B %d")
+    lines = [
+        f"📅 MLB Schedule — {date_str}",
+        f"{len(games)} game{'s' if len(games) != 1 else ''} today",
+        f"",
+    ]
+
+    for game in games[:10]:
+        home = game["teams"]["home"]
+        away = game["teams"]["away"]
+        home_name = abbr(home["team"]["name"])
+        away_name = abbr(away["team"]["name"])
+
+        # Game time
+        game_date = game.get("gameDate", "")
+        try:
+            gt = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
+            et_time = gt.astimezone(ET).strftime("%-I:%M")
+        except Exception:
+            et_time = "TBD"
+
+        pp_away = away.get("probablePitcher", {}).get("fullName", "TBD")
+        pp_home = home.get("probablePitcher", {}).get("fullName", "TBD")
+
+        lines.append(f"▫️ {away_name} @ {home_name} — {et_time}")
+        lines.append(f"   {pp_away} vs {pp_home}")
+
+    if len(games) > 10:
+        lines.append(f"  ...+{len(games) - 10} more")
+
+    lines.append(f"")
+    lines.append(f"Previews 👉 {STATSCOPE_URL}")
+    lines.append(BASE_TAGS)
+
+    return "\n".join(lines)
+
+
+def format_game_recap(game: dict) -> str:
+    """Game result with highlights"""
+    home = game["teams"]["home"]
+    away = game["teams"]["away"]
+    home_name = abbr(home["team"]["name"])
+    away_name = abbr(away["team"]["name"])
     home_score = home.get("score", 0)
     away_score = away.get("score", 0)
 
     winner = home_name if home_score > away_score else away_name
-    w_score = max(home_score, away_score)
+    loser = away_name if home_score > away_score else home_name
 
     decisions = game.get("decisions", {})
     wp = decisions.get("winner", {}).get("fullName", "")
     lp = decisions.get("loser", {}).get("fullName", "")
     sv = decisions.get("save", {}).get("fullName", "")
 
-    lines = [
-        f"⚾ {away_name} vs {home_name}",
-        f"",
-        f"📊 최종 {away_score} : {home_score}",
-        f"🏆 {winner} 승리!",
-    ]
-
-    if wp:
-        lines.append(f"")
-        lines.append(f"승 {wp}")
-    if lp:
-        lines.append(f"패 {lp}")
-    if sv:
-        lines.append(f"세 {sv}")
-
     diff = abs(home_score - away_score)
+    total = home_score + away_score
+
+    lines = [f"⚾ FINAL: {away_name} {away_score}, {home_name} {home_score}"]
+
+    # Highlights
+    linescore = game.get("linescore", {})
+    innings = linescore.get("innings", [])
+
+    if len(innings) > 9:
+        lines[0] = f"⚾ FINAL ({len(innings)}): {away_name} {away_score}, {home_name} {home_score}"
+
     if diff <= 1:
-        lines.append(f"")
-        lines.append(f"🔥 {diff}점차 접전!")
-    elif w_score >= 10:
-        lines.append(f"")
-        lines.append(f"💣 {winner} 타선 폭발!")
+        lines.append(f"🔥 Nail-biter!")
+    elif diff >= 10:
+        lines.append(f"💣 {winner} blowout!")
+    elif total >= 20:
+        lines.append(f"💥 Slugfest! {total} combined runs")
+
+    if min(home_score, away_score) == 0:
+        lines.append(f"🚫 Shutout by {winner}!")
 
     lines.append(f"")
-    lines.append(f"자세한 분석 👉 {STATSCOPE_URL}")
-    lines.append(BASE_TAGS)
-
-    return "\n".join(lines)
-
-
-def format_preview(games: list) -> str:
-    """오늘 경기 프리뷰"""
-    today = datetime.now().strftime("%m/%d")
-    lines = [
-        f"📅 {today} 오늘의 MLB ({len(games)}경기)",
-        f"",
-    ]
-
-    for game in games[:8]:
-        home = kr_team(game["teams"]["home"]["team"]["name"])
-        away = kr_team(game["teams"]["away"]["team"]["name"])
-
-        pp_away = game["teams"]["away"].get("probablePitcher", {}).get("fullName", "")
-        pp_home = game["teams"]["home"].get("probablePitcher", {}).get("fullName", "")
-
-        matchup = f"▫️ {away} @ {home}"
-        if pp_away and pp_home:
-            matchup += f" ({pp_away} vs {pp_home})"
-        lines.append(matchup)
-
-    if len(games) > 8:
-        lines.append(f"  ...외 {len(games) - 8}경기")
+    if wp:
+        lines.append(f"W: {wp}")
+    if lp:
+        lines.append(f"L: {lp}")
+    if sv:
+        lines.append(f"SV: {sv}")
 
     lines.append(f"")
-    lines.append(f"매치업 분석 👉 {STATSCOPE_URL}")
+    lines.append(f"Box score & stats 👉 {STATSCOPE_URL}")
     lines.append(BASE_TAGS)
 
     return "\n".join(lines)
 
 
 def format_leaders() -> str:
-    """리그 리더"""
+    """League leaders"""
     categories = {
-        "homeRuns": "홈런",
-        "battingAverage": "타율",
+        "homeRuns": "HR",
+        "battingAverage": "AVG",
         "earnedRunAverage": "ERA",
     }
 
     lines = [
-        f"📈 2025 MLB 리그 리더 업데이트",
+        f"📊 2025 MLB Leaders",
         f"",
     ]
 
@@ -199,25 +336,25 @@ def format_leaders() -> str:
         if not leaders:
             continue
 
-        lines.append(f"🏅 {cat_name}")
+        lines.append(f"🏆 {cat_name}")
         for leader in leaders:
             name = leader["person"]["fullName"]
             value = leader["value"]
             rank = leader["rank"]
-            medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, f"{rank}.")
-            lines.append(f"  {medal} {name} {value}")
+            medal = {1: "1.", 2: "2.", 3: "3."}.get(rank, f"{rank}.")
+            lines.append(f"  {medal} {name} — {value}")
         lines.append("")
 
-    lines.append(f"전체 순위 👉 {STATSCOPE_URL}")
+    lines.append(f"Full leaderboard 👉 {STATSCOPE_URL}")
     lines.append(BASE_TAGS)
 
     return "\n".join(lines)
 
 
-def format_korean_players() -> str:
-    """한국 선수 성적"""
+def format_korean_tracker() -> str:
+    """Korean player performance tracker"""
     lines = [
-        f"🇰🇷 MLB 코리안 리거 성적",
+        f"🇰🇷 Korean Players in MLB — Daily Update",
         f"",
     ]
 
@@ -228,8 +365,7 @@ def format_korean_players() -> str:
             if not player:
                 continue
 
-            all_stats = player.get("stats", [])
-            for stat_group in all_stats:
+            for stat_group in player.get("stats", []):
                 splits = stat_group.get("splits", [])
                 if not splits:
                     continue
@@ -243,99 +379,41 @@ def format_korean_players() -> str:
                     rbi = stats.get("rbi", 0)
                     ops = stats.get("ops", "-")
                     lines.append(f"⚾ {name} ({info['team']})")
-                    lines.append(f"   AVG {avg} | HR {hr} | RBI {rbi} | OPS {ops}")
+                    lines.append(f"   .{avg.lstrip('.')} AVG | {hr} HR | {rbi} RBI | {ops} OPS")
                     lines.append("")
                     has_data = True
                     break
 
                 elif group == "pitching":
                     era = stats.get("era", "-")
-                    wins = stats.get("wins", 0)
-                    losses = stats.get("losses", 0)
+                    w = stats.get("wins", 0)
+                    l = stats.get("losses", 0)
                     so = stats.get("strikeOuts", 0)
                     lines.append(f"⚾ {name} ({info['team']})")
-                    lines.append(f"   ERA {era} | {wins}W-{losses}L | SO {so}")
+                    lines.append(f"   {era} ERA | {w}-{l} W-L | {so} K")
                     lines.append("")
                     has_data = True
                     break
 
         except Exception as e:
-            print(f"  [{name}] 데이터 실패: {e}")
+            print(f"  [{name}] fetch failed: {e}")
             continue
 
     if not has_data:
-        lines.append("(시즌 데이터 없음 — 비시즌)")
+        lines.append("No season data available (offseason)")
         lines.append("")
 
-    lines.append(f"한국 선수 분석 👉 {STATSCOPE_URL}")
-    lines.append(KOREAN_TAGS)
+    lines.append(f"Full stats 👉 {STATSCOPE_URL}")
+    lines.append(f"#MLB #KoreanBaseball #StatScope")
 
     return "\n".join(lines)
 
 
-def format_highlight_post(game: dict) -> str | None:
-    """특이 기록이 있는 경기만 하이라이트"""
-    home = game["teams"]["home"]
-    away = game["teams"]["away"]
-    home_score = home.get("score", 0)
-    away_score = away.get("score", 0)
-    home_name = kr_team(home["team"]["name"])
-    away_name = kr_team(away["team"]["name"])
-
-    diff = abs(home_score - away_score)
-    total = home_score + away_score
-
-    if diff == 0:
-        return None
-
-    highlights = []
-
-    if total >= 20:
-        highlights.append(f"💥 두 팀 합산 {total}점! 타격전!")
-    if diff >= 10:
-        winner = home_name if home_score > away_score else away_name
-        highlights.append(f"🌊 {winner}의 {diff}점차 대승!")
-    if max(home_score, away_score) >= 15:
-        highlights.append(f"🔥 한 팀 {max(home_score, away_score)}점 폭발!")
-
-    if min(home_score, away_score) == 0 and max(home_score, away_score) > 0:
-        winner = home_name if home_score > away_score else away_name
-        loser = away_name if home_score > away_score else home_name
-        highlights.append(f"🚫 {winner}가 {loser}를 셧아웃!")
-
-    linescore = game.get("linescore", {})
-    innings = linescore.get("innings", [])
-    if len(innings) > 9:
-        highlights.append(f"⏰ {len(innings)}이닝 연장 혈전!")
-    if diff == 1 and len(innings) >= 9:
-        last = innings[-1]
-        home_last = last.get("home", {}).get("runs", 0)
-        if home_last > 0:
-            highlights.append(f"🎯 끝내기 승리!")
-
-    if not highlights:
-        return None
-
-    lines = [
-        f"🚨 하이라이트",
-        f"",
-        f"{away_name} {away_score} : {home_score} {home_name}",
-        f"",
-    ]
-    lines.extend(highlights)
-    lines.append(f"")
-    lines.append(f"상세 분석 👉 {STATSCOPE_URL}")
-    lines.append(BASE_TAGS)
-
-    return "\n".join(lines)
-
-
-# ─── Bluesky 전송 ─────────────────────────────────────────
+# ─── Bluesky Post ─────────────────────────────────────────
 def send_post(text: str, dry_run: bool = False) -> bool:
-    """Bluesky에 포스트 전송"""
-    # Bluesky 글자 수 제한: 300자 (grapheme 기준)
+    """Send post to Bluesky"""
     if len(text) > 300:
-        print(f"  ⚠️  포스트 길이 초과 ({len(text)}/300자). 잘라냅니다.")
+        print(f"  [!] Post too long ({len(text)}/300). Trimming...")
         while len(text) > 295:
             lines = text.split("\n")
             if len(lines) > 4:
@@ -346,18 +424,17 @@ def send_post(text: str, dry_run: bool = False) -> bool:
                 break
 
     print(f"\n{'─' * 50}")
-    print(f"📝 포스트 내용 ({len(text)}자):")
+    print(f"Post ({len(text)} chars):")
     print(f"{'─' * 50}")
     print(text)
     print(f"{'─' * 50}")
 
     if dry_run:
-        print("🔸 [DRY RUN] 포스팅하지 않았습니다.")
+        print("[DRY RUN] Not posted.")
         return True
 
     if not BLUESKY_HANDLE or not BLUESKY_PASSWORD:
-        print("\n❌ Bluesky 계정 정보가 설정되지 않았습니다.")
-        print("   .env 파일에 BLUESKY_HANDLE과 BLUESKY_PASSWORD를 설정하세요.")
+        print("\n[ERROR] Bluesky credentials not set. Check .env file.")
         return False
 
     try:
@@ -366,24 +443,20 @@ def send_post(text: str, dry_run: bool = False) -> bool:
         client = Client()
         client.login(BLUESKY_HANDLE, BLUESKY_PASSWORD)
 
-        # 링크를 리치 텍스트로 변환 (클릭 가능하게)
+        # Build facets for clickable links and hashtags
         facets = []
         url_start = text.find(STATSCOPE_URL)
         if url_start != -1:
-            url_bytes_start = len(text[:url_start].encode("utf-8"))
-            url_bytes_end = url_bytes_start + len(STATSCOPE_URL.encode("utf-8"))
+            bs = len(text[:url_start].encode("utf-8"))
+            be = bs + len(STATSCOPE_URL.encode("utf-8"))
             facets.append({
-                "index": {
-                    "byteStart": url_bytes_start,
-                    "byteEnd": url_bytes_end,
-                },
+                "index": {"byteStart": bs, "byteEnd": be},
                 "features": [{
                     "$type": "app.bsky.richtext.facet#link",
                     "uri": STATSCOPE_URL,
                 }],
             })
 
-        # 해시태그 facets
         for word in text.split():
             if word.startswith("#"):
                 tag = word[1:]
@@ -400,20 +473,56 @@ def send_post(text: str, dry_run: bool = False) -> bool:
                     })
 
         post = client.send_post(text=text, facets=facets if facets else None)
-        print(f"\n✅ 포스팅 성공!")
+        print(f"\n✅ Posted!")
         print(f"   https://bsky.app/profile/{BLUESKY_HANDLE}/post/{post.uri.split('/')[-1]}")
         return True
 
     except Exception as e:
-        print(f"\n❌ 포스팅 실패: {e}")
+        print(f"\n[ERROR] Post failed: {e}")
         return False
 
 
-# ─── 메인 커맨드 ──────────────────────────────────────────
+# ─── Commands ─────────────────────────────────────────────
+def cmd_preview(dry_run: bool):
+    """Game previews with pitching matchup analysis"""
+    et = now_et()
+    today = et.strftime("%Y-%m-%d")
+    games = fetch_schedule(today)
+
+    scheduled = [g for g in games if g.get("status", {}).get("abstractGameState") != "Final"]
+
+    if not scheduled:
+        tomorrow = (et + timedelta(days=1)).strftime("%Y-%m-%d")
+        games = fetch_schedule(tomorrow)
+        scheduled = games
+
+    if not scheduled:
+        print("No scheduled games found.")
+        return
+
+    standings = fetch_team_standings()
+
+    # Post 1: Daily slate overview
+    slate = format_daily_slate(scheduled, standings)
+    send_post(slate, dry_run)
+
+    # Post 2-3: Top matchup detailed previews (pick games with both SP announced)
+    featured = [g for g in scheduled
+                if g["teams"]["away"].get("probablePitcher") and g["teams"]["home"].get("probablePitcher")]
+
+    if not featured:
+        featured = scheduled
+
+    for game in featured[:2]:
+        preview = format_single_preview(game, standings)
+        send_post(preview, dry_run)
+
+
 def cmd_recap(dry_run: bool):
-    """완료된 경기 결과"""
-    today = datetime.now().strftime("%Y-%m-%d")
-    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    """Game results"""
+    et = now_et()
+    today = et.strftime("%Y-%m-%d")
+    yesterday = (et - timedelta(days=1)).strftime("%Y-%m-%d")
 
     for date_str in [today, yesterday]:
         games = fetch_schedule(date_str)
@@ -422,93 +531,76 @@ def cmd_recap(dry_run: bool):
         if not finished:
             continue
 
-        print(f"📅 {date_str} — 완료된 경기 {len(finished)}개")
+        print(f"[{date_str}] {len(finished)} finished games")
 
         count = 0
         for game in finished:
-            highlight = format_highlight_post(game)
-            if highlight:
-                send_post(highlight, dry_run)
-                count += 1
-            else:
-                post = format_game_recap(game)
-                send_post(post, dry_run)
-                count += 1
-
+            post = format_game_recap(game)
+            send_post(post, dry_run)
+            count += 1
             if count >= 3:
                 break
-
         return
 
-    print("완료된 경기가 없습니다.")
-
-
-def cmd_preview(dry_run: bool):
-    """오늘 경기 프리뷰"""
-    today = datetime.now().strftime("%Y-%m-%d")
-    games = fetch_schedule(today)
-
-    scheduled = [g for g in games if g.get("status", {}).get("abstractGameState") != "Final"]
-
-    if not scheduled:
-        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-        games = fetch_schedule(tomorrow)
-        scheduled = games
-
-    if not scheduled:
-        print("예정된 경기가 없습니다.")
-        return
-
-    post = format_preview(scheduled)
-    send_post(post, dry_run)
+    print("No finished games found.")
 
 
 def cmd_leaders(dry_run: bool):
-    """리그 리더"""
+    """League leaders"""
     post = format_leaders()
     send_post(post, dry_run)
 
 
 def cmd_korean(dry_run: bool):
-    """한국 선수 성적"""
-    post = format_korean_players()
+    """Korean player tracker"""
+    post = format_korean_tracker()
     send_post(post, dry_run)
 
 
 def cmd_auto(dry_run: bool):
-    """시간대에 맞춰 자동 선택"""
-    hour = datetime.now().hour
+    """Auto-select based on ET timezone"""
+    hour = now_et().hour
 
-    if 8 <= hour < 12:
-        print("🕐 오전 → 경기 결과")
+    if 9 <= hour < 13:
+        # Morning ET: Yesterday's recaps
+        print(f"[{now_et().strftime('%I:%M %p ET')}] Morning → Game recaps")
         cmd_recap(dry_run)
-    elif 12 <= hour < 17:
-        print("🕐 오후 → 경기 프리뷰")
+    elif 13 <= hour < 17:
+        # Afternoon ET: Today's previews (before games start)
+        print(f"[{now_et().strftime('%I:%M %p ET')}] Afternoon → Game previews")
         cmd_preview(dry_run)
-    elif 17 <= hour < 22:
-        print("🕐 저녁 → 한국 선수 성적")
+    elif 17 <= hour < 20:
+        # Early evening: Korean player update + preview
+        print(f"[{now_et().strftime('%I:%M %p ET')}] Evening → Korean players + Preview")
         cmd_korean(dry_run)
+        cmd_preview(dry_run)
+    elif 20 <= hour <= 23:
+        # Night: Live game results as they finish
+        print(f"[{now_et().strftime('%I:%M %p ET')}] Night → Game results")
+        cmd_recap(dry_run)
     else:
-        print("🕐 밤 → 리그 리더")
+        # Late night/early morning: Leaders
+        print(f"[{now_et().strftime('%I:%M %p ET')}] Off-hours → League leaders")
         cmd_leaders(dry_run)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="StatScope Bluesky 자동 포스팅 봇")
+    parser = argparse.ArgumentParser(description="StatScope Bluesky Bot")
     parser.add_argument(
         "command",
         choices=["recap", "preview", "leaders", "korean", "auto"],
-        help="포스트 유형",
+        help="Post type",
     )
     parser.add_argument(
         "--dry-run", "-d",
         action="store_true",
-        help="실제 포스팅 안 하고 미리보기만",
+        help="Preview without posting",
     )
     args = parser.parse_args()
 
     print(f"=== StatScope Bluesky Bot ===")
-    print(f"명령: {args.command} {'(미리보기)' if args.dry_run else ''}\n")
+    print(f"Command: {args.command} {'(dry run)' if args.dry_run else ''}")
+    print(f"ET Time: {now_et().strftime('%Y-%m-%d %I:%M %p ET')}\n")
 
     commands = {
         "recap": cmd_recap,
