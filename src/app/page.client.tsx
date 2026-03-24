@@ -1,6 +1,5 @@
 "use client";
 
-// 시간대 안전한 날짜 포맷 (toISOString 사용하지 않음)
 function pad(n: number) { return n.toString().padStart(2, "0"); }
 
 function toDateStr(d: Date): string {
@@ -10,18 +9,12 @@ function toDateStr(d: Date): string {
 function formatDateLocal(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  // Use browser locale for formatting
-  try {
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "short",
-    });
-  } catch {
-    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-    return `${y}년 ${m}월 ${d}일 (${weekdays[date.getDay()]})`;
-  }
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  });
 }
 
 function shiftDate(dateStr: string, days: number): string {
