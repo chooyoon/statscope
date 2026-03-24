@@ -112,13 +112,13 @@ export default async function HomePage({
           <div className="absolute bottom-8 right-[12%] text-5xl opacity-15 select-none" aria-hidden="true">&#9918;</div>
           <div className="absolute top-1/2 right-[5%] text-3xl opacity-10 select-none hidden sm:block" aria-hidden="true">&#9918;</div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white">
-            Stat<span className="text-blue-200">Scope</span>
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white drop-shadow-lg">
+            Stat<span className="text-blue-300">Scope</span>
           </h1>
-          <p className="mt-4 text-lg sm:text-xl text-blue-100 font-medium">
+          <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">
             MLB 심층 분석 플랫폼
           </p>
-          <p className="mt-2 text-sm text-blue-200/70">
+          <p className="mt-2 text-sm text-blue-200 drop-shadow">
             경기 일정 &middot; 실시간 스코어 &middot; 선수 스탯 &middot; 팀 순위
           </p>
         </div>

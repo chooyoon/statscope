@@ -30,6 +30,7 @@ import {
   InteractivePitchingTable,
 } from "./GameClient";
 import PitchingStaffClient from "./PitchingStaffClient";
+import RosterAnalysis from "./RosterAnalysis";
 
 const CURRENT_SEASON = new Date().getFullYear();
 
@@ -440,6 +441,14 @@ export default async function GameDetailPage({
           )}
         </div>
       </section>
+
+      {/* ===== ROSTER SABERMETRICS COMPARISON ===== */}
+      <RosterAnalysis
+        homeTeamId={boxscore.teams.home.team.id}
+        awayTeamId={boxscore.teams.away.team.id}
+        homeColor={homeColor}
+        awayColor={awayColor}
+      />
 
       {/* ===== WIN PREDICTION ===== */}
       {(homeStarter || awayStarter) && (
