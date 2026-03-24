@@ -92,14 +92,23 @@ export default async function HomePage({
   if (!hasDateParam) {
     return (
       <div>
-        <section className="hero-gradient baseball-pattern relative overflow-hidden">
-          <div className="mx-auto max-w-7xl px-4 py-14 sm:py-20 text-center relative z-10">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              <span className="text-blue-600">Stat</span><span className="text-slate-900">Scope</span>
-            </h1>
-            <p className="mt-4 text-lg sm:text-xl text-slate-900 font-semibold">MLB 심층 분석 플랫폼</p>
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=1920&q=80&auto=format&fit=crop"
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/80" />
           </div>
-          <div className="absolute bottom-0 left-0 right-0">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:py-24 text-center relative z-10">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
+              <span className="text-blue-400">Stat</span><span className="text-white">Scope</span>
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">MLB 심층 분석 플랫폼</p>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 z-10">
             <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
               <path d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z" fill="#f8fafc" />
             </svg>
@@ -127,25 +136,30 @@ export default async function HomePage({
   return (
     <div>
       {/* Hero Section */}
-      <section className="hero-gradient baseball-pattern relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:py-20 text-center relative z-10">
-          {/* Decorative baseballs */}
-          <div className="absolute top-6 left-[10%] text-4xl opacity-20 select-none" aria-hidden="true">&#9918;</div>
-          <div className="absolute bottom-8 right-[12%] text-5xl opacity-15 select-none" aria-hidden="true">&#9918;</div>
-          <div className="absolute top-1/2 right-[5%] text-3xl opacity-10 select-none hidden sm:block" aria-hidden="true">&#9918;</div>
-
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            <span className="text-blue-600">Stat</span><span className="text-slate-900">Scope</span>
+      <section className="relative overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=1920&q=80&auto=format&fit=crop"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/80" />
+        </div>
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:py-24 text-center relative z-10">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
+            <span className="text-blue-400">Stat</span><span className="text-white">Scope</span>
           </h1>
-          <p className="mt-4 text-lg sm:text-xl text-slate-900 font-semibold">
+          <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">
             MLB 심층 분석 플랫폼
           </p>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-blue-200 drop-shadow">
             경기 일정 &middot; 실시간 스코어 &middot; 선수 스탯 &middot; 팀 순위
           </p>
         </div>
         {/* Bottom wave decoration */}
-        <div className="absolute bottom-0 left-0 right-0">
+        <div className="absolute bottom-0 left-0 right-0 z-10">
           <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
             <path d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z" fill="#f8fafc" />
           </svg>
@@ -163,10 +177,19 @@ export default async function HomePage({
 
         {/* Games Grid */}
         {sortedGames.length === 0 ? (
-          <div className="rounded-2xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-slate-200/60">
-            <p className="text-lg text-slate-400">
-              이 날짜에 예정된 경기가 없습니다.
-            </p>
+          <div className="rounded-2xl bg-white px-6 py-12 text-center shadow-sm ring-1 ring-slate-200/60 overflow-hidden relative">
+            <div className="relative z-10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1527247043589-f0dde57a5d5d?w=400&q=80&auto=format&fit=crop"
+                alt=""
+                className="w-24 h-24 object-cover rounded-full mx-auto mb-4 opacity-60"
+              />
+              <p className="text-lg text-slate-400">
+                이 날짜에 예정된 경기가 없습니다.
+              </p>
+              <p className="text-sm text-slate-300 mt-1">다른 날짜를 확인해보세요.</p>
+            </div>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
