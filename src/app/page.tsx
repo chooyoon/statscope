@@ -369,11 +369,11 @@ async function UpcomingGames({ currentDate }: { currentDate: string }) {
                   return (
                     <div key={game.gamePk} className="flex items-center justify-between text-xs">
                       <span className="text-slate-600 font-medium">
-                        {away?.nameKo ?? game.teams.away.team.name}
+                        {away?.name ?? game.teams.away.team.name}
                       </span>
                       <span className="text-slate-500">@</span>
                       <span className="text-slate-600 font-medium">
-                        {home?.nameKo ?? game.teams.home.team.name}
+                        {home?.name ?? game.teams.home.team.name}
                       </span>
                     </div>
                   );

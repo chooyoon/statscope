@@ -184,11 +184,11 @@ function timeAgo(dateStr: string): string {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffMin < 1) return "방금 전";
-  if (diffMin < 60) return `${diffMin}분 전`;
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  if (diffDay < 30) return `${diffDay}일 전`;
-  return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHour < 24) return `${diffHour}h ago`;
+  if (diffDay < 30) return `${diffDay}d ago`;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 // --- Position helpers ---
@@ -202,11 +202,11 @@ function isPitcherPosition(abbr: string, type: string): boolean {
 // --- Division label ---
 
 function getDivisionLabel(league: "AL" | "NL", division: string): string {
-  const leagueName = league === "AL" ? "아메리칸 리그" : "내셔널 리그";
+  const leagueName = league === "AL" ? "American League" : "National League";
   const divMap: Record<string, string> = {
-    East: "동부",
-    Central: "중부",
-    West: "서부",
+    East: "East",
+    Central: "Central",
+    West: "West",
   };
   return `${leagueName} ${divMap[division] ?? division}`;
 }
@@ -221,11 +221,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const team = getTeamBySlug(decodeURIComponent(slug));
   if (!team) {
-    return { title: "팀을 찾을 수 없습니다 | StatScope" };
+    return { title: "Team not found | StatScope" };
   }
   return {
-    title: `${team.nameKo} - 팀 분석 | StatScope`,
-    description: `${team.nameKo}(${team.name})의 로스터, 최근 경기 결과, 시즌 성적을 StatScope에서 확인하세요.`,
+    title: `${team.name} - Team Analysis | StatScope`,
+    description: `${team.name} roster, recent results, and season stats on StatScope.`,
   };
 }
 
@@ -257,7 +257,7 @@ export default async function TeamDetailPage({
   }
 
   // Fetch roster, schedule, and news in parallel
-  const rosterYear = new Date().getFullYear(); // 로스터는 항상 현재 연도
+  const rosterYear = new Date().getFullYear(); // Roster always uses current year
   const [rosterData, recentGames, newsArticles] = await Promise.all([
     fetchRoster(team.id, rosterYear),
     fetchTeamSchedule(team.id, activeSeason),
@@ -293,7 +293,7 @@ export default async function TeamDetailPage({
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <TeamBadge
               name={team.name}
-              nameKo={team.nameKo}
+              nameKo={team.name}
               colorPrimary={tc}
               colorAccent={tcAccent}
               teamId={team.id}
@@ -302,7 +302,7 @@ export default async function TeamDetailPage({
             />
             <div className="text-center md:text-left flex-1">
               <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-1">
-                {team.nameKo}
+                {team.name}
               </h1>
               <p className="text-lg text-slate-300 mb-3">{team.name}</p>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
@@ -314,7 +314,7 @@ export default async function TeamDetailPage({
                     border: `1px solid ${tc}60`,
                   }}
                 >
-                  {team.cityKo}
+                  {team.city}
                 </span>
                 <span
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold"
@@ -337,11 +337,11 @@ export default async function TeamDetailPage({
                   </span>
                   <span className="text-slate-400">|</span>
                   <span>
-                    승률 <span className="font-mono font-semibold text-white">{teamRecord.winningPercentage}</span>
+                    PCT <span className="font-mono font-semibold text-white">{teamRecord.winningPercentage}</span>
                   </span>
                   <span className="text-slate-400">|</span>
                   <span>
-                    순위 <span className="font-mono font-semibold text-white">{teamRecord.divisionRank}위</span>
+                    Rank <span className="font-mono font-semibold text-white">{teamRecord.divisionRank}</span>
                   </span>
                   {teamRecord.streak && (
                     <>
@@ -362,7 +362,7 @@ export default async function TeamDetailPage({
           <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
           </svg>
-          <span>{FALLBACK_SEASON} 시즌 기준 ({CURRENT_SEASON} 시즌 개막 전)</span>
+          <span>Based on {FALLBACK_SEASON} season (Pre-season {CURRENT_SEASON})</span>
         </div>
       )}
 
@@ -374,7 +374,7 @@ export default async function TeamDetailPage({
               className="inline-block w-1 h-6 rounded-full"
               style={{ backgroundColor: tc }}
             />
-            {activeSeason} 시즌 성적
+            {activeSeason} Season Stats
           </h2>
           <div className="rounded-xl bg-white border border-slate-200 p-6">
             <StatsGrid
@@ -386,7 +386,7 @@ export default async function TeamDetailPage({
                 runsAllowed: teamRecord.runsAllowed,
                 runDiff: teamRecord.runDifferential,
                 gamesBack: teamRecord.gamesBack,
-                divisionRank: `${teamRecord.divisionRank}위`,
+                divisionRank: teamRecord.divisionRank,
               }}
               keys={[
                 "wins",
@@ -399,14 +399,14 @@ export default async function TeamDetailPage({
                 "divisionRank",
               ]}
               labels={{
-                wins: "승",
-                losses: "패",
-                winPct: "승률",
-                runsScored: "득점",
-                runsAllowed: "실점",
-                runDiff: "득실차",
-                gamesBack: "게임차",
-                divisionRank: "지구 순위",
+                wins: "W",
+                losses: "L",
+                winPct: "PCT",
+                runsScored: "Runs Scored",
+                runsAllowed: "Runs Allowed",
+                runDiff: "Run Diff",
+                gamesBack: "GB",
+                divisionRank: "Div Rank",
               }}
               columns={4}
               highlightKeys={["wins", "winPct", "runDiff"]}
@@ -423,7 +423,7 @@ export default async function TeamDetailPage({
               className="inline-block w-1 h-6 rounded-full"
               style={{ backgroundColor: tc }}
             />
-            팀 뉴스
+            Team News
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {newsArticles.map((article, idx) => (
@@ -474,7 +474,7 @@ export default async function TeamDetailPage({
               className="inline-block w-1 h-6 rounded-full"
               style={{ backgroundColor: tc }}
             />
-            {useFallback ? `${activeSeason} 시즌 ` : ""}현재 로스터
+            {useFallback ? `${activeSeason} ` : ""}Current Roster
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -485,7 +485,7 @@ export default async function TeamDetailPage({
                   className="px-4 py-3 border-b border-slate-200 font-semibold text-sm"
                   style={{ color: tc }}
                 >
-                  야수 ({positionPlayers.length})
+                  Position Players ({positionPlayers.length})
                 </div>
                 <div className="divide-y divide-slate-100">
                   {positionPlayers.map((p) => (
@@ -535,7 +535,7 @@ export default async function TeamDetailPage({
                   className="px-4 py-3 border-b border-slate-200 font-semibold text-sm"
                   style={{ color: tc }}
                 >
-                  투수 ({pitchers.length})
+                  Pitchers ({pitchers.length})
                 </div>
                 <div className="divide-y divide-slate-100">
                   {pitchers.map((p) => (
@@ -589,23 +589,23 @@ export default async function TeamDetailPage({
               className="inline-block w-1 h-6 rounded-full"
               style={{ backgroundColor: tc }}
             />
-            {useFallback ? `${activeSeason} 시즌 ` : ""}최근 경기 결과
+            {useFallback ? `${activeSeason} ` : ""}Recent Results
           </h2>
           <div className="rounded-xl bg-white border border-slate-200 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400">
-                    날짜
+                    Date
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400">
-                    상대
+                    Opponent
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400">
-                    스코어
+                    Score
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400">
-                    결과
+                    Result
                   </th>
                 </tr>
               </thead>
@@ -623,7 +623,7 @@ export default async function TeamDetailPage({
                     : game.teams.home.team.id;
                   const opponentTeam = getTeamById(opponentTeamId);
                   const opponentName = opponentTeam
-                    ? opponentTeam.nameKo
+                    ? opponentTeam.name
                     : isHome
                       ? game.teams.away.team.name
                       : game.teams.home.team.name;
@@ -638,7 +638,7 @@ export default async function TeamDetailPage({
                     ourScore < theirScore;
 
                   const dateStr = new Date(game.gameDate).toLocaleDateString(
-                    "ko-KR",
+                    "en-US",
                     { month: "short", day: "numeric" }
                   );
 
@@ -714,10 +714,10 @@ export default async function TeamDetailPage({
         !teamRecord && (
           <div className="rounded-xl bg-white border border-slate-200 p-12 text-center">
             <p className="text-slate-400 text-lg mb-2">
-              시즌 데이터를 불러올 수 없습니다.
+              Unable to load season data.
             </p>
             <p className="text-slate-500 text-sm">
-              시즌이 시작되면 로스터, 경기 결과, 시즌 성적이 표시됩니다.
+              When the season starts, roster, results, and stats will be displayed.
             </p>
           </div>
         )}

@@ -1,15 +1,15 @@
 """
-StatScope X(Twitter) 자동 포스팅 봇
+StatScope Bluesky 자동 포스팅 봇
 =====================================
-MLB 경기 결과, 선수 통계, 한국 선수 성적을 자동으로 트윗합니다.
+MLB 경기 결과, 선수 통계, 한국 선수 성적을 Bluesky에 자동 포스팅합니다.
 
 사용법:
-    python x_bot.py recap          # 오늘 완료된 경기 결과 트윗
-    python x_bot.py preview        # 오늘 경기 프리뷰 트윗
-    python x_bot.py leaders        # 리그 리더 트윗
-    python x_bot.py korean         # 한국 선수 성적 트윗
-    python x_bot.py auto           # 시간대에 맞는 트윗 자동 선택
-    python x_bot.py --dry-run ...  # 트윗 안 보내고 미리보기만
+    python x_bot.py recap          # 오늘 완료된 경기 결과
+    python x_bot.py preview        # 오늘 경기 프리뷰
+    python x_bot.py leaders        # 리그 리더
+    python x_bot.py korean         # 한국 선수 성적
+    python x_bot.py auto           # 시간대에 맞는 포스트 자동 선택
+    python x_bot.py --dry-run ...  # 포스팅 안 하고 미리보기만
 """
 
 import argparse
@@ -35,6 +35,10 @@ except ImportError:
 
 STATSCOPE_URL = os.getenv("STATSCOPE_URL", "https://statscope.vercel.app")
 MLB_API = "https://statsapi.mlb.com/api/v1"
+
+# Bluesky 설정
+BLUESKY_HANDLE = os.getenv("BLUESKY_HANDLE", "")
+BLUESKY_PASSWORD = os.getenv("BLUESKY_PASSWORD", "")
 
 # 한국 선수
 KOREAN_PLAYERS = {
@@ -99,9 +103,9 @@ def fetch_leaders(category: str, limit: int = 3) -> list:
     return []
 
 
-# ─── 트윗 포맷터 ──────────────────────────────────────────
+# ─── 포스트 포맷터 ────────────────────────────────────────
 def format_game_recap(game: dict) -> str:
-    """경기 결과 트윗 포맷"""
+    """경기 결과 포맷"""
     home = game["teams"]["home"]
     away = game["teams"]["away"]
     home_name = kr_team(home["team"]["name"])
@@ -110,11 +114,8 @@ def format_game_recap(game: dict) -> str:
     away_score = away.get("score", 0)
 
     winner = home_name if home_score > away_score else away_name
-    loser = away_name if home_score > away_score else home_name
     w_score = max(home_score, away_score)
-    l_score = min(home_score, away_score)
 
-    # 결정 투수
     decisions = game.get("decisions", {})
     wp = decisions.get("winner", {}).get("fullName", "")
     lp = decisions.get("loser", {}).get("fullName", "")
@@ -135,7 +136,6 @@ def format_game_recap(game: dict) -> str:
     if sv:
         lines.append(f"세 {sv}")
 
-    # 접전일 경우 강조
     diff = abs(home_score - away_score)
     if diff <= 1:
         lines.append(f"")
@@ -152,18 +152,17 @@ def format_game_recap(game: dict) -> str:
 
 
 def format_preview(games: list) -> str:
-    """오늘 경기 프리뷰 트윗"""
+    """오늘 경기 프리뷰"""
     today = datetime.now().strftime("%m/%d")
     lines = [
         f"📅 {today} 오늘의 MLB ({len(games)}경기)",
         f"",
     ]
 
-    for game in games[:8]:  # 트윗 길이 제한
+    for game in games[:8]:
         home = kr_team(game["teams"]["home"]["team"]["name"])
         away = kr_team(game["teams"]["away"]["team"]["name"])
 
-        # 선발 투수
         pp_away = game["teams"]["away"].get("probablePitcher", {}).get("fullName", "")
         pp_home = game["teams"]["home"].get("probablePitcher", {}).get("fullName", "")
 
@@ -183,7 +182,7 @@ def format_preview(games: list) -> str:
 
 
 def format_leaders() -> str:
-    """리그 리더 트윗"""
+    """리그 리더"""
     categories = {
         "homeRuns": "홈런",
         "battingAverage": "타율",
@@ -216,7 +215,7 @@ def format_leaders() -> str:
 
 
 def format_korean_players() -> str:
-    """한국 선수 성적 트윗"""
+    """한국 선수 성적"""
     lines = [
         f"🇰🇷 MLB 코리안 리거 성적",
         f"",
@@ -274,9 +273,8 @@ def format_korean_players() -> str:
     return "\n".join(lines)
 
 
-# ─── 경기 하이라이트 (특이 기록) ──────────────────────────
-def format_highlight_tweet(game: dict) -> str | None:
-    """특이 기록이 있는 경기만 하이라이트 트윗"""
+def format_highlight_post(game: dict) -> str | None:
+    """특이 기록이 있는 경기만 하이라이트"""
     home = game["teams"]["home"]
     away = game["teams"]["away"]
     home_score = home.get("score", 0)
@@ -287,8 +285,7 @@ def format_highlight_tweet(game: dict) -> str | None:
     diff = abs(home_score - away_score)
     total = home_score + away_score
 
-    # 특이 기록 체크
-    if diff == 0:  # 동점 (연장 가능성)
+    if diff == 0:
         return None
 
     highlights = []
@@ -301,13 +298,11 @@ def format_highlight_tweet(game: dict) -> str | None:
     if max(home_score, away_score) >= 15:
         highlights.append(f"🔥 한 팀 {max(home_score, away_score)}점 폭발!")
 
-    # 셧아웃
     if min(home_score, away_score) == 0 and max(home_score, away_score) > 0:
         winner = home_name if home_score > away_score else away_name
         loser = away_name if home_score > away_score else home_name
         highlights.append(f"🚫 {winner}가 {loser}를 셧아웃!")
 
-    # 끝내기
     linescore = game.get("linescore", {})
     innings = linescore.get("innings", [])
     if len(innings) > 9:
@@ -335,73 +330,91 @@ def format_highlight_tweet(game: dict) -> str | None:
     return "\n".join(lines)
 
 
-# ─── X(Twitter) 전송 ──────────────────────────────────────
-def send_tweet(text: str, dry_run: bool = False) -> bool:
-    """트윗 전송"""
-    # 280자(영문) / 140자(한글) 체크 — X는 한글 2바이트 계산
-    char_count = sum(2 if ord(c) > 127 else 1 for c in text)
-    if char_count > 280:
-        print(f"  ⚠️  트윗 길이 초과 ({char_count}/280). 잘라냅니다.")
-        # 해시태그 유지하면서 자르기
-        while char_count > 275:
+# ─── Bluesky 전송 ─────────────────────────────────────────
+def send_post(text: str, dry_run: bool = False) -> bool:
+    """Bluesky에 포스트 전송"""
+    # Bluesky 글자 수 제한: 300자 (grapheme 기준)
+    if len(text) > 300:
+        print(f"  ⚠️  포스트 길이 초과 ({len(text)}/300자). 잘라냅니다.")
+        while len(text) > 295:
             lines = text.split("\n")
             if len(lines) > 4:
-                # 중간 내용 줄이기
                 mid = len(lines) // 2
                 lines.pop(mid)
                 text = "\n".join(lines)
-                char_count = sum(2 if ord(c) > 127 else 1 for c in text)
             else:
                 break
 
     print(f"\n{'─' * 50}")
-    print(f"📝 트윗 내용 ({char_count}자):")
+    print(f"📝 포스트 내용 ({len(text)}자):")
     print(f"{'─' * 50}")
     print(text)
     print(f"{'─' * 50}")
 
     if dry_run:
-        print("🔸 [DRY RUN] 트윗을 보내지 않았습니다.")
+        print("🔸 [DRY RUN] 포스팅하지 않았습니다.")
         return True
 
-    # API 키 확인
-    api_key = os.getenv("X_API_KEY")
-    api_secret = os.getenv("X_API_SECRET")
-    access_token = os.getenv("X_ACCESS_TOKEN")
-    access_secret = os.getenv("X_ACCESS_TOKEN_SECRET")
-
-    if not all([api_key, api_secret, access_token, access_secret]):
-        print("\n❌ X API 키가 설정되지 않았습니다.")
-        print("   .env 파일에 API 키를 설정하세요.")
-        print("   (.env.example 파일을 참고)")
+    if not BLUESKY_HANDLE or not BLUESKY_PASSWORD:
+        print("\n❌ Bluesky 계정 정보가 설정되지 않았습니다.")
+        print("   .env 파일에 BLUESKY_HANDLE과 BLUESKY_PASSWORD를 설정하세요.")
         return False
 
     try:
-        import tweepy
+        from atproto import Client
 
-        client = tweepy.Client(
-            consumer_key=api_key,
-            consumer_secret=api_secret,
-            access_token=access_token,
-            access_token_secret=access_secret,
-        )
-        response = client.create_tweet(text=text)
-        tweet_id = response.data["id"]
-        print(f"\n✅ 트윗 성공! https://x.com/i/status/{tweet_id}")
+        client = Client()
+        client.login(BLUESKY_HANDLE, BLUESKY_PASSWORD)
+
+        # 링크를 리치 텍스트로 변환 (클릭 가능하게)
+        facets = []
+        url_start = text.find(STATSCOPE_URL)
+        if url_start != -1:
+            url_bytes_start = len(text[:url_start].encode("utf-8"))
+            url_bytes_end = url_bytes_start + len(STATSCOPE_URL.encode("utf-8"))
+            facets.append({
+                "index": {
+                    "byteStart": url_bytes_start,
+                    "byteEnd": url_bytes_end,
+                },
+                "features": [{
+                    "$type": "app.bsky.richtext.facet#link",
+                    "uri": STATSCOPE_URL,
+                }],
+            })
+
+        # 해시태그 facets
+        for word in text.split():
+            if word.startswith("#"):
+                tag = word[1:]
+                tag_start = text.find(word)
+                if tag_start != -1:
+                    bs = len(text[:tag_start].encode("utf-8"))
+                    be = bs + len(word.encode("utf-8"))
+                    facets.append({
+                        "index": {"byteStart": bs, "byteEnd": be},
+                        "features": [{
+                            "$type": "app.bsky.richtext.facet#tag",
+                            "tag": tag,
+                        }],
+                    })
+
+        post = client.send_post(text=text, facets=facets if facets else None)
+        print(f"\n✅ 포스팅 성공!")
+        print(f"   https://bsky.app/profile/{BLUESKY_HANDLE}/post/{post.uri.split('/')[-1]}")
         return True
 
     except Exception as e:
-        print(f"\n❌ 트윗 실패: {e}")
+        print(f"\n❌ 포스팅 실패: {e}")
         return False
 
 
 # ─── 메인 커맨드 ──────────────────────────────────────────
 def cmd_recap(dry_run: bool):
-    """완료된 경기 결과 트윗"""
+    """완료된 경기 결과"""
     today = datetime.now().strftime("%Y-%m-%d")
     yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # 오늘 완료된 경기 먼저, 없으면 어제
     for date_str in [today, yesterday]:
         games = fetch_schedule(date_str)
         finished = [g for g in games if g.get("status", {}).get("abstractGameState") == "Final"]
@@ -413,18 +426,16 @@ def cmd_recap(dry_run: bool):
 
         count = 0
         for game in finished:
-            # 하이라이트 트윗 먼저 시도
-            highlight = format_highlight_tweet(game)
+            highlight = format_highlight_post(game)
             if highlight:
-                send_tweet(highlight, dry_run)
+                send_post(highlight, dry_run)
                 count += 1
             else:
-                # 일반 결과 트윗
-                tweet = format_game_recap(game)
-                send_tweet(tweet, dry_run)
+                post = format_game_recap(game)
+                send_post(post, dry_run)
                 count += 1
 
-            if count >= 3:  # 한 번에 최대 3개
+            if count >= 3:
                 break
 
         return
@@ -440,7 +451,6 @@ def cmd_preview(dry_run: bool):
     scheduled = [g for g in games if g.get("status", {}).get("abstractGameState") != "Final"]
 
     if not scheduled:
-        # 내일 경기 확인
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
         games = fetch_schedule(tomorrow)
         scheduled = games
@@ -449,20 +459,20 @@ def cmd_preview(dry_run: bool):
         print("예정된 경기가 없습니다.")
         return
 
-    tweet = format_preview(scheduled)
-    send_tweet(tweet, dry_run)
+    post = format_preview(scheduled)
+    send_post(post, dry_run)
 
 
 def cmd_leaders(dry_run: bool):
-    """리그 리더 트윗"""
-    tweet = format_leaders()
-    send_tweet(tweet, dry_run)
+    """리그 리더"""
+    post = format_leaders()
+    send_post(post, dry_run)
 
 
 def cmd_korean(dry_run: bool):
     """한국 선수 성적"""
-    tweet = format_korean_players()
-    send_tweet(tweet, dry_run)
+    post = format_korean_players()
+    send_post(post, dry_run)
 
 
 def cmd_auto(dry_run: bool):
@@ -470,38 +480,34 @@ def cmd_auto(dry_run: bool):
     hour = datetime.now().hour
 
     if 8 <= hour < 12:
-        # 오전: 어제 경기 결과
-        print("🕐 오전 → 경기 결과 트윗")
+        print("🕐 오전 → 경기 결과")
         cmd_recap(dry_run)
     elif 12 <= hour < 17:
-        # 오후: 오늘 프리뷰 + 리그 리더
-        print("🕐 오후 → 경기 프리뷰 트윗")
+        print("🕐 오후 → 경기 프리뷰")
         cmd_preview(dry_run)
     elif 17 <= hour < 22:
-        # 저녁: 한국 선수 + 프리뷰
-        print("🕐 저녁 → 한국 선수 성적 트윗")
+        print("🕐 저녁 → 한국 선수 성적")
         cmd_korean(dry_run)
     else:
-        # 밤/새벽: 리그 리더
-        print("🕐 밤 → 리그 리더 트윗")
+        print("🕐 밤 → 리그 리더")
         cmd_leaders(dry_run)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="StatScope X(Twitter) 자동 포스팅 봇")
+    parser = argparse.ArgumentParser(description="StatScope Bluesky 자동 포스팅 봇")
     parser.add_argument(
         "command",
         choices=["recap", "preview", "leaders", "korean", "auto"],
-        help="트윗 유형",
+        help="포스트 유형",
     )
     parser.add_argument(
         "--dry-run", "-d",
         action="store_true",
-        help="실제 트윗 안 보내고 미리보기만",
+        help="실제 포스팅 안 하고 미리보기만",
     )
     args = parser.parse_args()
 
-    print(f"=== StatScope X Bot ===")
+    print(f"=== StatScope Bluesky Bot ===")
     print(f"명령: {args.command} {'(미리보기)' if args.dry_run else ''}\n")
 
     commands = {

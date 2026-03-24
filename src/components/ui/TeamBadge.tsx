@@ -42,7 +42,7 @@ export default function TeamBadge({
       >
         <span className={s.text}>{getInitials(name)}</span>
       </div>
-      <span className={`${s.label} ${dark ? "text-slate-200" : "text-slate-700"} font-semibold`}>{nameKo}</span>
+      <span className={`${s.label} ${dark ? "text-slate-200" : "text-slate-700"} font-semibold`}>{name}</span>
     </div>
   );
 }

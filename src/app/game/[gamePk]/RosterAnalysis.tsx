@@ -129,8 +129,8 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
 
   const homeTeam = getTeamById(homeTeamId);
   const awayTeam = getTeamById(awayTeamId);
-  const homeName = homeTeam?.nameKo ?? "Home";
-  const awayName = awayTeam?.nameKo ?? "Away";
+  const homeName = homeTeam?.name ?? "Home";
+  const awayName = awayTeam?.name ?? "Away";
 
   const isPitcherPos = (r: RosterEntry) => r.position?.type === "Pitcher" || r.position?.code === "1";
 
