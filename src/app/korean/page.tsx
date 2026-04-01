@@ -6,7 +6,6 @@ import { getTeamById } from "@/data/teams";
 import { calcHittingForm, calcPitchingForm, type FormIndex } from "@/lib/sports/mlb/form";
 import FormBadge from "@/components/player/FormBadge";
 import TeamBadge from "@/components/ui/TeamBadge";
-import AdBanner from "@/components/ads/AdBanner";
 
 export const metadata: Metadata = {
   title: "코리안 메이저리거 | StatScope",
@@ -189,10 +188,6 @@ export default async function KoreanPlayersPage() {
         </div>
       )}
 
-      {/* Ad */}
-      <div className="mt-8">
-        <AdBanner slot="inline" />
-      </div>
     </div>
   );
 }

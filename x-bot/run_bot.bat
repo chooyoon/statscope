@@ -1,3 +1,3 @@
 @echo off
 cd /d "C:\Users\Admin\Desktop\statscope\x-bot"
-python x_bot.py auto >> logs\bot_%date:~0,4%%date:~5,2%%date:~8,2%.log 2>&1
+"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe" x_bot.py auto >> bot_log.txt 2>&1

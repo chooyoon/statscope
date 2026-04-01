@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
-import AdBanner from "@/components/ads/AdBanner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LangProvider } from "@/contexts/LangContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -56,6 +55,29 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="StatScope" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "StatScope",
+              url: "https://statscope.vercel.app",
+              description: "Free MLB sabermetrics analysis platform with game previews, player stats, and win probability models.",
+              publisher: {
+                "@type": "Organization",
+                name: "StatScope",
+                url: "https://statscope.vercel.app",
+                email: "statscope.help@gmail.com",
+              },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://statscope.vercel.app/players?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors">
         <ServiceWorkerRegister />
@@ -63,22 +85,20 @@ export default function RootLayout({
         <LangProvider>
         <AuthProvider>
         <Header />
-        <div className="mx-auto w-full max-w-7xl px-4 pt-4">
-          <AdBanner slot="header" />
-        </div>
         <main className="flex-1">{children}</main>
         </AuthProvider>
         </LangProvider>
         </ThemeProvider>
-        <div className="mx-auto w-full max-w-7xl px-4 pb-4">
-          <AdBanner slot="footer" />
-        </div>
         <footer className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-8">
           <div className="mx-auto max-w-7xl px-4 text-center">
-            <div className="flex items-center justify-center gap-4 mb-3">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-3">
               <a href="/about" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">About</a>
               <span className="text-slate-300 dark:text-slate-600">|</span>
-              <a href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Privacy</a>
+              <a href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Privacy Policy</a>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <a href="/terms" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Terms of Service</a>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <a href="/disclaimer" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Disclaimer</a>
               <span className="text-slate-300 dark:text-slate-600">|</span>
               <a href="mailto:statscope.help@gmail.com" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Contact</a>
             </div>
@@ -86,7 +106,7 @@ export default function RootLayout({
               &copy; {new Date().getFullYear()} StatScope. All rights reserved.
             </p>
             <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-              Data-driven MLB analytics platform
+              Data-driven MLB analytics platform. Not affiliated with MLB.
             </p>
           </div>
         </footer>

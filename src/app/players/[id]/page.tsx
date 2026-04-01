@@ -22,7 +22,6 @@ import StatsGrid from "@/components/ui/StatsGrid";
 import RadarChart from "@/components/charts/RadarChart";
 import TeamBadge from "@/components/ui/TeamBadge";
 import FormBadge from "@/components/player/FormBadge";
-import AdBanner from "@/components/ads/AdBanner";
 import { calcHittingForm, calcPitchingForm } from "@/lib/sports/mlb/form";
 
 const CURRENT_SEASON = new Date().getFullYear();
@@ -569,10 +568,6 @@ export default async function PlayerDetailPage({
         </section>
       )}
 
-      {/* Ad */}
-      <div className="mb-8">
-        <AdBanner slot="inline" />
-      </div>
     </div>
   );
 }

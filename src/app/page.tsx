@@ -7,7 +7,6 @@ import {
 import { getTeamById } from "@/data/teams";
 import { displayName } from "@/data/players";
 import TeamBadge from "@/components/ui/TeamBadge";
-import AdBanner from "@/components/ads/AdBanner";
 import LocalTime from "@/components/game/LocalTime";
 import DateNavigator from "./page.client";
 import DateRedirect from "./DateRedirect";
@@ -324,11 +323,6 @@ export default async function HomePage({
             })}
           </div>
         )}
-
-        {/* Ad */}
-        <div className="mt-8 mb-4">
-          <AdBanner slot="inline" />
-        </div>
 
         {/* Upcoming Schedule Preview */}
         <UpcomingGames currentDate={dateParam} />

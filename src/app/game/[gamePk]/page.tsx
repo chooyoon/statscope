@@ -20,7 +20,6 @@ import { displayName, displayNameFull } from "@/data/players";
 import { getStatLabel } from "@/data/stats";
 import TeamBadge from "@/components/ui/TeamBadge";
 import StatBar from "@/components/ui/StatBar";
-import AdBanner from "@/components/ads/AdBanner";
 import WinProbability from "@/components/game/WinProbability";
 import { predictWinProbability } from "@/lib/sports/mlb/predict";
 import AnalysisNotes from "./AnalysisNotes";
@@ -873,11 +872,6 @@ export default async function GameDetailPage({
           <AnalysisNotes boxscore={boxscore} linescore={linescore} />
         </div>
       )}
-
-      {/* Ad */}
-      <div className="mb-8">
-        <AdBanner slot="inline" />
-      </div>
 
       {/* Back link */}
       <div className="text-center mt-12">
