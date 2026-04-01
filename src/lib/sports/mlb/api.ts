@@ -244,6 +244,9 @@ export interface ScheduleGame {
 export async function fetchSchedule(
   date: string
 ): Promise<ScheduleResponse> {
+  // Use shorter cache for today's games (live scores), longer for past/future
+  const today = new Date().toISOString().slice(0, 10);
+  const revalidate = date === today ? 30 : 900;
   return mlbFetch<ScheduleResponse>(
     "/schedule",
     {
@@ -252,7 +255,7 @@ export async function fetchSchedule(
       hydrate: "probablePitcher,linescore,team",
       gameType: "R,S,E,F,D,L,W",
     },
-    { revalidate: 120 }
+    { revalidate }
   );
 }
 
@@ -295,7 +298,7 @@ export async function fetchGameBoxscore(
   return mlbFetch<BoxscoreResponse>(
     `/game/${gamePk}/boxscore`,
     { hydrate: "person" },
-    { revalidate: 300 }
+    { revalidate: 60 }
   );
 }
 
@@ -322,7 +325,7 @@ export async function fetchGameLinescore(
   return mlbFetch<LinescoreResponse>(
     `/game/${gamePk}/linescore`,
     {},
-    { revalidate: 300 }
+    { revalidate: 30 }
   );
 }
 

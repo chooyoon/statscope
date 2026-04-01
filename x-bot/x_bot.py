@@ -27,6 +27,7 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 import requests
+import textwrap
 
 # ─── Config ───────────────────────────────────────────────
 try:
@@ -601,7 +602,16 @@ def cmd_recap(dry_run: bool):
 def cmd_leaders(dry_run: bool):
     """League leaders"""
     post = format_leaders()
-    send_post(post, dry_run)
+    # Try to send with image card
+    card_lines = []
+    for cat_key, cat_name in {"homeRuns": "HR", "battingAverage": "AVG", "earnedRunAverage": "ERA"}.items():
+        leaders = fetch_leaders(cat_key, limit=3)
+        for leader in leaders:
+            card_lines.append(f"{cat_name}  {leader['rank']}. {leader['person']['fullName']} — {leader['value']}")
+    if card_lines:
+        send_post_with_card(post, "2025 MLB Leaders", card_lines, dry_run)
+    else:
+        send_post(post, dry_run)
 
 
 def cmd_korean(dry_run: bool):
@@ -637,11 +647,192 @@ def cmd_auto(dry_run: bool):
         cmd_leaders(dry_run)
 
 
+# ─── Image Card Generation ───────────────────────────────
+def generate_stat_card_svg(title: str, lines: list[str], accent_color: str = "#2563eb") -> str:
+    """Generate an SVG stat card for embedding in posts"""
+    line_items = ""
+    for i, line in enumerate(lines[:8]):
+        escaped = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        y = 90 + i * 32
+        line_items += f'<text x="30" y="{y}" font-size="18" fill="#e2e8f0" font-family="monospace">{escaped}</text>\n'
+
+    height = 90 + len(lines[:8]) * 32 + 40
+    escaped_title = title.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="600" height="{height}" viewBox="0 0 600 {height}">
+  <rect width="600" height="{height}" rx="16" fill="#1e293b"/>
+  <rect x="0" y="0" width="600" height="56" rx="16" fill="{accent_color}"/>
+  <rect x="0" y="40" width="600" height="16" fill="{accent_color}"/>
+  <text x="30" y="38" font-size="22" font-weight="bold" fill="white" font-family="sans-serif">{escaped_title}</text>
+  {line_items}
+  <text x="570" y="{height - 15}" font-size="12" fill="#64748b" text-anchor="end" font-family="sans-serif">statscope.vercel.app</text>
+</svg>"""
+    return svg
+
+
+def upload_image_blob(client, svg_content: str) -> dict | None:
+    """Convert SVG to PNG (if possible) and upload as blob, or return None"""
+    try:
+        # Try to use cairosvg for SVG->PNG conversion
+        import cairosvg
+        png_data = cairosvg.svg2png(bytestring=svg_content.encode("utf-8"), output_width=600)
+        resp = client.upload_blob(png_data, timeout=30)
+        return {
+            "$type": "blob",
+            "ref": resp.blob.ref,
+            "mimeType": "image/png",
+            "size": len(png_data),
+        }
+    except ImportError:
+        # cairosvg not available, skip image
+        print("  [INFO] cairosvg not installed — skipping image card (pip install cairosvg)")
+        return None
+    except Exception as e:
+        print(f"  [WARN] Image upload failed: {e}")
+        return None
+
+
+def send_post_with_card(text: str, card_title: str, card_lines: list[str], dry_run: bool = False) -> bool:
+    """Send post with an optional stat card image"""
+    if dry_run:
+        return send_post(text, dry_run)
+
+    if not BLUESKY_HANDLE or not BLUESKY_PASSWORD:
+        return send_post(text, dry_run)
+
+    try:
+        from atproto import Client
+
+        client = Client()
+        client.login(BLUESKY_HANDLE, BLUESKY_PASSWORD)
+
+        svg = generate_stat_card_svg(card_title, card_lines)
+        blob = upload_image_blob(client, svg)
+
+        if blob:
+            # Build embed with image
+            embed = {
+                "$type": "app.bsky.embed.images",
+                "images": [{
+                    "alt": card_title,
+                    "image": blob,
+                }],
+            }
+
+            # Build facets
+            facets = []
+            url_start = text.find(STATSCOPE_URL)
+            if url_start != -1:
+                bs = len(text[:url_start].encode("utf-8"))
+                be = bs + len(STATSCOPE_URL.encode("utf-8"))
+                facets.append({
+                    "index": {"byteStart": bs, "byteEnd": be},
+                    "features": [{
+                        "$type": "app.bsky.richtext.facet#link",
+                        "uri": STATSCOPE_URL,
+                    }],
+                })
+
+            if is_duplicate(text):
+                return False
+
+            post = client.send_post(text=text, facets=facets if facets else None, embed=embed)
+            record_post(text)
+            print(f"\n✅ Posted with image card!")
+            print(f"   https://bsky.app/profile/{BLUESKY_HANDLE}/post/{post.uri.split('/')[-1]}")
+            return True
+        else:
+            return send_post(text, dry_run)
+
+    except Exception as e:
+        print(f"  [WARN] Card post failed, falling back to text: {e}")
+        return send_post(text, dry_run)
+
+
+# ─── Follower Interaction ─────────────────────────────────
+def cmd_interact(dry_run: bool):
+    """Reply to mentions and follow-backs"""
+    if not BLUESKY_HANDLE or not BLUESKY_PASSWORD:
+        print("[ERROR] Bluesky credentials not set.")
+        return
+
+    if dry_run:
+        print("[DRY RUN] Would check notifications and interact.")
+        return
+
+    try:
+        from atproto import Client
+
+        client = Client()
+        client.login(BLUESKY_HANDLE, BLUESKY_PASSWORD)
+
+        # Fetch recent notifications
+        notifs = client.app.bsky.notification.list_notifications({"limit": 20})
+
+        replied_count = 0
+        followed_count = 0
+
+        for notif in notifs.notifications:
+            # Auto-follow back
+            if notif.reason == "follow" and not notif.is_read:
+                try:
+                    client.follow(notif.author.did)
+                    followed_count += 1
+                    print(f"  Followed back: @{notif.author.handle}")
+                except Exception:
+                    pass
+
+            # Reply to mentions with a friendly response
+            if notif.reason == "mention" and not notif.is_read:
+                try:
+                    reply_text = (
+                        f"Thanks for the mention! Check out the full stats at {STATSCOPE_URL} "
+                        f"{BASE_TAGS}"
+                    )
+                    # Build reply reference
+                    root = notif.record
+                    parent_ref = {
+                        "uri": notif.uri,
+                        "cid": notif.cid,
+                    }
+                    root_ref = parent_ref
+                    if hasattr(root, "reply") and root.reply:
+                        root_ref = {
+                            "uri": root.reply.root.uri,
+                            "cid": root.reply.root.cid,
+                        }
+
+                    client.send_post(
+                        text=reply_text,
+                        reply_to={
+                            "root": root_ref,
+                            "parent": parent_ref,
+                        },
+                    )
+                    replied_count += 1
+                    print(f"  Replied to: @{notif.author.handle}")
+                except Exception as e:
+                    print(f"  [WARN] Reply failed: {e}")
+
+        # Mark notifications as read
+        try:
+            client.app.bsky.notification.update_seen(
+                {"seenAt": datetime.now(timezone.utc).isoformat()}
+            )
+        except Exception:
+            pass
+
+        print(f"\nInteraction summary: {followed_count} follow-backs, {replied_count} replies")
+
+    except Exception as e:
+        print(f"[ERROR] Interaction failed: {e}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="StatScope Bluesky Bot")
     parser.add_argument(
         "command",
-        choices=["recap", "preview", "leaders", "korean", "auto"],
+        choices=["recap", "preview", "leaders", "korean", "auto", "interact"],
         help="Post type",
     )
     parser.add_argument(
@@ -661,6 +852,7 @@ def main():
         "leaders": cmd_leaders,
         "korean": cmd_korean,
         "auto": cmd_auto,
+        "interact": cmd_interact,
     }
 
     commands[args.command](args.dry_run)

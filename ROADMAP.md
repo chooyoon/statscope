@@ -1,57 +1,57 @@
-# StatScope 수익화 로드맵
+# StatScope Monetization Roadmap
 
-## 핵심 전략
-- 한국어 MLB 세이버메트릭스 전문 플랫폼 (현재 시장에 없음)
-- 무료 기반 → 독자 분석 엔진 → 프리미엄 구독 전환
-
----
-
-## Phase 1: 사용자 기반 구축
-**목표: 유저 유입 + 계정 시스템**
-
-- Firebase Auth 연동 (구글/카카오 소셜 로그인)
-- 사용자 프로필 (관심 팀/선수 설정)
-- 선수 즐겨찾기
-- 경기 알림 설정 (KST 기준)
-- 기본 광고 삽입 (카카오 AdFit / Google AdSense)
-
-**수익: 광고 (소액)**
+## Core Strategy
+- English-first MLB sabermetrics analytics platform targeting the US market
+- Free tier → Proprietary analysis engine → Premium subscription conversion
 
 ---
 
-## Phase 2: 독자 분석 엔진 ("우리만의 시스템")
-**목표: 다른 곳에 없는 기능으로 차별화**
+## Phase 1: Build User Base
+**Goal: User acquisition + account system**
 
-- 승률 예측 모델 (선발 투수 매치업 + 최근 성적 + 홈/원정 기반)
-- 선수 폼 지수 (최근 7/15/30경기 트렌드 기반 컨디션 점수)
-- 한국인 선수 전용 트래커 (매 경기 성적 + 시즌 추이 차트)
-- AI 경기 프리뷰 고도화 (자동 생성 분석)
-- 맞춤 대시보드 (로그인 유저: 관심 팀/선수 모아보기)
+- Firebase Auth (Google/social login)
+- User profile (favorite teams/players)
+- Player favorites/watchlist
+- Game alerts (ET timezone)
+- Basic ads (Google AdSense)
 
-**수익: 광고 + 트래픽 성장**
-
----
-
-## Phase 3: 프리미엄 구독 도입
-**목표: 유료 전환 (월 4,900원)**
-
-- 무료: 기본 경기 일정/스코어, 기본 선수 스탯, 뉴스(영문), 순위표
-- 프리미엄: 광고 제거, 승률 예측 전체 접근, 선수 폼 지수 + 트렌드 차트, 커스텀 선수 비교(무제한), 한국어 뉴스 번역(고급), 내보내기(CSV/이미지), 경기 알림(무제한)
-- 결제: Toss Payments 또는 카카오페이
+**Revenue: Ads (modest)**
 
 ---
 
-## Phase 4: 커뮤니티 + 예측 게임
-**목표: 리텐션 + 바이럴**
+## Phase 2: Proprietary Analysis Engine ("Our Unique Edge")
+**Goal: Differentiate with features unavailable elsewhere**
 
-- 예측 게임 (매일 경기 승패/MVP 예측 → 포인트 → 랭킹)
-- 커뮤니티 게시판 고도화 (팀별 토론)
-- 주간 리포트 (프리미엄 유저 자동 발송)
-- 공유 카드 (SNS 공유용 스탯 이미지 생성)
+- Win probability model (starter matchup + recent form + home/away)
+- Player Form Index (7/15/30-game trend-based condition score)
+- Korean player dedicated tracker (per-game stats + season trend charts)
+- Enhanced AI game previews (auto-generated analysis)
+- Custom dashboard (logged-in users: favorite teams/players at a glance)
+
+**Revenue: Ads + traffic growth**
 
 ---
 
-## Phase 5: 확장
-- KBO-MLB 교차 분석 (KBO 선수 MLB 예상 성적 변환)
-- API 유료 제공 (미디어/블로거 대상)
-- 모바일 앱 (PWA 또는 네이티브)
+## Phase 3: Premium Subscription
+**Goal: Paid conversion ($4.99/month)**
+
+- Free: Basic schedule/scores, basic player stats, news, standings
+- Premium: Ad-free, full win probability access, Form Index + trend charts, unlimited custom player comparisons, export (CSV/image), unlimited game alerts
+- Payment: Stripe
+
+---
+
+## Phase 4: Community + Prediction Games
+**Goal: Retention + virality**
+
+- Prediction game (daily win/MVP prediction → points → rankings)
+- Enhanced community boards (team-specific discussions)
+- Weekly reports (auto-sent to premium users)
+- Share cards (SNS-friendly stat image generator)
+
+---
+
+## Phase 5: Expansion
+- KBO-MLB cross-analysis (projected MLB stats for KBO players)
+- Paid API (for media/bloggers)
+- Mobile app (PWA or native)

@@ -193,14 +193,14 @@ export default function MatchupClient() {
 
   // Comparison stat bars
   const comparisonStats = [
-    { key: "avg", label: "타율", format: (v: any) => parseFloat(v || "0").toFixed(3) },
-    { key: "obp", label: "출루율", format: (v: any) => parseFloat(v || "0").toFixed(3) },
-    { key: "slg", label: "장타율", format: (v: any) => parseFloat(v || "0").toFixed(3) },
+    { key: "avg", label: "AVG", format: (v: any) => parseFloat(v || "0").toFixed(3) },
+    { key: "obp", label: "OBP", format: (v: any) => parseFloat(v || "0").toFixed(3) },
+    { key: "slg", label: "SLG", format: (v: any) => parseFloat(v || "0").toFixed(3) },
     { key: "ops", label: "OPS", format: (v: any) => parseFloat(v || "0").toFixed(3) },
-    { key: "homeRuns", label: "홈런", format: (v: any) => String(v ?? 0) },
-    { key: "rbi", label: "타점", format: (v: any) => String(v ?? 0) },
-    { key: "hits", label: "안타", format: (v: any) => String(v ?? 0) },
-    { key: "stolenBases", label: "도루", format: (v: any) => String(v ?? 0) },
+    { key: "homeRuns", label: "HR", format: (v: any) => String(v ?? 0) },
+    { key: "rbi", label: "RBI", format: (v: any) => String(v ?? 0) },
+    { key: "hits", label: "Hits", format: (v: any) => String(v ?? 0) },
+    { key: "stolenBases", label: "SB", format: (v: any) => String(v ?? 0) },
   ];
 
   // Radar chart data for overlay
@@ -238,7 +238,7 @@ export default function MatchupClient() {
         {/* Player A */}
         <div className="relative">
           <label className="block text-sm font-semibold text-blue-600 mb-2">
-            선수 A
+            Player A
           </label>
           <input
             type="text"
@@ -248,7 +248,7 @@ export default function MatchupClient() {
               searchPlayers(e.target.value, "A");
             }}
             onFocus={() => resultsA.length > 0 && setShowDropA(true)}
-            placeholder="선수 이름 검색..."
+            placeholder="Search player name..."
             className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
           {showDropA && (
@@ -276,7 +276,7 @@ export default function MatchupClient() {
         {/* Player B */}
         <div className="relative">
           <label className="block text-sm font-semibold text-red-600 mb-2">
-            선수 B
+            Player B
           </label>
           <input
             type="text"
@@ -286,7 +286,7 @@ export default function MatchupClient() {
               searchPlayers(e.target.value, "B");
             }}
             onFocus={() => resultsB.length > 0 && setShowDropB(true)}
-            placeholder="선수 이름 검색..."
+            placeholder="Search player name..."
             className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-500 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
           />
           {showDropB && (
@@ -316,7 +316,7 @@ export default function MatchupClient() {
       {(loadingA || loadingB) && (
         <div className="text-center py-8">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-blue-500" />
-          <p className="text-slate-400 mt-3">선수 데이터 로딩 중...</p>
+          <p className="text-slate-400 mt-3">Loading player data...</p>
         </div>
       )}
 
@@ -331,7 +331,7 @@ export default function MatchupClient() {
                   className="rounded-xl bg-white border border-slate-200 p-8 flex items-center justify-center min-h-[200px]"
                 >
                   <p className="text-slate-500">
-                    {idx === 0 ? "선수 A" : "선수 B"}를 선택하세요
+                    Select {idx === 0 ? "Player A" : "Player B"}
                   </p>
                 </div>
               );
@@ -414,7 +414,7 @@ export default function MatchupClient() {
       {radarChartData && playerA && playerB && (
         <section className="rounded-xl bg-white border border-slate-200 p-6">
           <h2 className="text-lg font-bold text-slate-800 mb-4 text-center">
-            세이버매트릭스 비교 (100 = 리그 평균)
+            Sabermetrics Comparison (100 = League Avg)
           </h2>
           <ResponsiveContainer width="100%" height={380}>
             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarChartData}>
@@ -466,7 +466,7 @@ export default function MatchupClient() {
       {playerA && playerB && (
         <section className="rounded-xl bg-white border border-slate-200 p-6">
           <h2 className="text-lg font-bold text-slate-800 mb-6 text-center">
-            주요 스탯 비교
+            Stat Comparison
           </h2>
           <div className="space-y-4">
             {comparisonStats.map(({ key, label, format }) => {
@@ -557,10 +557,10 @@ export default function MatchupClient() {
             </svg>
           </div>
           <p className="text-slate-400 text-lg mb-2">
-            두 선수를 검색하여 비교를 시작하세요
+            Search two players to start comparing
           </p>
           <p className="text-slate-500 text-sm">
-            검색창에 선수 이름을 입력하면 자동완성 목록이 표시됩니다
+            Type a player name in the search box to see autocomplete suggestions
           </p>
         </div>
       )}

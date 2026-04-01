@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButton from "@/components/auth/AuthButton";
 import LangToggle from "./LangToggle";
+import ThemeToggle from "./ThemeToggle";
 import { useLang } from "@/contexts/LangContext";
 
 function useNavItems() {
@@ -27,12 +28,12 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5">
         {/* Logo */}
         <Link href="/" className="text-xl font-extrabold tracking-tight">
           <span className="text-blue-600">Stat</span>
-          <span className="text-slate-800">Scope</span>
+          <span className="text-slate-800 dark:text-white">Scope</span>
         </Link>
 
         {/* Desktop nav */}
@@ -46,7 +47,7 @@ export default function Header() {
                 className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${
                   active
                     ? "text-blue-600 bg-blue-50"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
                 {item.label}
@@ -55,8 +56,9 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Auth + Lang */}
+        {/* Auth + Lang + Theme */}
         <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
           <LangToggle />
           <AuthButton />
         </div>
@@ -64,9 +66,9 @@ export default function Header() {
         {/* Mobile toggle */}
         <button
           type="button"
-          className="md:hidden p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+          className="md:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="메뉴 열기"
+          aria-label="Toggle menu"
         >
           <svg
             className="w-6 h-6"
@@ -94,7 +96,7 @@ export default function Header() {
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-lg">
+        <nav className="md:hidden border-t border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg">
           <div className="mx-auto max-w-7xl px-4 py-2 flex flex-col">
             {NAV_ITEMS.map((item) => {
               const active = isActive(item.href);

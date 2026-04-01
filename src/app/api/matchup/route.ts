@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   if (!playerId || !opposingId) {
     return Response.json(
-      { error: "playerId와 opposingId가 필요합니다." },
+      { error: "playerId and opposingId are required." },
       { status: 400 }
     );
   }
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   if (isNaN(pid) || isNaN(oid)) {
     return Response.json(
-      { error: "유효하지 않은 선수 ID입니다." },
+      { error: "Invalid player ID." },
       { status: 400 }
     );
   }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     });
   } catch {
     return Response.json(
-      { error: "상대 전적 조회 중 오류가 발생했습니다." },
+      { error: "Failed to fetch head-to-head matchup data." },
       { status: 500 }
     );
   }

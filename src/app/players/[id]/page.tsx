@@ -17,7 +17,7 @@ import {
 } from "@/lib/sports/mlb/metrics";
 import { playerNamesKo, displayNameFull } from "@/data/players";
 import { getTeamById } from "@/data/teams";
-import { statLabelsKo, getStatLabel } from "@/data/stats";
+import { statLabels, getStatLabel } from "@/data/stats";
 import StatsGrid from "@/components/ui/StatsGrid";
 import RadarChart from "@/components/charts/RadarChart";
 import TeamBadge from "@/components/ui/TeamBadge";
@@ -96,22 +96,26 @@ export async function generateMetadata({
   const { id } = await params;
   const playerId = parseInt(id, 10);
   if (isNaN(playerId)) {
-    return { title: "선수를 찾을 수 없습니다 | StatScope" };
+    return { title: "Player Not Found | StatScope" };
   }
 
   try {
     const data = await fetchPlayerStats(playerId, CURRENT_SEASON, "hitting");
     const player = data.people?.[0];
     if (!player) {
-      return { title: "선수를 찾을 수 없습니다 | StatScope" };
+      return { title: "Player Not Found | StatScope" };
     }
     const name = displayNameFull(player.id, player.fullName);
     return {
-      title: `${name} - 선수 분석 | StatScope`,
-      description: `${name}의 시즌 성적, 세이버매트릭스 분석을 StatScope에서 확인하세요.`,
+      title: `${name} - Player Analysis | StatScope`,
+      description: `${name} season stats and sabermetrics analysis on StatScope.`,
+      openGraph: {
+        title: `${name} - Player Analysis | StatScope`,
+        description: `${name} MLB stats, wOBA, wRC+, FIP and more advanced analytics.`,
+      },
     };
   } catch {
-    return { title: "선수 분석 | StatScope" };
+    return { title: "Player Analysis | StatScope" };
   }
 }
 
@@ -293,24 +297,24 @@ export default async function PlayerDetailPage({
         ];
 
   const ybyLabels: Record<string, string> = {
-    season: "시즌",
-    gamesPlayed: "경기",
-    atBats: "타수",
-    hits: "안타",
-    homeRuns: "홈런",
-    rbi: "타점",
-    runs: "득점",
-    stolenBases: "도루",
-    avg: "타율",
-    obp: "출루율",
-    slg: "장타율",
+    season: "Season",
+    gamesPlayed: "G",
+    atBats: "AB",
+    hits: "H",
+    homeRuns: "HR",
+    rbi: "RBI",
+    runs: "R",
+    stolenBases: "SB",
+    avg: "AVG",
+    obp: "OBP",
+    slg: "SLG",
     ops: "OPS",
-    wins: "승",
-    losses: "패",
+    wins: "W",
+    losses: "L",
     era: "ERA",
-    inningsPitched: "이닝",
-    strikeOuts: "삼진",
-    baseOnBalls: "볼넷",
+    inningsPitched: "IP",
+    strikeOuts: "SO",
+    baseOnBalls: "BB",
     whip: "WHIP",
   };
 
@@ -318,7 +322,7 @@ export default async function PlayerDetailPage({
   const advancedKeys = Object.keys(sabermetrics);
   const advancedLabels: Record<string, string> = {};
   for (const key of advancedKeys) {
-    advancedLabels[key] = statLabelsKo[key.toLowerCase()] ?? key;
+    advancedLabels[key] = statLabels[key.toLowerCase()] ?? key;
   }
 
   return (
@@ -390,17 +394,17 @@ export default async function PlayerDetailPage({
                 {formIndex && <FormBadge form={formIndex} size="md" />}
                 {player.batSide && (
                   <span className="text-slate-400">
-                    타격: {player.batSide.code === "R" ? "우타" : player.batSide.code === "L" ? "좌타" : "스위치"}
+                    Bats: {player.batSide.code === "R" ? "Right" : player.batSide.code === "L" ? "Left" : "Switch"}
                   </span>
                 )}
                 {player.pitchHand && (
                   <span className="text-slate-400">
-                    투구: {player.pitchHand.code === "R" ? "우투" : "좌투"}
+                    Throws: {player.pitchHand.code === "R" ? "Right" : "Left"}
                   </span>
                 )}
                 {player.currentAge && (
                   <span className="text-slate-400">
-                    {player.currentAge}세
+                    Age {player.currentAge}
                   </span>
                 )}
               </div>
@@ -427,19 +431,19 @@ export default async function PlayerDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-            세이버매트릭스 분석
+            Sabermetrics Analysis
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-xl bg-white border border-slate-200 p-4">
               <RadarChart
                 data={radarData}
                 color={teamColor}
-                title="리그 평균 대비 성적 (100 = 리그 평균)"
+                title="Performance vs League Average (100 = Avg)"
               />
             </div>
             <div className="rounded-xl bg-white border border-slate-200 p-6">
               <h3 className="text-sm font-semibold text-slate-600 mb-4">
-                핵심 지표
+                Key Metrics
               </h3>
               <StatsGrid
                 stats={sabermetrics as Record<string, number | string>}
@@ -451,15 +455,15 @@ export default async function PlayerDetailPage({
               <div className="mt-6 space-y-2 text-xs text-slate-500">
                 {playerType === "hitting" ? (
                   <>
-                    <p>wOBA: 가중 출루율 - 각 타격 결과에 가중치를 부여한 종합 타격 지표</p>
-                    <p>wRC+: 가중 득점 생산+ - 리그 평균(100) 대비 타자의 득점 기여도</p>
-                    <p>ISO: 순수 장타력 - 장타율에서 타율을 뺀 순수 파워 지표</p>
+                    <p>wOBA: Weighted On-Base Average — overall offensive value per plate appearance</p>
+                    <p>wRC+: Weighted Runs Created Plus — run production vs league avg (100)</p>
+                    <p>ISO: Isolated Power — raw power (SLG minus AVG)</p>
                   </>
                 ) : (
                   <>
-                    <p>FIP: 수비 무관 평균자책점 - 투수가 통제 가능한 요소만으로 평가</p>
-                    <p>K%: 삼진율 - 상대 타자 삼진 비율</p>
-                    <p>BB%: 볼넷율 - 상대 타자 볼넷 비율</p>
+                    <p>FIP: Fielding Independent Pitching — evaluates only pitcher-controlled outcomes</p>
+                    <p>K%: Strikeout rate against opposing batters</p>
+                    <p>BB%: Walk rate against opposing batters</p>
                   </>
                 )}
               </div>
@@ -473,7 +477,7 @@ export default async function PlayerDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-            역대 시즌 성적
+            Career Stats
           </h2>
           <div className="rounded-xl bg-white border border-slate-200 overflow-x-auto">
             <table className="w-full text-sm">
@@ -518,7 +522,7 @@ export default async function PlayerDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-            {CURRENT_SEASON} 시즌 상세 성적
+            {CURRENT_SEASON} Season Stats
           </h2>
           <div className="rounded-xl bg-white border border-slate-200 p-6">
             <StatsGrid
@@ -558,7 +562,7 @@ export default async function PlayerDetailPage({
                       "saves",
                     ]
               }
-              labels={statLabelsKo}
+              labels={statLabels}
               columns={4}
             />
           </div>

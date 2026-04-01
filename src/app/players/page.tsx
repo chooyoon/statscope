@@ -7,9 +7,13 @@ import PlayerCard from "@/components/ui/PlayerCard";
 import SearchBar from "./SearchBar";
 
 export const metadata: Metadata = {
-  title: "MLB 선수 분석 | StatScope",
+  title: "MLB Player Analysis | StatScope",
   description:
-    "MLB 주요 선수들의 타격, 투구 스탯과 세이버매트릭스 분석을 확인하세요.",
+    "Explore batting, pitching stats and sabermetrics analysis for top MLB players.",
+  openGraph: {
+    title: "MLB Player Analysis | StatScope",
+    description: "Advanced stats and sabermetrics for every MLB player.",
+  },
 };
 
 const FEATURED_HITTERS = [
@@ -86,7 +90,7 @@ async function SearchResults({ query }: { query: string }) {
     return (
       <div className="text-center py-12">
         <p className="text-slate-500 text-lg">
-          &quot;{query}&quot;에 대한 검색 결과가 없습니다.
+          No results found for &quot;{query}&quot;.
         </p>
       </div>
     );
@@ -95,9 +99,9 @@ async function SearchResults({ query }: { query: string }) {
   return (
     <section>
       <h2 className="text-xl font-bold text-slate-800 mb-6">
-        &quot;{query}&quot; 검색 결과{" "}
+        Results for &quot;{query}&quot;{" "}
         <span className="text-slate-500 text-base font-normal">
-          ({players.length}명)
+          ({players.length} players)
         </span>
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -139,11 +143,10 @@ export default async function PlayersPage({
       {/* Page Header */}
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-3">
-          MLB 선수 분석
+          MLB Player Analysis
         </h1>
         <p className="text-slate-500 max-w-2xl mx-auto mb-8">
-          선수를 검색하거나 주요 스타 선수들의 성적과 세이버매트릭스를
-          확인하세요.
+          Search any player or explore featured stars with advanced stats and sabermetrics.
         </p>
         <Suspense>
           <SearchBar />
@@ -156,7 +159,7 @@ export default async function PlayersPage({
           fallback={
             <div className="text-center py-12">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-blue-500" />
-              <p className="text-slate-500 mt-4">검색 중...</p>
+              <p className="text-slate-500 mt-4">Searching...</p>
             </div>
           }
         >
@@ -167,7 +170,7 @@ export default async function PlayersPage({
           fallback={
             <div className="text-center py-12">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-600 border-t-blue-500" />
-              <p className="text-slate-500 mt-4">선수 데이터 로딩 중...</p>
+              <p className="text-slate-500 mt-4">Loading player data...</p>
             </div>
           }
         >
@@ -185,7 +188,7 @@ async function FeaturedPlayersSection() {
     <section>
       <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
         <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-        주요 선수
+        Featured Players
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {players.map((player) => (

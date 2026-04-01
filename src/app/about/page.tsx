@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "StatScope 소개 | MLB 심층 분석 플랫폼",
-  description: "StatScope는 세이버매트릭스 기반 MLB 심층 분석 플랫폼입니다.",
+  title: "About StatScope | MLB Deep Analytics Platform",
+  description: "StatScope is a sabermetrics-based MLB deep analytics platform offering free advanced baseball analysis.",
 };
 
 export default function AboutPage() {
@@ -14,33 +14,34 @@ export default function AboutPage() {
           <span className="text-blue-600">Stat</span>
           <span className="text-slate-800">Scope</span>
         </h1>
-        <p className="text-lg text-slate-600">데이터로 야구를 읽다</p>
+        <p className="text-lg text-slate-600">Data-driven baseball analytics</p>
       </div>
 
       <div className="space-y-10 text-sm text-slate-600 leading-7">
         <section className="rounded-2xl bg-white border border-slate-200 p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">StatScope는?</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">What is StatScope?</h2>
           <p className="mb-3">
-            StatScope는 <strong>세이버매트릭스 기반 MLB 심층 분석 플랫폼</strong>입니다.
-            단순한 스코어보드를 넘어, 선발투수 매치업 분석, 팀 전력 비교,
-            승률 예측 모델, 선수 폼 지수 등 데이터에 기반한 전문적인 야구 분석을 제공합니다.
+            StatScope is a <strong>sabermetrics-based MLB deep analytics platform</strong>.
+            Beyond simple scoreboards, we provide data-driven professional baseball analysis
+            including starting pitcher matchup analysis, team strength comparisons,
+            win probability models, and player form indices.
           </p>
           <p>
-            기존에 영어권에서만 접할 수 있었던 고급 야구 분석을
-            한국어로 쉽고 직관적으로 제공하는 것이 StatScope의 목표입니다.
+            Our goal is to make advanced baseball analytics accessible and intuitive
+            for every fan.
           </p>
         </section>
 
         <section className="rounded-2xl bg-white border border-slate-200 p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">주요 기능</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Key Features</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { title: "실시간 경기 정보", desc: "오늘의 MLB 경기 일정, 실시간 스코어, 선발 투수 정보" },
-              { title: "경기 심층 분석", desc: "양팀 로스터 세이버매트릭스 비교, 선발투수 매치업, AI 분석" },
-              { title: "승률 예측 모델", desc: "선발 ERA/WHIP, 팀 최근 폼, 홈 어드밴티지 기반 자체 예측" },
-              { title: "선수 상대 전적", desc: "투수-타자 간 통산 상대 전적, 강점/약점 자동 분석" },
-              { title: "팀 순위", desc: "아메리칸리그/내셔널리그 6개 디비전 실시간 순위" },
-              { title: "불펜 전력 분석", desc: "양팀 구원투수 ERA, 삼진률, 마무리/셋업 역할 분석" },
+              { title: "Live Game Info", desc: "Today's MLB schedule, live scores, and starting pitcher information" },
+              { title: "Game Deep Analysis", desc: "Roster sabermetrics comparison, starter matchup, AI analysis" },
+              { title: "Win Probability Model", desc: "Proprietary prediction based on starter ERA/WHIP, recent form, home advantage" },
+              { title: "Player Head-to-Head", desc: "Career batter vs pitcher matchup records with automatic analysis" },
+              { title: "Standings", desc: "AL and NL division standings updated in real-time" },
+              { title: "Bullpen Analysis", desc: "Relief pitcher ERA, K%, closer/setup role breakdown" },
             ].map(({ title, desc }) => (
               <div key={title} className="rounded-xl bg-slate-50 border border-slate-100 p-4">
                 <h3 className="text-sm font-bold text-blue-600 mb-1">{title}</h3>
@@ -51,16 +52,16 @@ export default function AboutPage() {
         </section>
 
         <section className="rounded-2xl bg-white border border-slate-200 p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">분석 지표</h2>
-          <p className="mb-4">StatScope에서 사용하는 주요 세이버매트릭스 지표:</p>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Analytics Metrics</h2>
+          <p className="mb-4">Key sabermetrics used on StatScope:</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
-              { key: "wOBA", desc: "가중 출루율" },
-              { key: "wRC+", desc: "가중 득점 생산+" },
-              { key: "FIP", desc: "수비 무관 평균자책점" },
-              { key: "BABIP", desc: "인플레이 타율" },
-              { key: "ISO", desc: "순수 장타력" },
-              { key: "K% / BB%", desc: "삼진율 / 볼넷율" },
+              { key: "wOBA", desc: "Weighted On-Base Average" },
+              { key: "wRC+", desc: "Weighted Runs Created Plus" },
+              { key: "FIP", desc: "Fielding Independent Pitching" },
+              { key: "BABIP", desc: "Batting Avg on Balls in Play" },
+              { key: "ISO", desc: "Isolated Power" },
+              { key: "K% / BB%", desc: "Strikeout / Walk Rate" },
             ].map(({ key, desc }) => (
               <div key={key} className="text-center rounded-lg bg-blue-50 border border-blue-100 px-3 py-3">
                 <p className="text-sm font-bold text-blue-700">{key}</p>
@@ -71,22 +72,22 @@ export default function AboutPage() {
         </section>
 
         <section className="rounded-2xl bg-white border border-slate-200 p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">데이터 업데이트</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Data Refresh Rates</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-slate-200">
-                  <th className="text-left py-2 text-slate-500">항목</th>
-                  <th className="text-center py-2 text-slate-500">갱신 주기</th>
+                  <th className="text-left py-2 text-slate-500">Data Type</th>
+                  <th className="text-center py-2 text-slate-500">Refresh Interval</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {[
-                  ["경기 일정 / 스코어", "2분"],
-                  ["팀 순위", "15분"],
-                  ["선수 시즌 스탯", "1시간"],
-                  ["1군 로스터 (부상/콜업)", "1시간"],
-                  ["뉴스", "30분"],
+                  ["Schedule / Live Scores", "30 seconds"],
+                  ["Standings", "15 minutes"],
+                  ["Player Season Stats", "1 hour"],
+                  ["Active Roster", "1 hour"],
+                  ["News", "30 minutes"],
                 ].map(([item, cycle]) => (
                   <tr key={item}>
                     <td className="py-2 text-slate-700 font-medium">{item}</td>
@@ -99,12 +100,12 @@ export default function AboutPage() {
         </section>
 
         <section className="rounded-2xl bg-white border border-slate-200 p-8 text-center">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">문의</h2>
-          <p className="mb-2">서비스 관련 문의, 피드백, 제휴 제안은 아래로 연락해주세요.</p>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Contact</h2>
+          <p className="mb-2">For inquiries, feedback, or partnership proposals:</p>
           <p className="font-medium text-blue-600">statscope.help@gmail.com</p>
           <div className="mt-6 flex items-center justify-center gap-4">
             <Link href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-              개인정보처리방침
+              Privacy Policy
             </Link>
           </div>
         </section>

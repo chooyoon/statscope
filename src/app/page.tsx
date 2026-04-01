@@ -12,12 +12,17 @@ import LocalTime from "@/components/game/LocalTime";
 import DateNavigator from "./page.client";
 import DateRedirect from "./DateRedirect";
 import HomeClient from "./HomeClient";
+import LiveScoreUpdater from "@/components/game/LiveScoreUpdater";
 import { HeroText, NoGamesText, PitcherLabel, UpcomingTitle } from "./HeroClient";
 
 export const metadata: Metadata = {
-  title: "StatScope - MLB 심층 분석 플랫폼",
+  title: "StatScope - MLB Deep Analytics Platform",
   description:
-    "오늘의 MLB 경기 일정, 스코어, 선발 투수 정보를 확인하세요. StatScope에서 데이터로 야구를 읽으세요.",
+    "Today's MLB schedule, scores, and starting pitcher info. Data-driven baseball analytics at StatScope.",
+  openGraph: {
+    title: "StatScope - Today's MLB Games",
+    description: "Live MLB scores, starting pitchers, and data-driven game previews.",
+  },
 };
 
 function todayStringUTC(): string {
@@ -38,11 +43,11 @@ function getGameSortOrder(game: ScheduleGame): number {
 function getGameTypeLabel(game: ScheduleGame): { label: string; className: string } | null {
   // gameType: S=Spring Training, E=Exhibition, R=Regular, F=Wild Card, D=Division, L=League, W=World Series
   const gt = (game as any).gameType;
-  if (gt === "S" || gt === "E") return { label: "시범경기", className: "bg-amber-50 text-amber-600 ring-1 ring-amber-200" };
-  if (gt === "F") return { label: "와일드카드", className: "bg-purple-50 text-purple-600 ring-1 ring-purple-200" };
-  if (gt === "D") return { label: "디비전시리즈", className: "bg-purple-50 text-purple-600 ring-1 ring-purple-200" };
-  if (gt === "L") return { label: "챔피언십", className: "bg-purple-50 text-purple-600 ring-1 ring-purple-200" };
-  if (gt === "W") return { label: "월드시리즈", className: "bg-red-50 text-red-600 ring-1 ring-red-200" };
+  if (gt === "S" || gt === "E") return { label: "Spring Training", className: "bg-amber-50 text-amber-600 ring-1 ring-amber-200" };
+  if (gt === "F") return { label: "Wild Card", className: "bg-purple-50 text-purple-600 ring-1 ring-purple-200" };
+  if (gt === "D") return { label: "Division Series", className: "bg-purple-50 text-purple-600 ring-1 ring-purple-200" };
+  if (gt === "L") return { label: "Championship", className: "bg-purple-50 text-purple-600 ring-1 ring-purple-200" };
+  if (gt === "W") return { label: "World Series", className: "bg-red-50 text-red-600 ring-1 ring-red-200" };
   return null; // Regular season - no badge
 }
 
@@ -107,7 +112,7 @@ export default async function HomePage({
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
               <span className="text-blue-400">Stat</span><span className="text-white">Scope</span>
             </h1>
-            <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">MLB 심층 분석 플랫폼</p>
+            <p className="mt-4 text-lg sm:text-xl text-white font-semibold drop-shadow-md">MLB Deep Analytics Platform</p>
           </div>
           <div className="absolute bottom-0 left-0 right-0 z-10">
             <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
@@ -132,6 +137,10 @@ export default async function HomePage({
   // Sort: live first, then scheduled, then finished
   const sortedGames = [...games].sort(
     (a, b) => getGameSortOrder(a) - getGameSortOrder(b)
+  );
+
+  const hasLiveGames = games.some(
+    (g) => g.status.abstractGameState === "Live"
   );
 
   return (
@@ -162,6 +171,9 @@ export default async function HomePage({
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Personalized Dashboard (logged-in users) */}
         <HomeClient />
+
+        {/* Live Score Auto-updater */}
+        <LiveScoreUpdater hasLiveGames={hasLiveGames} />
 
         {/* Date Navigator */}
         <div className="mb-8 flex justify-center">
