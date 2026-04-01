@@ -36,7 +36,7 @@ try:
 except ImportError:
     pass
 
-STATSCOPE_URL = os.getenv("STATSCOPE_URL", "https://statscope.vercel.app")
+STATSCOPE_URL = os.getenv("STATSCOPE_URL", "https://statscope-eta.vercel.app")
 MLB_API = "https://statsapi.mlb.com/api/v1"
 
 BLUESKY_HANDLE = os.getenv("BLUESKY_HANDLE", "")
@@ -664,7 +664,7 @@ def generate_stat_card_svg(title: str, lines: list[str], accent_color: str = "#2
   <rect x="0" y="40" width="600" height="16" fill="{accent_color}"/>
   <text x="30" y="38" font-size="22" font-weight="bold" fill="white" font-family="sans-serif">{escaped_title}</text>
   {line_items}
-  <text x="570" y="{height - 15}" font-size="12" fill="#64748b" text-anchor="end" font-family="sans-serif">statscope.vercel.app</text>
+  <text x="570" y="{height - 15}" font-size="12" fill="#64748b" text-anchor="end" font-family="sans-serif">statscope-eta.vercel.app</text>
 </svg>"""
     return svg
 

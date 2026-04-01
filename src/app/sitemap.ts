@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { teams } from '@/data/teams';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://statscope.vercel.app';
+  const baseUrl = 'https://statscope-eta.vercel.app';
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },

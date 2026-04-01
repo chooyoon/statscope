@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://statscope.vercel.app/sitemap.xml',
+    sitemap: 'https://statscope-eta.vercel.app/sitemap.xml',
   };
 }

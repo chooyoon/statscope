@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "StatScope - MLB Deep Analytics Platform",
   description:
     "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability. Data-driven baseball analytics.",
-  metadataBase: new URL("https://statscope.vercel.app"),
+  metadataBase: new URL("https://statscope-eta.vercel.app"),
   openGraph: {
     type: "website",
     siteName: "StatScope",
@@ -62,17 +62,17 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "StatScope",
-              url: "https://statscope.vercel.app",
+              url: "https://statscope-eta.vercel.app",
               description: "Free MLB sabermetrics analysis platform with game previews, player stats, and win probability models.",
               publisher: {
                 "@type": "Organization",
                 name: "StatScope",
-                url: "https://statscope.vercel.app",
+                url: "https://statscope-eta.vercel.app",
                 email: "statscope.help@gmail.com",
               },
               potentialAction: {
                 "@type": "SearchAction",
-                target: "https://statscope.vercel.app/players?q={search_term_string}",
+                target: "https://statscope-eta.vercel.app/players?q={search_term_string}",
                 "query-input": "required name=search_term_string",
               },
             }),
