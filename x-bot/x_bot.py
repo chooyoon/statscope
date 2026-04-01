@@ -633,9 +633,8 @@ def cmd_auto(dry_run: bool):
         print(f"[{now_et().strftime('%I:%M %p ET')}] Afternoon → Game previews")
         cmd_preview(dry_run)
     elif 17 <= hour < 20:
-        # Early evening: Korean player update + preview
-        print(f"[{now_et().strftime('%I:%M %p ET')}] Evening → Korean players + Preview")
-        cmd_korean(dry_run)
+        # Early evening: Preview
+        print(f"[{now_et().strftime('%I:%M %p ET')}] Evening → Game previews")
         cmd_preview(dry_run)
     elif 20 <= hour <= 23:
         # Night: Live game results as they finish

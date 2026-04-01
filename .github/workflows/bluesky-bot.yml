@@ -7,7 +7,7 @@ on:
     - cron: '0 13 * * *'
     # 1 PM ET = 17:00 UTC → Afternoon previews
     - cron: '0 17 * * *'
-    # 5 PM ET = 21:00 UTC → Evening korean + previews
+    # 5 PM ET = 21:00 UTC → Evening previews
     - cron: '0 21 * * *'
     # 8 PM ET = 00:00 UTC → Night recaps
     - cron: '0 0 * * *'
@@ -38,8 +38,7 @@ jobs:
           elif [ "$HOUR" -ge 13 ] && [ "$HOUR" -lt 17 ]; then
             echo "command=preview" >> $GITHUB_OUTPUT
           elif [ "$HOUR" -ge 17 ] && [ "$HOUR" -lt 20 ]; then
-            echo "command=korean" >> $GITHUB_OUTPUT
-            echo "extra=preview" >> $GITHUB_OUTPUT
+            echo "command=preview" >> $GITHUB_OUTPUT
           elif [ "$HOUR" -ge 20 ]; then
             echo "command=recap" >> $GITHUB_OUTPUT
           else
