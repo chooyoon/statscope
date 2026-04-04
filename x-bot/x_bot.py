@@ -47,6 +47,29 @@ ET = timezone(timedelta(hours=-4))  # EDT (March-November)
 
 BASE_TAGS = "#MLB #Baseball #StatScope"
 
+# Popular teams get priority in analysis posts (ordered by fanbase/engagement)
+POPULAR_TEAMS = {
+    "NYY", "LAD", "BOS", "CHC", "ATL",
+    "HOU", "PHI", "NYM", "SF", "STL",
+    "SD", "SEA", "TEX", "DET", "BAL",
+}
+
+
+def game_popularity(game: dict) -> int:
+    """Score a game by how popular the teams are. Higher = more popular."""
+    home = abbr(game["teams"]["home"]["team"]["name"])
+    away = abbr(game["teams"]["away"]["team"]["name"])
+    score = 0
+    if home in POPULAR_TEAMS:
+        score += 2
+    if away in POPULAR_TEAMS:
+        score += 2
+    # Bonus if both are popular (marquee matchup)
+    if home in POPULAR_TEAMS and away in POPULAR_TEAMS:
+        score += 3
+    return score
+
+
 # Team hashtags for better discoverability
 TEAM_HASHTAGS = {
     "NYY": "#Yankees", "NYM": "#Mets",
@@ -254,7 +277,8 @@ def format_single_preview(game: dict, standings: dict) -> str:
 
 
 def format_daily_slate(games: list, standings: dict) -> str:
-    """Today's full slate overview"""
+    """Today's full slate overview (popular teams listed first)"""
+    games = sorted(games, key=game_popularity, reverse=True)
     et = now_et()
     date_str = et.strftime("%B %d")
     lines = [
@@ -586,12 +610,14 @@ def cmd_preview(dry_run: bool):
     slate = format_daily_slate(scheduled, standings)
     send_post(slate, dry_run)
 
-    # Post 2-3: Top matchup detailed previews (pick games with both SP announced)
+    # Post 2-3: Top matchup detailed previews (prioritize popular teams)
     featured = [g for g in scheduled
                 if g["teams"]["away"].get("probablePitcher") and g["teams"]["home"].get("probablePitcher")]
 
     if not featured:
         featured = scheduled
+
+    featured.sort(key=game_popularity, reverse=True)
 
     for game in featured[:2]:
         preview = format_single_preview(game, standings)
@@ -611,6 +637,8 @@ def cmd_recap(dry_run: bool):
         if not finished:
             continue
 
+        # Prioritize popular teams
+        finished.sort(key=game_popularity, reverse=True)
         print(f"[{date_str}] {len(finished)} finished games")
 
         count = 0
