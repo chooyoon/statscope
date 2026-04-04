@@ -3,14 +3,12 @@ name: StatScope Bluesky Bot
 on:
   schedule:
     # All times in UTC (ET = UTC-4 during EDT)
-    # 9 AM ET = 13:00 UTC → Morning recaps
+    # 9 AM ET = 13:00 UTC → Morning recaps (only recap of the day)
     - cron: '0 13 * * *'
     # 1 PM ET = 17:00 UTC → Afternoon previews
     - cron: '0 17 * * *'
-    # 5 PM ET = 21:00 UTC → Evening previews
+    # 5 PM ET = 21:00 UTC → Evening leaders
     - cron: '0 21 * * *'
-    # 8 PM ET = 00:00 UTC → Night recaps
-    - cron: '0 0 * * *'
     # 11 AM ET = 15:00 UTC → Interact (follow-back + replies)
     - cron: '0 15 * * *'
   workflow_dispatch:
@@ -37,12 +35,10 @@ jobs:
             echo "command=recap" >> $GITHUB_OUTPUT
           elif [ "$HOUR" -ge 13 ] && [ "$HOUR" -lt 17 ]; then
             echo "command=preview" >> $GITHUB_OUTPUT
-          elif [ "$HOUR" -ge 17 ] && [ "$HOUR" -lt 20 ]; then
-            echo "command=preview" >> $GITHUB_OUTPUT
-          elif [ "$HOUR" -ge 20 ]; then
-            echo "command=recap" >> $GITHUB_OUTPUT
-          else
+          elif [ "$HOUR" -ge 17 ] && [ "$HOUR" -lt 22 ]; then
             echo "command=leaders" >> $GITHUB_OUTPUT
+          else
+            echo "command=preview" >> $GITHUB_OUTPUT
           fi
 
       - name: Run bot

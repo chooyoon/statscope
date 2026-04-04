@@ -47,6 +47,32 @@ ET = timezone(timedelta(hours=-4))  # EDT (March-November)
 
 BASE_TAGS = "#MLB #Baseball #StatScope"
 
+# Team hashtags for better discoverability
+TEAM_HASHTAGS = {
+    "NYY": "#Yankees", "NYM": "#Mets",
+    "LAD": "#Dodgers", "LAA": "#Angels",
+    "SD": "#Padres", "SF": "#Giants",
+    "HOU": "#Astros", "ATL": "#Braves",
+    "PHI": "#Phillies", "TEX": "#Rangers",
+    "MIN": "#Twins", "PIT": "#Pirates",
+    "BOS": "#RedSox", "CHC": "#Cubs",
+    "CWS": "#WhiteSox", "TOR": "#BlueJays",
+    "BAL": "#Orioles", "TB": "#Rays",
+    "SEA": "#Mariners", "CLE": "#Guardians",
+    "DET": "#Tigers", "KC": "#Royals",
+    "OAK": "#Athletics", "MIL": "#Brewers",
+    "STL": "#Cardinals", "CIN": "#Reds",
+    "ARI": "#Dbacks", "COL": "#Rockies",
+    "MIA": "#Marlins", "WSH": "#Nationals",
+}
+
+
+def team_tags(*team_abbrs: str) -> str:
+    """Generate hashtag string with team-specific tags"""
+    tags = [TEAM_HASHTAGS.get(t, "") for t in team_abbrs]
+    extra = " ".join(t for t in tags if t)
+    return f"{BASE_TAGS} {extra}".strip() if extra else BASE_TAGS
+
 # Korean players
 KOREAN_PLAYERS = {
     "Hye-seong Kim": {"id": 664285, "team": "MIN", "pos": "2B", "kr": "김혜성"},
@@ -222,7 +248,7 @@ def format_single_preview(game: dict, standings: dict) -> str:
 
     lines.append(f"")
     lines.append(f"Full analysis 👉 {STATSCOPE_URL}")
-    lines.append(BASE_TAGS)
+    lines.append(team_tags(abbr(away_name), abbr(home_name)))
 
     return "\n".join(lines)
 
@@ -262,7 +288,7 @@ def format_daily_slate(games: list, standings: dict) -> str:
 
     lines.append(f"")
     lines.append(f"Previews 👉 {STATSCOPE_URL}")
-    lines.append(BASE_TAGS)
+    lines.append(BASE_TAGS)  # daily slate uses generic tags (too many teams)
 
     return "\n".join(lines)
 
@@ -316,7 +342,7 @@ def format_game_recap(game: dict) -> str:
 
     lines.append(f"")
     lines.append(f"Box score & stats 👉 {STATSCOPE_URL}")
-    lines.append(BASE_TAGS)
+    lines.append(team_tags(home_name, away_name))
 
     return "\n".join(lines)
 
