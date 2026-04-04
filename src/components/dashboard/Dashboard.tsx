@@ -29,7 +29,7 @@ export default function Dashboard() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={user.photoURL}
-              alt=""
+              alt="User profile"
               className="w-8 h-8 rounded-full"
               referrerPolicy="no-referrer"
             />

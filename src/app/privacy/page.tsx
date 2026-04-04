@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           <p>StatScope collects only the minimum information necessary to provide our services.</p>
           <ul className="list-disc pl-6 space-y-1">
             <li><strong>Google Sign-In:</strong> Name, email address, profile picture (public information provided by your Google account)</li>
-            <li><strong>Automatically Collected:</strong> Visit history, browser type, access time (cookie-based via Google Analytics/AdSense)</li>
+            <li><strong>Automatically Collected:</strong> Visit history, browser type, access time (cookie-based via Google AdSense)</li>
             <li><strong>User Preferences:</strong> Favorite teams, favorite players, and other in-app settings</li>
           </ul>
         </section>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
           <p>StatScope does not sell or share your personal information with third parties, except in the following cases:</p>
           <ul className="list-disc pl-6 space-y-1">
             <li>When required by law</li>
-            <li>External service providers essential to operations (Google AdSense, Google Analytics) — their own privacy policies apply separately</li>
+            <li>External service providers essential to operations (Google AdSense) — their own privacy policies apply separately</li>
           </ul>
         </section>
 
@@ -50,8 +50,7 @@ export default function PrivacyPage() {
           <p>StatScope uses cookies to improve user experience and deliver ads. You can disable cookies in your browser settings, though some features may be limited.</p>
           <ul className="list-disc pl-6 space-y-1">
             <li><strong>Essential Cookies:</strong> Login session management</li>
-            <li><strong>Analytics Cookies:</strong> Google Analytics (visit statistics)</li>
-            <li><strong>Advertising Cookies:</strong> Google AdSense (personalized ads)</li>
+            <li><strong>Advertising Cookies:</strong> Google AdSense (personalized ads and visit statistics)</li>
           </ul>
         </section>
 

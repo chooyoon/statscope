@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LangProvider } from "@/contexts/LangContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
+import CookieConsent from "@/components/ui/CookieConsent";
 
 export const metadata: Metadata = {
   title: "StatScope - MLB Deep Analytics Platform",
@@ -86,6 +87,7 @@ export default function RootLayout({
         <AuthProvider>
         <Header />
         <main className="flex-1">{children}</main>
+        <CookieConsent />
         </AuthProvider>
         </LangProvider>
         </ThemeProvider>
