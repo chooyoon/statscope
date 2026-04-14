@@ -995,7 +995,9 @@ def cmd_picks(dry_run: bool):
                 "ap":g["ap"],"hp":g["hp"],"hW":round(prob*100,1),"aW":round((1-prob)*100,1),
                 "hML":mline(prob),"aML":mline(1-prob),"tot":tot,"hE":hE,"aE":aE,
                 "margin":margin,"edge":abs(prob-0.5),"covers":abs(margin)>=1.5,
-                "hERA":hp["era"] if hp else 0,"aERA":ap["era"] if ap else 0})
+                "hERA":hp["era"] if hp else 0,"aERA":ap["era"] if ap else 0,
+                "hFIP":hp["fip"] if hp else 0,"aFIP":ap["fip"] if ap else 0,
+                "hL10":f"{ht['l10w']}-{ht['l10l']}","aL10":f"{at['l10w']}-{at['l10l']}"})
 
         results.sort(key=lambda x: x["edge"], reverse=True)
         top3 = results[:3]
@@ -1036,10 +1038,73 @@ def cmd_picks(dry_run: bool):
 
         print(f"\n✅ Posted {len(top3)+1} picks posts.")
 
+        # Generate Reddit-ready analysis (copy-paste for r/sportsbook)
+        _save_reddit_text(top3)
+
     except Exception as e:
         print(f"[ERROR] Picks failed: {e}")
         import traceback
         traceback.print_exc()
+
+
+def _save_reddit_text(picks):
+    """Save Reddit-ready analysis to file for manual copy-paste."""
+    import random
+    openers = [
+        "Ran my numbers this morning, here's what I like on today's slate:",
+        "Three spots where I see the most edge today:",
+        "Model showing some clean edges today. Top plays:",
+        "Broke down every game today, three plays I feel best about:",
+        "Crunched the FIP-adjusted projections. Locking in these:",
+        "Today's board has a few spots I really like. Top 3 confidence plays:",
+    ]
+    SHORT = {108:"LAA",109:"ARI",110:"BAL",111:"BOS",112:"CHC",113:"CIN",114:"CLE",
+        115:"COL",116:"DET",117:"HOU",118:"KC",119:"LAD",120:"WSH",121:"NYM",
+        133:"OAK",134:"PIT",135:"SD",136:"SEA",137:"SF",138:"STL",139:"TB",
+        140:"TEX",141:"TOR",142:"MIN",143:"PHI",144:"ATL",145:"CWS",146:"MIA",
+        147:"NYY",158:"MIL"}
+
+    lines = [random.choice(openers), ""]
+    for p in picks:
+        is_home = p["hW"] > 50
+        fav_s = SHORT.get(p["hi"] if is_home else p["ai"], "???")
+        dog_s = SHORT.get(p["ai"] if is_home else p["hi"], "???")
+        fav_ml = p["hML"] if is_home else p["aML"]
+        fav_pct = p["hW"] if is_home else p["aW"]
+        fav_era = p.get("hERA",0) if is_home else p.get("aERA",0)
+        fav_fip = p.get("hFIP",0) if is_home else p.get("aFIP",0)
+        dog_era = p.get("aERA",0) if is_home else p.get("hERA",0)
+        fav_p = p["hp"] if is_home else p["ap"]
+        dog_p = p["ap"] if is_home else p["hp"]
+        fav_l10 = p.get("hL10","") if is_home else p.get("aL10","")
+        margin_s = f"+{p['margin']}" if p['margin'] > 0 else str(p['margin'])
+        ou_exp = round(p["hE"] + p["aE"], 1)
+        ou = "over" if ou_exp > p["tot"] + 0.25 else "under" if ou_exp < p["tot"] - 0.25 else None
+
+        fip_str = f", {fav_fip:.2f} FIP" if fav_fip > 0 else ""
+        t = f"**{fav_s} ML ({fav_ml})**"
+        if fav_era > 0 and fav_era < 3.5:
+            t += f" - {fav_p} has been dealing ({fav_era:.2f} ERA{fip_str})."
+        elif dog_era > 5:
+            t += f" - Fading {dog_p} here ({dog_era:.2f} ERA). That's rough."
+        else:
+            t += f" - {fav_p} ({fav_era:.2f} ERA{fip_str}) vs {dog_p} ({dog_era:.2f} ERA). Pitching edge."
+        if fav_l10:
+            t += f" {fav_s} {fav_l10} last 10."
+        if p["covers"]:
+            t += f" Like -1.5 too (margin {margin_s})."
+        if ou:
+            t += f" Leaning {ou} {p['tot']} (proj {ou_exp})."
+        t += f" Confidence: {fav_pct:.0f}%."
+        lines.append(t)
+        lines.append("")
+
+    lines.append("BOL if tailing")
+
+    reddit_file = Path(__file__).parent / "reddit_post.txt"
+    reddit_file.write_text("\n".join(lines), encoding="utf-8")
+    print(f"\n📋 Reddit text saved to: {reddit_file}")
+    print("   Copy-paste to r/sportsbook MLB Daily Discussion\n")
 
 
 def main():
