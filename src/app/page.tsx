@@ -101,7 +101,7 @@ export default async function HomePage({
           <div className="absolute inset-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=1920&q=80&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=1920&q=80&auto=format&fit=crop"
               alt="Baseball stadium aerial view"
               className="w-full h-full object-cover"
             />
@@ -150,7 +150,7 @@ export default async function HomePage({
         <div className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=1920&q=80&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=1920&q=80&auto=format&fit=crop"
             alt="Baseball stadium aerial view"
             className="w-full h-full object-cover"
           />
@@ -185,7 +185,7 @@ export default async function HomePage({
             <div className="relative z-10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1527247043589-f0dde57a5d5d?w=400&q=80&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1682384157322-32ab3932da07?w=400&q=80&auto=format&fit=crop"
                 alt="Empty baseball field"
                 className="w-24 h-24 object-cover rounded-full mx-auto mb-4 opacity-60"
               />
