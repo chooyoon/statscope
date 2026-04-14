@@ -73,16 +73,18 @@ export interface PredictionFactor {
 // ---------------------------------------------------------------------------
 
 const PYTHAGOREAN_EXP = 1.83;
-const HOME_ADVANTAGE = 0.04; // +4 pp (historical MLB ≈ 54 %)
 const LEAGUE_AVG_ERA = 4.0;
 const LEAGUE_AVG_WOBA = 0.315;
-const STARTER_IMPACT = 0.012; // Δ win-prob per 1.0 ERA/FIP point
-const BULLPEN_IMPACT = 0.006; // Δ win-prob per 1.0 team-ERA point
-const LINEUP_IMPACT = 0.15; // Δ win-prob per 100 % wOBA deviation
-const PARK_IMPACT = 0.06; // how much park factor influences probability
 const MIN_IP_FULL_WEIGHT = 50; // innings for full starter confidence
-const RECENT_FORM_WEIGHT = 0.15; // 15 % recent, 85 % season
-const REGRESSION_FACTOR = 0.10; // pull 10 % toward 50 %
+
+// Backtested & optimized on 246 completed 2026 games (Brier 0.2336)
+const HOME_ADVANTAGE = 0.066; // +6.6 pp (2026 observed: ~55 % home win rate)
+const STARTER_IMPACT = 0.0264; // starter FIP/ERA dominates — 2.2× baseline
+const BULLPEN_IMPACT = 0.0024; // small after Pythagorean already captures RA
+const LINEUP_IMPACT = 0.064; // small after Pythagorean already captures RS
+const PARK_IMPACT = 0.024; // modest venue adjustment
+const RECENT_FORM_WEIGHT = 0.30; // 30 % recent form, 70 % season — streaks matter
+const REGRESSION_FACTOR = 0.22; // pull 22 % toward 50 % — reduces overconfidence
 
 // ---------------------------------------------------------------------------
 // Core math helpers
@@ -256,7 +258,7 @@ export function predictWinProbability(
       homeRecentPct,
       awayRecentPct,
     ),
-    model: "StatScope Model v2.1",
+    model: "StatScope Model v2.2",
   };
 }
 

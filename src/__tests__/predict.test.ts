@@ -146,7 +146,7 @@ describe("predictWinProbability", () => {
     expect(result).toHaveProperty("factors");
     expect(result).toHaveProperty("model");
     expect(result.factors.length).toBeGreaterThan(0);
-    expect(result.model).toBe("StatScope Model v2.1");
+    expect(result.model).toBe("StatScope Model v2.2");
   });
 
   it("factors include all key analysis categories", () => {
