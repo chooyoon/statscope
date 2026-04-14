@@ -1,0 +1,59 @@
+name: StatScope Reddit Bot
+
+on:
+  schedule:
+    # 12:30 PM ET = 16:30 UTC → Post picks (after MLB lineups confirmed)
+    - cron: '30 16 * * *'
+    # 10 AM ET = 14:00 UTC → Check yesterday's results
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Bot command (post/results)'
+        required: false
+        default: 'post'
+
+jobs:
+  reddit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests praw
+
+      # Persist pick history across runs
+      - name: Restore pick history
+        uses: actions/cache@v4
+        with:
+          path: x-bot/.reddit_pick_history.json
+          key: reddit-history-${{ github.run_id }}
+          restore-keys: reddit-history-
+
+      - name: Determine command
+        id: cmd
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "command=${{ github.event.inputs.command || 'post' }}" >> $GITHUB_OUTPUT
+          else
+            HOUR=$(TZ="America/New_York" date +%H)
+            if [ "$HOUR" -ge 12 ] && [ "$HOUR" -lt 14 ]; then
+              echo "command=post" >> $GITHUB_OUTPUT
+            else
+              echo "command=results" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Run Reddit bot
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+          STATSCOPE_URL: https://statscope-eta.vercel.app
+        working-directory: x-bot
+        run: python reddit_bot.py ${{ steps.cmd.outputs.command }}
