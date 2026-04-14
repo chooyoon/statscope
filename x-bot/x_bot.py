@@ -1007,7 +1007,7 @@ def cmd_picks(dry_run: bool):
 
         # Post 1: Header
         header = f"🎯 StatScope Picks — {now_et().strftime('%b %d')}\n\n"
-        header += f"Top 3 picks from our 9-factor model\n(v2.2, backtested 246 games)\n\n"
+        header += f"Top 3 picks from my personal 9-factor prediction model\n(backtested on 246 games)\n\n"
         header += f"Full analysis 👉 {STATSCOPE_URL}\n"
         header += "#MLB #BaseballPicks #StatScope"
         send_post(header, dry_run)
@@ -1099,6 +1099,8 @@ def _save_reddit_text(picks):
         lines.append(t)
         lines.append("")
 
+    lines.append("All picks from my personal prediction model (9-factor, backtested on 246 games)")
+    lines.append("")
     lines.append("BOL if tailing")
 
     reddit_file = Path(__file__).parent / "reddit_post.txt"
