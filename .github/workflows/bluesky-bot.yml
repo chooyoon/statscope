@@ -2,20 +2,27 @@ name: StatScope Bluesky Bot
 
 on:
   schedule:
-    # All times in UTC (ET = UTC-4 during EDT)
-    # 9 AM ET = 13:00 UTC → Morning recaps (only recap of the day)
+    # All times UTC (ET = UTC-4 during EDT)
+    # 9 AM ET = 13:00 UTC → Morning recaps
     - cron: '0 13 * * *'
     # 1 PM ET = 17:00 UTC → Afternoon previews
     - cron: '0 17 * * *'
-    # 5 PM ET = 21:00 UTC → Evening leaders
-    - cron: '0 21 * * *'
+    # 8 PM ET = 00:00 UTC → Evening recaps
+    - cron: '0 0 * * *'
     # 11 AM ET = 15:00 UTC → Interact (follow-back + replies)
     - cron: '0 15 * * *'
   workflow_dispatch:
+    inputs:
+      command:
+        description: 'Bot command (auto/recap/preview/leaders/interact)'
+        required: false
+        default: 'auto'
 
 jobs:
   post:
     runs-on: ubuntu-latest
+    # Don't run the post job on interact schedule
+    if: github.event.schedule != '0 15 * * *' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
@@ -24,21 +31,31 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests atproto python-dotenv
+        run: pip install -r x-bot/requirements.txt
+
+      # Restore post history from cache to prevent duplicate posts
+      - name: Restore post history
+        uses: actions/cache@v4
+        with:
+          path: x-bot/.post_history.json
+          key: bot-history-${{ github.run_id }}
+          restore-keys: bot-history-
 
       - name: Determine command
         id: cmd
         run: |
-          HOUR=$(TZ="America/New_York" date +%H)
-          echo "hour=$HOUR"
-          if [ "$HOUR" -ge 9 ] && [ "$HOUR" -lt 13 ]; then
-            echo "command=recap" >> $GITHUB_OUTPUT
-          elif [ "$HOUR" -ge 13 ] && [ "$HOUR" -lt 17 ]; then
-            echo "command=preview" >> $GITHUB_OUTPUT
-          elif [ "$HOUR" -ge 17 ] && [ "$HOUR" -lt 22 ]; then
-            echo "command=leaders" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "command=${{ github.event.inputs.command || 'auto' }}" >> $GITHUB_OUTPUT
           else
-            echo "command=preview" >> $GITHUB_OUTPUT
+            HOUR=$(TZ="America/New_York" date +%H)
+            echo "Current ET hour: $HOUR"
+            if [ "$HOUR" -ge 8 ] && [ "$HOUR" -lt 13 ]; then
+              echo "command=recap" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" -ge 13 ] && [ "$HOUR" -lt 19 ]; then
+              echo "command=preview" >> $GITHUB_OUTPUT
+            else
+              echo "command=recap" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Run bot
@@ -47,15 +64,11 @@ jobs:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
           STATSCOPE_URL: https://statscope-eta.vercel.app
         working-directory: x-bot
-        run: |
-          python x_bot.py ${{ steps.cmd.outputs.command }}
-          if [ -n "${{ steps.cmd.outputs.extra }}" ]; then
-            python x_bot.py ${{ steps.cmd.outputs.extra }}
-          fi
+        run: python x_bot.py ${{ steps.cmd.outputs.command }}
 
   interact:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 15 * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 15 * * *' || (github.event_name == 'workflow_dispatch' && github.event.inputs.command == 'interact')
     steps:
       - uses: actions/checkout@v4
 
@@ -64,7 +77,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests atproto python-dotenv
+        run: pip install -r x-bot/requirements.txt
 
       - name: Run interact
         env:

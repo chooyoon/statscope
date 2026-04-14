@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env.local
+
+# bot runtime files
+x-bot/.post_history.json
+x-bot/bot_log.txt
+x-bot/logs/
