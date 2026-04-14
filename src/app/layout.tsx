@@ -19,13 +19,30 @@ export const metadata: Metadata = {
     description:
       "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability.",
     locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "StatScope - MLB Deep Analytics Platform",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "StatScope - MLB Deep Analytics Platform",
     description:
       "Free MLB sabermetrics analysis: game previews, pitcher matchups, win probability.",
+    images: ["/og-image.png"],
   },
+  alternates: {
+    canonical: "https://statscope-eta.vercel.app",
+  },
+  keywords: [
+    "MLB", "baseball", "sabermetrics", "win probability", "game prediction",
+    "pitcher matchup", "baseball analytics", "MLB stats", "over under",
+    "moneyline", "baseball odds", "statscope",
+  ],
   robots: {
     index: true,
     follow: true,

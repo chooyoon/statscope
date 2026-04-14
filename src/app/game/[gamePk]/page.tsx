@@ -90,7 +90,14 @@ export async function generateMetadata({
     const awayName = awayTeam?.name ?? boxscore.teams.away.team.name;
     return {
       title: `${awayName} vs ${homeName} - Game Analysis | StatScope`,
-      description: `In-depth analysis of ${awayName} vs ${homeName}: linescore, pitcher comparison, and lineup breakdown on StatScope.`,
+      description: `In-depth analysis of ${awayName} vs ${homeName}: win probability, odds prediction, pitcher comparison, and lineup breakdown on StatScope.`,
+      openGraph: {
+        title: `${awayName} vs ${homeName} | StatScope`,
+        description: `Win probability, moneyline odds, O/U prediction for ${awayName} vs ${homeName}.`,
+      },
+      alternates: {
+        canonical: `https://statscope-eta.vercel.app/game/${gamePk}`,
+      },
     };
   } catch {
     return { title: "Game Analysis | StatScope" };
@@ -497,8 +504,31 @@ export default async function GameDetailPage({
     name: displayName(p.id, p.fullName),
   }));
 
+  // SportsEvent JSON-LD for SEO
+  const gameJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name: `${awayTeam?.name ?? "Away"} vs ${homeTeam?.name ?? "Home"}`,
+    url: `https://statscope-eta.vercel.app/game/${pk}`,
+    sport: "Baseball",
+    homeTeam: { "@type": "SportsTeam", name: homeTeam?.name ?? "Home" },
+    awayTeam: { "@type": "SportsTeam", name: awayTeam?.name ?? "Away" },
+    ...(isFinished && {
+      eventStatus: "https://schema.org/EventScheduled",
+      result: {
+        "@type": "SportsEventResult",
+        description: `${awayTeam?.name} ${awayRuns} - ${homeTeam?.name} ${homeRuns}`,
+      },
+    }),
+    organizer: { "@type": "Organization", name: "Major League Baseball", url: "https://mlb.com" },
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(gameJsonLd) }}
+      />
       {/* ===== 1. GAME HEADER ===== */}
       <section className="mb-8">
         <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
