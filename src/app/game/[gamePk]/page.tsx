@@ -27,7 +27,8 @@ import { getStatLabel } from "@/data/stats";
 import TeamBadge from "@/components/ui/TeamBadge";
 import StatBar from "@/components/ui/StatBar";
 import WinProbability from "@/components/game/WinProbability";
-import { predictWinProbability, type AdvancedPredictionInput } from "@/lib/sports/mlb/predict";
+import OddsPreview from "@/components/game/OddsPreview";
+import { predictWinProbability, predictOdds, type AdvancedPredictionInput } from "@/lib/sports/mlb/predict";
 import AnalysisNotes from "./AnalysisNotes";
 import AICommentary from "./AICommentary";
 import {
@@ -389,6 +390,7 @@ export default async function GameDetailPage({
   };
 
   const prediction = predictWinProbability(predictionInput);
+  const odds = predictOdds(predictionInput, prediction);
 
   // Build opposing player lists for matchup panels
   function extractPlayers(
@@ -650,9 +652,16 @@ export default async function GameDetailPage({
 
       {/* ===== WIN PREDICTION ===== */}
       {(homeStarter || awayStarter) && (
-        <section className="mb-8">
+        <section className="mb-8 space-y-4">
           <WinProbability
             prediction={prediction}
+            homeTeamName={homeTeam?.name ?? "Home"}
+            awayTeamName={awayTeam?.name ?? "Away"}
+            homeColor={homeColor}
+            awayColor={awayColor}
+          />
+          <OddsPreview
+            odds={odds}
             homeTeamName={homeTeam?.name ?? "Home"}
             awayTeamName={awayTeam?.name ?? "Away"}
             homeColor={homeColor}

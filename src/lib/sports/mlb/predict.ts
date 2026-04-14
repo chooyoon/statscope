@@ -425,6 +425,141 @@ function buildFactors(
   return factors;
 }
 
+// ===========================================================================
+// Odds Prediction — Over/Under, Moneyline, Run Line
+// ===========================================================================
+
+export interface OddsResult {
+  /** Predicted Over/Under total runs line (nearest 0.5). */
+  totalLine: number;
+  homeExpectedRuns: number;
+  awayExpectedRuns: number;
+  /** American-format moneyline (e.g. "-150", "+130"). */
+  homeMoneyline: string;
+  awayMoneyline: string;
+  /** Standard -1.5/+1.5 run line analysis. */
+  runLine: {
+    favorite: "home" | "away" | "even";
+    spread: number;
+    expectedMargin: number;
+    /** Can the favorite reasonably cover -1.5? */
+    coversSpread: boolean;
+  };
+  /** Over/Under recommendation based on expected total vs line. */
+  overUnder: {
+    expectedTotal: number;
+    lean: "over" | "under" | "push";
+  };
+}
+
+const MLB_AVG_RPG = 4.5; // league-average runs per game per team
+const RUNS_REGRESSION = 0.15; // 15 % regression toward mean
+
+/**
+ * Predict game odds: total runs (O/U), moneyline, and run line.
+ *
+ * Uses the same input as `predictWinProbability`.
+ * Call *after* win-probability so you can also pass its result.
+ */
+export function predictOdds(
+  input: AdvancedPredictionInput,
+  winProb: PredictionResult,
+): OddsResult {
+  const { home, away, homeStarter, awayStarter, parkFactor } = input;
+
+  // ---- Expected runs per team ----
+  const homeGames = home.wins + home.losses;
+  const awayGames = away.wins + away.losses;
+
+  const homeRPG = homeGames > 0 ? home.runsScored / homeGames : MLB_AVG_RPG;
+  const awayRPG = awayGames > 0 ? away.runsScored / awayGames : MLB_AVG_RPG;
+
+  // Opposing-starter adjustment
+  //   Home lineup faces away starter → lower away-starter ERA = fewer home runs
+  const awayStarterQ = awayStarter
+    ? (awayStarter.fip > 0 ? awayStarter.fip : awayStarter.era) || LEAGUE_AVG_ERA
+    : LEAGUE_AVG_ERA;
+  const homeStarterQ = homeStarter
+    ? (homeStarter.fip > 0 ? homeStarter.fip : homeStarter.era) || LEAGUE_AVG_ERA
+    : LEAGUE_AVG_ERA;
+
+  // Pitcher quality ratio: lower starter ERA → fewer opponent runs
+  const homeOffAdj = awayStarterQ / LEAGUE_AVG_ERA; // <1 if away starter is good
+  const awayOffAdj = homeStarterQ / LEAGUE_AVG_ERA; // <1 if home starter is good
+
+  // Park factor
+  const pf = parkFactor ?? 1.0;
+
+  // Bullpen quality of opposing team (worse bullpen → more opponent runs)
+  const homeBullpenAdj = away.teamERA
+    ? away.teamERA / LEAGUE_AVG_ERA
+    : 1.0;
+  const awayBullpenAdj = home.teamERA
+    ? home.teamERA / LEAGUE_AVG_ERA
+    : 1.0;
+
+  // Combine adjustments: starter covers ~60 % of game, bullpen ~40 %
+  const homeRunsRaw = homeRPG * (homeOffAdj * 0.6 + homeBullpenAdj * 0.4) * pf;
+  const awayRunsRaw = awayRPG * (awayOffAdj * 0.6 + awayBullpenAdj * 0.4) * pf;
+
+  // Regression toward league mean
+  const homeExpected = round1(homeRunsRaw * (1 - RUNS_REGRESSION) + MLB_AVG_RPG * RUNS_REGRESSION);
+  const awayExpected = round1(awayRunsRaw * (1 - RUNS_REGRESSION) + MLB_AVG_RPG * RUNS_REGRESSION);
+
+  const expectedTotal = round1(homeExpected + awayExpected);
+  // O/U line rounded to nearest 0.5
+  const totalLine = Math.round(expectedTotal * 2) / 2;
+
+  // ---- Moneyline from win probability ----
+  const homeProb = winProb.homeWinPct / 100;
+  const awayProb = winProb.awayWinPct / 100;
+  const homeMoneyline = toAmericanOdds(homeProb);
+  const awayMoneyline = toAmericanOdds(awayProb);
+
+  // ---- Run line ----
+  const expectedMargin = round1(homeExpected - awayExpected);
+  const favorite: "home" | "away" | "even" =
+    expectedMargin > 0.1 ? "home" : expectedMargin < -0.1 ? "away" : "even";
+  const coversSpread = Math.abs(expectedMargin) >= 1.5;
+
+  return {
+    totalLine,
+    homeExpectedRuns: homeExpected,
+    awayExpectedRuns: awayExpected,
+    homeMoneyline,
+    awayMoneyline,
+    runLine: {
+      favorite,
+      spread: 1.5,
+      expectedMargin,
+      coversSpread,
+    },
+    overUnder: {
+      expectedTotal,
+      lean:
+        expectedTotal > totalLine + 0.25
+          ? "over"
+          : expectedTotal < totalLine - 0.25
+          ? "under"
+          : "push",
+    },
+  };
+}
+
+/**
+ * Convert a 0-1 probability to American odds format.
+ *   ≥ 50 % → negative (favorite):  -(p/(1-p))*100
+ *   < 50 % → positive (underdog):  +((1-p)/p)*100
+ */
+export function toAmericanOdds(probability: number): string {
+  if (probability <= 0) return "+10000";
+  if (probability >= 1) return "-10000";
+  if (probability >= 0.5) {
+    return `${Math.round(-(probability / (1 - probability)) * 100)}`;
+  }
+  return `+${Math.round(((1 - probability) / probability) * 100)}`;
+}
+
 // ---------------------------------------------------------------------------
 // Tiny helpers
 // ---------------------------------------------------------------------------

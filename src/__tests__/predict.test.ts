@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   predictWinProbability,
+  predictOdds,
   pythagoreanWinPct,
   log5,
+  toAmericanOdds,
   type AdvancedPredictionInput,
 } from "@/lib/sports/mlb/predict";
 
@@ -258,5 +260,117 @@ describe("predictWinProbability", () => {
     expect(result.homeWinPct + result.awayWinPct).toBeCloseTo(100, 0);
     expect(result.homeWinPct).toBeGreaterThan(20);
     expect(result.homeWinPct).toBeLessThan(80);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// toAmericanOdds
+// ---------------------------------------------------------------------------
+
+describe("toAmericanOdds", () => {
+  it("returns negative odds for favorites (>50%)", () => {
+    const odds = toAmericanOdds(0.6);
+    expect(odds.startsWith("-")).toBe(true);
+    expect(parseInt(odds)).toBe(-150);
+  });
+
+  it("returns positive odds for underdogs (<50%)", () => {
+    const odds = toAmericanOdds(0.4);
+    expect(odds.startsWith("+")).toBe(true);
+    expect(parseInt(odds)).toBe(150);
+  });
+
+  it("returns -100 for exactly 50%", () => {
+    expect(toAmericanOdds(0.5)).toBe("-100");
+  });
+
+  it("handles extreme probabilities", () => {
+    expect(toAmericanOdds(0.8)).toBe("-400");
+    expect(toAmericanOdds(0.25)).toBe("+300");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// predictOdds
+// ---------------------------------------------------------------------------
+
+describe("predictOdds", () => {
+  it("returns a reasonable total runs line", () => {
+    const input = makeInput();
+    const winProb = predictWinProbability(input);
+    const odds = predictOdds(input, winProb);
+    // MLB games typically total 7-11 runs
+    expect(odds.totalLine).toBeGreaterThanOrEqual(5);
+    expect(odds.totalLine).toBeLessThanOrEqual(15);
+    // Line should be in 0.5 increments
+    expect(odds.totalLine % 0.5).toBe(0);
+  });
+
+  it("expected runs sum to expected total", () => {
+    const input = makeInput();
+    const winProb = predictWinProbability(input);
+    const odds = predictOdds(input, winProb);
+    expect(odds.homeExpectedRuns + odds.awayExpectedRuns).toBeCloseTo(
+      odds.overUnder.expectedTotal,
+      0,
+    );
+  });
+
+  it("moneyline reflects win probability direction", () => {
+    const input = makeInput();
+    const winProb = predictWinProbability(input);
+    const odds = predictOdds(input, winProb);
+    // Home team is stronger in default input → should be favorite
+    if (winProb.homeWinPct > 50) {
+      expect(odds.homeMoneyline.startsWith("-")).toBe(true);
+      expect(odds.awayMoneyline.startsWith("+")).toBe(true);
+    }
+  });
+
+  it("higher park factor increases total runs", () => {
+    const coorsInput = makeInput({ parkFactor: 1.35 });
+    const oracleInput = makeInput({ parkFactor: 0.93 });
+    const coorsProb = predictWinProbability(coorsInput);
+    const oracleProb = predictWinProbability(oracleInput);
+    const coorsOdds = predictOdds(coorsInput, coorsProb);
+    const oracleOdds = predictOdds(oracleInput, oracleProb);
+    expect(coorsOdds.totalLine).toBeGreaterThan(oracleOdds.totalLine);
+  });
+
+  it("better opposing starter reduces expected runs", () => {
+    const aceInput = makeInput({
+      awayStarter: { era: 1.8, fip: 2.0, whip: 0.85, inningsPitched: 120, strikeOuts: 200, baseOnBalls: 20 },
+    });
+    const bummInput = makeInput({
+      awayStarter: { era: 6.5, fip: 6.0, whip: 1.9, inningsPitched: 60, strikeOuts: 30, baseOnBalls: 50 },
+    });
+    const aceProb = predictWinProbability(aceInput);
+    const bummProb = predictWinProbability(bummInput);
+    const aceOdds = predictOdds(aceInput, aceProb);
+    const bummOdds = predictOdds(bummInput, bummProb);
+    // Home team scores fewer runs against ace
+    expect(aceOdds.homeExpectedRuns).toBeLessThan(bummOdds.homeExpectedRuns);
+  });
+
+  it("run line identifies correct favorite", () => {
+    const input = makeInput();
+    const winProb = predictWinProbability(input);
+    const odds = predictOdds(input, winProb);
+    // Home team is stronger → should be favorite
+    expect(odds.runLine.favorite).toBe("home");
+    expect(odds.runLine.expectedMargin).toBeGreaterThan(0);
+  });
+
+  it("over/under lean matches expected total vs line", () => {
+    const input = makeInput();
+    const winProb = predictWinProbability(input);
+    const odds = predictOdds(input, winProb);
+    if (odds.overUnder.expectedTotal > odds.totalLine + 0.25) {
+      expect(odds.overUnder.lean).toBe("over");
+    } else if (odds.overUnder.expectedTotal < odds.totalLine - 0.25) {
+      expect(odds.overUnder.lean).toBe("under");
+    } else {
+      expect(odds.overUnder.lean).toBe("push");
+    }
   });
 });
