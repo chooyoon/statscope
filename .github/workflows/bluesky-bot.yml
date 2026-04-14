@@ -5,6 +5,8 @@ on:
     # All times UTC (ET = UTC-4 during EDT)
     # 9 AM ET = 13:00 UTC → Morning recaps
     - cron: '0 13 * * *'
+    # 12 PM ET = 16:00 UTC → Daily prediction picks
+    - cron: '0 16 * * *'
     # 1 PM ET = 17:00 UTC → Afternoon previews
     - cron: '0 17 * * *'
     # 8 PM ET = 00:00 UTC → Evening recaps
@@ -49,8 +51,10 @@ jobs:
           else
             HOUR=$(TZ="America/New_York" date +%H)
             echo "Current ET hour: $HOUR"
-            if [ "$HOUR" -ge 8 ] && [ "$HOUR" -lt 13 ]; then
+            if [ "$HOUR" -ge 8 ] && [ "$HOUR" -lt 12 ]; then
               echo "command=recap" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" -ge 12 ] && [ "$HOUR" -lt 13 ]; then
+              echo "command=picks" >> $GITHUB_OUTPUT
             elif [ "$HOUR" -ge 13 ] && [ "$HOUR" -lt 19 ]; then
               echo "command=preview" >> $GITHUB_OUTPUT
             else

@@ -881,11 +881,172 @@ def cmd_interact(dry_run: bool):
         print(f"[ERROR] Interaction failed: {e}")
 
 
+def cmd_picks(dry_run: bool):
+    """Daily prediction picks from StatScope Model v2.2"""
+    import math
+
+    MLB = "https://statsapi.mlb.com/api/v1"
+    LE = 4.0; LW = 0.315; PX = 1.83
+    K = {"SI":0.0264,"BI":0.0024,"LI":0.064,"PI":0.024,"RW":0.30,"RF":0.22,"HA":0.066}
+    PKF = {108:0.97,109:1.05,110:1.04,111:1.08,112:1.05,113:1.10,114:0.98,115:1.35,
+           116:0.97,117:1.02,118:0.99,119:0.98,120:1.00,121:0.95,133:1.00,134:0.94,
+           135:0.94,136:0.96,137:0.93,138:0.98,139:0.95,140:1.00,141:1.04,142:1.01,
+           143:1.06,144:1.00,145:1.07,146:0.92,147:1.06,158:1.03}
+    TEAM_TAGS = {108:"Angels",109:"Dbacks",110:"Orioles",111:"RedSox",112:"Cubs",
+        113:"Reds",114:"Guardians",115:"Rockies",116:"Tigers",117:"Astros",
+        118:"Royals",119:"Dodgers",120:"Nationals",121:"Mets",133:"Athletics",
+        134:"Pirates",135:"Padres",136:"Mariners",137:"Giants",138:"Cardinals",
+        139:"Rays",140:"Rangers",141:"BlueJays",142:"Twins",143:"Phillies",
+        144:"Braves",145:"WhiteSox",146:"Marlins",147:"Yankees",158:"Brewers"}
+
+    def cl(v,lo,hi): return max(lo,min(hi,v))
+    def pyth(rs,ra):
+        if rs<=0 and ra<=0: return 0.5
+        a=pow(max(rs,0),PX); b=pow(max(ra,0),PX)
+        return a/(a+b) if a+b>0 else 0.5
+    def l5(a,b):
+        d=a+b-2*a*b; return (a-a*b)/d if d!=0 else 0.5
+    def mline(p):
+        if p>=0.5: return str(round(-(p/(1-p))*100))
+        return "+"+str(round(((1-p)/p)*100))
+
+    try:
+        # Fetch standings
+        sd = requests.get(f"{MLB}/standings?leagueId=103,104&season=2026&standingsTypes=regularSeason&hydrate=team").json()
+        tms = {}
+        for rec in sd.get("records",[]):
+            for tr in rec.get("teamRecords",[]):
+                l10 = next((r for r in tr.get("records",{}).get("splitRecords",[]) if r["type"]=="lastTen"), None)
+                tms[tr["team"]["id"]] = {"w":tr["wins"],"l":tr["losses"],"rs":tr["runsScored"],"ra":tr["runsAllowed"],
+                    "l10w":l10["wins"] if l10 else 5,"l10l":l10["losses"] if l10 else 5,"era":0.0,"woba":0.0}
+
+        # Team stats
+        for sp in requests.get(f"{MLB}/teams/stats?stats=season&group=pitching&sportId=1&season=2026").json().get("stats",[{}])[0].get("splits",[]):
+            if sp["team"]["id"] in tms: tms[sp["team"]["id"]]["era"] = float(sp["stat"].get("era","0") or 0)
+        for sp in requests.get(f"{MLB}/teams/stats?stats=season&group=hitting&sportId=1&season=2026").json().get("stats",[{}])[0].get("splits",[]):
+            tid=sp["team"]["id"]
+            if tid not in tms: continue
+            s=sp["stat"]; sin=s.get("hits",0)-s.get("doubles",0)-s.get("triples",0)-s.get("homeRuns",0)
+            den=s.get("atBats",0)+s.get("baseOnBalls",0)-s.get("intentionalWalks",0)+s.get("sacFlies",0)+s.get("hitByPitch",0)
+            if den>0: tms[tid]["woba"]=(0.69*(s.get("baseOnBalls",0)-s.get("intentionalWalks",0))+0.72*s.get("hitByPitch",0)+0.88*sin+1.27*s.get("doubles",0)+1.62*s.get("triples",0)+2.1*s.get("homeRuns",0))/den
+
+        # Today's games
+        today = now_et().strftime("%Y-%m-%d")
+        gd = requests.get(f"{MLB}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team&gameType=R").json()
+        games = []
+        for d in gd.get("dates",[]):
+            for g in d.get("games",[]):
+                if g["status"]["abstractGameState"] != "Preview": continue
+                h=g["teams"]["home"]; a=g["teams"]["away"]
+                games.append({"an":a["team"]["name"],"hn":h["team"]["name"],"ai":a["team"]["id"],"hi":h["team"]["id"],
+                    "ap":a.get("probablePitcher",{}).get("fullName","TBD"),"api":a.get("probablePitcher",{}).get("id",0),
+                    "hp":h.get("probablePitcher",{}).get("fullName","TBD"),"hpi":h.get("probablePitcher",{}).get("id",0)})
+
+        if not games:
+            print("No upcoming games found.")
+            return
+
+        # Pitcher stats
+        pids=set()
+        for g in games:
+            if g["api"]: pids.add(g["api"])
+            if g["hpi"]: pids.add(g["hpi"])
+        ptch={}
+        for pid in pids:
+            if pid==0: continue
+            try:
+                pd=requests.get(f"{MLB}/people/{pid}?hydrate=stats(group=[pitching],type=[season],season=2026)").json()
+                st=pd["people"][0]["stats"][0]["splits"][0]["stat"]
+                ip_raw=float(st.get("inningsPitched","0") or 0)
+                ip=int(ip_raw)+round((ip_raw-int(ip_raw))*10)/3
+                fip_ip=ip if ip>0 else 1
+                fip=(13*st.get("homeRuns",0)+3*(st.get("baseOnBalls",0)+st.get("hitByPitch",0))-2*st.get("strikeOuts",0))/fip_ip+3.1
+                ptch[pid]={"era":float(st.get("era","0") or 0),"fip":max(0,round(fip,2)),"ip":round(ip,1)}
+            except: pass
+
+        # Run model on each game
+        results = []
+        for g in games:
+            ht=tms.get(g["hi"]); at=tms.get(g["ai"])
+            if not ht or not at: continue
+            hp=ptch.get(g["hpi"]); ap=ptch.get(g["api"])
+            pf=PKF.get(g["hi"],1.0)
+            hPy=pyth(ht["rs"],ht["ra"]); aPy=pyth(at["rs"],at["ra"])
+            hm=hp["fip"] if hp and hp["fip"]>0 else LE; am=ap["fip"] if ap and ap["fip"]>0 else LE
+            hip=hp["ip"] if hp else 0; aip=ap["ip"] if ap else 0
+            hSA=(LE-hm)*K["SI"]*min(1,hip/50); aSA=(LE-am)*K["SI"]*min(1,aip/50)
+            hB=(LE-ht["era"])*K["BI"] if ht["era"]>0 else 0; aB=(LE-at["era"])*K["BI"] if at["era"]>0 else 0
+            hL=((ht["woba"]-LW)/LW)*K["LI"] if ht["woba"]>0 else 0; aL=((at["woba"]-LW)/LW)*K["LI"] if at["woba"]>0 else 0
+            hA=cl(hPy+(hSA-aSA)+(hB-aB)+(hL-aL),0.25,0.75); aA=cl(aPy+(aSA-hSA)+(aB-hB)+(aL-hL),0.25,0.75)
+            hR=ht["l10w"]/(ht["l10w"]+ht["l10l"]) if (ht["l10w"]+ht["l10l"])>0 else 0.5
+            aR=at["l10w"]/(at["l10w"]+at["l10l"]) if (at["l10w"]+at["l10l"])>0 else 0.5
+            hBl=hA*(1-K["RW"])+hR*K["RW"]; aBl=aA*(1-K["RW"])+aR*K["RW"]
+            prob=l5(hBl,aBl)+K["HA"]
+            hW=ht["woba"] or LW; aW=at["woba"] or LW
+            prob+=(pf-1.0)*((hW-aW)/LW)*K["PI"]
+            prob=prob*(1-K["RF"])+0.5*K["RF"]; prob=cl(prob,0.2,0.8)
+            # O/U
+            hG=ht["w"]+ht["l"] or 1; aG=at["w"]+at["l"] or 1
+            hRn=(ht["rs"]/hG)*(am/LE*0.6+(at["era"]/LE if at["era"]>0 else 1)*0.4)*pf
+            aRn=(at["rs"]/aG)*(hm/LE*0.6+(ht["era"]/LE if ht["era"]>0 else 1)*0.4)*pf
+            hE=round((hRn*0.85+4.5*0.15)*10)/10; aE=round((aRn*0.85+4.5*0.15)*10)/10
+            tot=round((hE+aE)*2)/2; margin=round((hE-aE)*10)/10
+            results.append({"an":g["an"],"hn":g["hn"],"ai":g["ai"],"hi":g["hi"],
+                "ap":g["ap"],"hp":g["hp"],"hW":round(prob*100,1),"aW":round((1-prob)*100,1),
+                "hML":mline(prob),"aML":mline(1-prob),"tot":tot,"hE":hE,"aE":aE,
+                "margin":margin,"edge":abs(prob-0.5),"covers":abs(margin)>=1.5,
+                "hERA":hp["era"] if hp else 0,"aERA":ap["era"] if ap else 0})
+
+        results.sort(key=lambda x: x["edge"], reverse=True)
+        top3 = results[:3]
+        if not top3:
+            print("No predictions available.")
+            return
+
+        # Post 1: Header
+        header = f"🎯 StatScope Picks — {now_et().strftime('%b %d')}\n\n"
+        header += f"Top 3 picks from our 9-factor model\n(v2.2, backtested 246 games)\n\n"
+        header += f"Full analysis 👉 {STATSCOPE_URL}\n"
+        header += "#MLB #BaseballPicks #StatScope"
+        send_post(header, dry_run)
+
+        import time
+        time.sleep(2)
+
+        # Post each pick
+        for i, r in enumerate(top3):
+            fav = r["hn"] if r["hW"] > 50 else r["an"]
+            fav_pct = r["hW"] if r["hW"] > 50 else r["aW"]
+            fav_ml = r["hML"] if r["hW"] > 50 else r["aML"]
+            fav_id = r["hi"] if r["hW"] > 50 else r["ai"]
+            ou = "OVER" if (r["hE"]+r["aE"]) > r["tot"] + 0.25 else "UNDER" if (r["hE"]+r["aE"]) < r["tot"] - 0.25 else "PUSH"
+            rl = "COVERS" if r["covers"] else "TIGHT"
+            margin_s = f"+{r['margin']}" if r['margin'] > 0 else str(r['margin'])
+
+            tag = TEAM_TAGS.get(fav_id, "")
+            post = f"{'🔥' if i==0 else '📊'} #{i+1} {r['an']} @ {r['hn']}\n\n"
+            post += f"✅ {fav} WIN {fav_pct}%\n"
+            post += f"💰 ML: {fav} {fav_ml}\n"
+            post += f"📊 -1.5 Run Line: {rl} ({margin_s})\n"
+            post += f"{'📈' if ou=='OVER' else '📉'} O/U {r['tot']}: {ou}\n\n"
+            post += f"#{tag} #MLB #StatScope" if tag else "#MLB #StatScope"
+
+            time.sleep(2)
+            send_post(post, dry_run)
+
+        print(f"\n✅ Posted {len(top3)+1} picks posts.")
+
+    except Exception as e:
+        print(f"[ERROR] Picks failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def main():
     parser = argparse.ArgumentParser(description="StatScope Bluesky Bot")
     parser.add_argument(
         "command",
-        choices=["recap", "preview", "leaders", "korean", "auto", "interact"],
+        choices=["recap", "preview", "leaders", "korean", "auto", "interact", "picks"],
         help="Post type",
     )
     parser.add_argument(
@@ -906,6 +1067,7 @@ def main():
         "korean": cmd_korean,
         "auto": cmd_auto,
         "interact": cmd_interact,
+        "picks": cmd_picks,
     }
 
     commands[args.command](args.dry_run)
