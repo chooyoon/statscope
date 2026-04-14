@@ -5,9 +5,13 @@ import {
   fetchGameBoxscore,
   fetchGameLinescore,
   fetchPlayerStats,
+  fetchStandings,
+  fetchAllTeamStats,
   type BoxscoreResponse,
   type BoxscorePlayer,
   type LinescoreResponse,
+  type TeamRecord,
+  type TeamStatSplit,
 } from "@/lib/sports/mlb/api";
 import {
   calcFIP,
@@ -16,12 +20,14 @@ import {
   calcBBPercent,
 } from "@/lib/sports/mlb/metrics";
 import { getTeamById } from "@/data/teams";
+import { getParkFactor } from "@/data/parkFactors";
+import { calcWOBA } from "@/lib/sports/mlb/metrics";
 import { displayName, displayNameFull } from "@/data/players";
 import { getStatLabel } from "@/data/stats";
 import TeamBadge from "@/components/ui/TeamBadge";
 import StatBar from "@/components/ui/StatBar";
 import WinProbability from "@/components/game/WinProbability";
-import { predictWinProbability } from "@/lib/sports/mlb/predict";
+import { predictWinProbability, type AdvancedPredictionInput } from "@/lib/sports/mlb/predict";
 import AnalysisNotes from "./AnalysisNotes";
 import AICommentary from "./AICommentary";
 import {
@@ -109,17 +115,45 @@ export default async function GameDetailPage({
   let scheduleProbableHome: { id: number; fullName: string } | null = null;
   let scheduleProbableAway: { id: number; fullName: string } | null = null;
 
+  // Standings + team stats for prediction model
+  let homeTeamRecord: TeamRecord | null = null;
+  let awayTeamRecord: TeamRecord | null = null;
+  let teamHittingSplits: TeamStatSplit[] = [];
+  let teamPitchingSplits: TeamStatSplit[] = [];
+
   try {
-    const [boxRes, lineRes, schedRes] = await Promise.all([
-      fetchGameBoxscore(pk),
-      fetchGameLinescore(pk),
-      fetch(
-        `https://statsapi.mlb.com/api/v1/schedule?gamePk=${pk}&sportId=1&hydrate=probablePitcher`,
-        { next: { revalidate: 120 } }
-      ),
-    ]);
+    const [boxRes, lineRes, schedRes, standingsRes, hittingRes, pitchingRes] =
+      await Promise.all([
+        fetchGameBoxscore(pk),
+        fetchGameLinescore(pk),
+        fetch(
+          `https://statsapi.mlb.com/api/v1/schedule?gamePk=${pk}&sportId=1&hydrate=probablePitcher`,
+          { next: { revalidate: 120 } },
+        ),
+        fetchStandings(CURRENT_SEASON).catch(() => null),
+        fetchAllTeamStats(CURRENT_SEASON, "hitting").catch(() => null),
+        fetchAllTeamStats(CURRENT_SEASON, "pitching").catch(() => null),
+      ]);
     boxscore = boxRes;
     linescore = lineRes;
+
+    // Extract team records from standings
+    if (standingsRes) {
+      for (const rec of standingsRes.records) {
+        for (const tr of rec.teamRecords) {
+          if (tr.team.id === boxRes.teams.home.team.id) homeTeamRecord = tr;
+          if (tr.team.id === boxRes.teams.away.team.id) awayTeamRecord = tr;
+        }
+      }
+    }
+
+    // Extract team-level hitting / pitching stats
+    if (hittingRes) {
+      teamHittingSplits = hittingRes.stats?.[0]?.splits ?? [];
+    }
+    if (pitchingRes) {
+      teamPitchingSplits = pitchingRes.stats?.[0]?.splits ?? [];
+    }
 
     if (schedRes.ok) {
       const schedData = await schedRes.json();
@@ -258,21 +292,103 @@ export default async function GameDetailPage({
   const homeAdv = calcStarterAdvanced(homeStarterSeason);
   const awayAdv = calcStarterAdvanced(awayStarterSeason);
 
-  // Win probability prediction
+  // Win probability prediction (Advanced Model v2.1)
+  function getLast10(record: TeamRecord | null): { w: number; l: number } {
+    if (!record) return { w: 5, l: 5 };
+    const last10 = record.records?.splitRecords?.find(
+      (r) => r.type === "lastTen",
+    );
+    return last10 ? { w: last10.wins, l: last10.losses } : { w: 5, l: 5 };
+  }
+
+  function findTeamStat(splits: TeamStatSplit[], teamId: number) {
+    return splits.find((s) => s.team.id === teamId)?.stat;
+  }
+
+  function teamWOBA(stat: Record<string, number | string> | undefined): number | undefined {
+    if (!stat) return undefined;
+    try {
+      return calcWOBA({
+        atBats: num(stat.atBats),
+        hits: num(stat.hits),
+        doubles: num(stat.doubles),
+        triples: num(stat.triples),
+        homeRuns: num(stat.homeRuns),
+        baseOnBalls: num(stat.baseOnBalls),
+        hitByPitch: num(stat.hitByPitch),
+        sacFlies: num(stat.sacFlies),
+        strikeOuts: num(stat.strikeOuts),
+        plateAppearances: num(stat.plateAppearances),
+        avg: stat.avg ?? "0",
+        slg: stat.slg ?? "0",
+        intentionalWalks: num(stat.intentionalWalks),
+      });
+    } catch {
+      return undefined;
+    }
+  }
+
+  const homeL10 = getLast10(homeTeamRecord);
+  const awayL10 = getLast10(awayTeamRecord);
+
+  const homeTeamId = boxscore.teams.home.team.id;
+  const awayTeamId = boxscore.teams.away.team.id;
+
+  const homeHitting = findTeamStat(teamHittingSplits, homeTeamId);
+  const awayHitting = findTeamStat(teamHittingSplits, awayTeamId);
+  const homePitching = findTeamStat(teamPitchingSplits, homeTeamId);
+  const awayPitching = findTeamStat(teamPitchingSplits, awayTeamId);
+
+  const parkFactorData = getParkFactor(homeTeamId);
+
   const hss = homeStarterSeason as Record<string, unknown> | null;
   const ass = awayStarterSeason as Record<string, unknown> | null;
-  const prediction = predictWinProbability({
-    homePitcherERA: homeAdv?.era ?? 0,
-    homePitcherWHIP: homeAdv?.whip ?? 0,
-    homePitcherK: num(hss?.strikeOuts),
-    homePitcherBB: num(hss?.baseOnBalls),
-    awayPitcherERA: awayAdv?.era ?? 0,
-    awayPitcherWHIP: awayAdv?.whip ?? 0,
-    awayPitcherK: num(ass?.strikeOuts),
-    awayPitcherBB: num(ass?.baseOnBalls),
-    homeRecentWinPct: 0.5,
-    awayRecentWinPct: 0.5,
-  });
+
+  const predictionInput: AdvancedPredictionInput = {
+    home: {
+      wins: homeTeamRecord?.wins ?? 0,
+      losses: homeTeamRecord?.losses ?? 0,
+      runsScored: homeTeamRecord?.runsScored ?? 0,
+      runsAllowed: homeTeamRecord?.runsAllowed ?? 0,
+      last10Wins: homeL10.w,
+      last10Losses: homeL10.l,
+      teamERA: homePitching ? parseFloat(String(homePitching.era)) || undefined : undefined,
+      teamWOBA: teamWOBA(homeHitting),
+    },
+    away: {
+      wins: awayTeamRecord?.wins ?? 0,
+      losses: awayTeamRecord?.losses ?? 0,
+      runsScored: awayTeamRecord?.runsScored ?? 0,
+      runsAllowed: awayTeamRecord?.runsAllowed ?? 0,
+      last10Wins: awayL10.w,
+      last10Losses: awayL10.l,
+      teamERA: awayPitching ? parseFloat(String(awayPitching.era)) || undefined : undefined,
+      teamWOBA: teamWOBA(awayHitting),
+    },
+    homeStarter: homeAdv
+      ? {
+          era: homeAdv.era,
+          fip: homeAdv.fip,
+          whip: homeAdv.whip,
+          inningsPitched: parseIP(hss?.inningsPitched as string | number ?? "0"),
+          strikeOuts: num(hss?.strikeOuts),
+          baseOnBalls: num(hss?.baseOnBalls),
+        }
+      : null,
+    awayStarter: awayAdv
+      ? {
+          era: awayAdv.era,
+          fip: awayAdv.fip,
+          whip: awayAdv.whip,
+          inningsPitched: parseIP(ass?.inningsPitched as string | number ?? "0"),
+          strikeOuts: num(ass?.strikeOuts),
+          baseOnBalls: num(ass?.baseOnBalls),
+        }
+      : null,
+    parkFactor: parkFactorData.factor,
+  };
+
+  const prediction = predictWinProbability(predictionInput);
 
   // Build opposing player lists for matchup panels
   function extractPlayers(

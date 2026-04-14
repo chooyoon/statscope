@@ -27,14 +27,14 @@ export default function WinProbability({
   homeColor,
   awayColor,
 }: WinProbabilityProps) {
-  const { homeWinPct, awayWinPct, confidence, factors } = prediction;
+  const { homeWinPct, awayWinPct, confidence, factors, model } = prediction;
 
   return (
     <div className="rounded-xl bg-white border border-slate-200 overflow-hidden">
       <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
         <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
           <span className="inline-block w-1 h-5 bg-indigo-500 rounded-full" />
-          StatScope Win Probability
+          Win Probability
         </h3>
         <span
           className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${confidenceStyle[confidence]}`}
@@ -73,23 +73,25 @@ export default function WinProbability({
         </div>
 
         {/* Factors */}
-        <div className="space-y-2">
+        <div className="space-y-1">
           {factors.map((factor) => (
             <div
               key={factor.label}
               className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0"
             >
               <span
-                className={`font-mono font-semibold w-16 text-right ${
+                className={`font-mono font-semibold w-20 text-right ${
                   factor.advantage === "away" ? "text-slate-800" : "text-slate-400"
                 }`}
                 style={factor.advantage === "away" ? { color: awayColor } : undefined}
               >
                 {factor.awayValue}
               </span>
-              <span className="text-slate-500 flex-1 text-center">{factor.label}</span>
+              <span className="text-slate-500 flex-1 text-center text-[11px]">
+                {factor.label}
+              </span>
               <span
-                className={`font-mono font-semibold w-16 text-left ${
+                className={`font-mono font-semibold w-20 text-left ${
                   factor.advantage === "home" ? "text-slate-800" : "text-slate-400"
                 }`}
                 style={factor.advantage === "home" ? { color: homeColor } : undefined}
@@ -101,7 +103,7 @@ export default function WinProbability({
         </div>
 
         <p className="mt-3 text-[10px] text-slate-400 text-center">
-          Based on starter stats, team form, and home advantage
+          {model ?? "StatScope Model"} &mdash; Pythagorean expectation, starter quality, recent form, home advantage
         </p>
       </div>
     </div>

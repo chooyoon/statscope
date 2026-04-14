@@ -96,6 +96,10 @@ export default function RootLayout({
             <div className="flex flex-wrap items-center justify-center gap-3 mb-3">
               <a href="/about" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">About</a>
               <span className="text-slate-300 dark:text-slate-600">|</span>
+              <a href="/learn" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Learn Sabermetrics</a>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <a href="/methodology" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Methodology</a>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
               <a href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Privacy Policy</a>
               <span className="text-slate-300 dark:text-slate-600">|</span>
               <a href="/terms" className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Terms of Service</a>

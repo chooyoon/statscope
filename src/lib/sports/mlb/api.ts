@@ -329,6 +329,32 @@ export async function fetchGameLinescore(
   );
 }
 
+// --- Team Season Stats (hitting / pitching) ---
+
+export interface TeamStatsResponse {
+  stats: {
+    type: { displayName: string };
+    group: { displayName: string };
+    splits: TeamStatSplit[];
+  }[];
+}
+
+export interface TeamStatSplit {
+  team: { id: number; name: string };
+  stat: Record<string, number | string>;
+}
+
+export async function fetchAllTeamStats(
+  season: number,
+  group: "hitting" | "pitching",
+): Promise<TeamStatsResponse> {
+  return mlbFetch<TeamStatsResponse>(
+    "/teams/stats",
+    { stats: "season", group, sportId: 1, season },
+    { revalidate: 3600 },
+  );
+}
+
 // --- Player Search ---
 
 export interface PlayerSearchResponse {

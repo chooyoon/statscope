@@ -1,25 +1,56 @@
 /**
- * StatScope Win Probability Model
+ * StatScope Advanced Win Probability Model v2.1
+ *
+ * Multi-factor prediction model for MLB game outcomes.
  *
  * Factors:
- * 1. Starter ERA (lower is better)
- * 2. Starter WHIP (lower is better)
- * 3. Team recent 10-game win rate
- * 4. Home/away adjustment (home team +3.5%)
- * 5. Starter season K/BB ratio
+ * 1. Pythagorean Win Expectation — team true talent from season RS/RA
+ * 2. Starting Pitcher Quality — FIP/ERA-based adjustment vs league average
+ * 3. Bullpen Quality — team pitching depth beyond the starter
+ * 4. Lineup Strength — team offensive quality via wOBA
+ * 5. Log5 Method (Bill James) — head-to-head probability conversion
+ * 6. Recent Form — last 10 games momentum
+ * 7. Home Field Advantage — ~54 % historical MLB home win rate
+ * 8. Park Factor — venue-specific run environment adjustment
+ * 9. Regression to the Mean — avoid overconfident predictions
  */
 
-interface PredictionInput {
-  homePitcherERA: number;
-  homePitcherWHIP: number;
-  homePitcherK: number;
-  homePitcherBB: number;
-  awayPitcherERA: number;
-  awayPitcherWHIP: number;
-  awayPitcherK: number;
-  awayPitcherBB: number;
-  homeRecentWinPct: number; // 0-1 scale
-  awayRecentWinPct: number; // 0-1 scale
+// ---------------------------------------------------------------------------
+// Interfaces
+// ---------------------------------------------------------------------------
+
+export interface TeamData {
+  wins: number;
+  losses: number;
+  runsScored: number;
+  runsAllowed: number;
+  last10Wins: number;
+  last10Losses: number;
+  /** Team pitching ERA (starters + bullpen combined). */
+  teamERA?: number;
+  /** Team wOBA (weighted on-base average). */
+  teamWOBA?: number;
+}
+
+export interface StarterData {
+  era: number;
+  fip: number;
+  whip: number;
+  inningsPitched: number;
+  strikeOuts: number;
+  baseOnBalls: number;
+}
+
+export interface AdvancedPredictionInput {
+  home: TeamData;
+  away: TeamData;
+  homeStarter: StarterData | null;
+  awayStarter: StarterData | null;
+  /**
+   * Park factor for the game venue (1.0 = neutral).
+   * > 1.0 hitter-friendly, < 1.0 pitcher-friendly.
+   */
+  parkFactor?: number;
 }
 
 export interface PredictionResult {
@@ -27,6 +58,7 @@ export interface PredictionResult {
   awayWinPct: number; // 0-100
   confidence: "high" | "medium" | "low";
   factors: PredictionFactor[];
+  model: string;
 }
 
 export interface PredictionFactor {
@@ -36,117 +68,377 @@ export interface PredictionFactor {
   advantage: "home" | "away" | "even";
 }
 
-const HOME_ADVANTAGE = 0.035; // 3.5% home field advantage
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
-function pitcherScore(era: number, whip: number, k: number, bb: number): number {
-  // Lower ERA/WHIP = better, higher K/BB = better
-  // Normalize each factor to roughly 0-1 scale
-  const eraScore = Math.max(0, 1 - (era - 2.0) / 6.0); // ERA 2.0 = 1.0, ERA 8.0 = 0.0
-  const whipScore = Math.max(0, 1 - (whip - 0.8) / 1.4); // WHIP 0.8 = 1.0, WHIP 2.2 = 0.0
-  const kbbRatio = bb > 0 ? k / bb : k > 0 ? 5 : 1;
-  const kbbScore = Math.min(1, kbbRatio / 5); // K/BB 5+ = 1.0
+const PYTHAGOREAN_EXP = 1.83;
+const HOME_ADVANTAGE = 0.04; // +4 pp (historical MLB ≈ 54 %)
+const LEAGUE_AVG_ERA = 4.0;
+const LEAGUE_AVG_WOBA = 0.315;
+const STARTER_IMPACT = 0.012; // Δ win-prob per 1.0 ERA/FIP point
+const BULLPEN_IMPACT = 0.006; // Δ win-prob per 1.0 team-ERA point
+const LINEUP_IMPACT = 0.15; // Δ win-prob per 100 % wOBA deviation
+const PARK_IMPACT = 0.06; // how much park factor influences probability
+const MIN_IP_FULL_WEIGHT = 50; // innings for full starter confidence
+const RECENT_FORM_WEIGHT = 0.15; // 15 % recent, 85 % season
+const REGRESSION_FACTOR = 0.10; // pull 10 % toward 50 %
 
-  return eraScore * 0.4 + whipScore * 0.3 + kbbScore * 0.3;
+// ---------------------------------------------------------------------------
+// Core math helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Pythagorean Win Expectation.
+ * Estimates a team's "true talent" win % from runs scored / allowed.
+ */
+export function pythagoreanWinPct(
+  runsScored: number,
+  runsAllowed: number,
+): number {
+  if (runsScored <= 0 && runsAllowed <= 0) return 0.5;
+  const rsExp = Math.pow(Math.max(runsScored, 0), PYTHAGOREAN_EXP);
+  const raExp = Math.pow(Math.max(runsAllowed, 0), PYTHAGOREAN_EXP);
+  if (rsExp + raExp === 0) return 0.5;
+  return rsExp / (rsExp + raExp);
 }
 
-export function predictWinProbability(input: PredictionInput): PredictionResult {
-  const homePitScore = pitcherScore(
-    input.homePitcherERA,
-    input.homePitcherWHIP,
-    input.homePitcherK,
-    input.homePitcherBB
+/**
+ * Log5 Method (Bill James).
+ * Converts two teams' individual win percentages into a head-to-head
+ * probability for team A.
+ *
+ *   P(A beats B) = (pA − pA·pB) / (pA + pB − 2·pA·pB)
+ */
+export function log5(pA: number, pB: number): number {
+  const denom = pA + pB - 2 * pA * pB;
+  if (denom === 0) return 0.5;
+  return (pA - pA * pB) / denom;
+}
+
+/**
+ * Starting pitcher quality adjustment.
+ */
+function starterAdjustment(starter: StarterData | null): number {
+  if (!starter) return 0;
+  const metric = starter.fip > 0 ? starter.fip : starter.era;
+  if (metric === 0) return 0;
+  const ipWeight = Math.min(1, starter.inningsPitched / MIN_IP_FULL_WEIGHT);
+  return (LEAGUE_AVG_ERA - metric) * STARTER_IMPACT * ipWeight;
+}
+
+/**
+ * Bullpen / team pitching quality adjustment.
+ * Compares team-wide pitching ERA to league average.
+ */
+function bullpenAdjustment(teamERA: number | undefined): number {
+  if (teamERA == null || teamERA <= 0) return 0;
+  return (LEAGUE_AVG_ERA - teamERA) * BULLPEN_IMPACT;
+}
+
+/**
+ * Lineup strength adjustment.
+ * Compares team wOBA to league average.
+ */
+function lineupAdjustment(teamWOBA: number | undefined): number {
+  if (teamWOBA == null || teamWOBA <= 0) return 0;
+  return ((teamWOBA - LEAGUE_AVG_WOBA) / LEAGUE_AVG_WOBA) * LINEUP_IMPACT;
+}
+
+/**
+ * Park factor adjustment.
+ * Hitter-friendly parks slightly favor the better offensive team;
+ * pitcher-friendly parks slightly favor the better pitching team.
+ */
+function parkAdjustment(
+  parkFactor: number | undefined,
+  homeWOBA: number | undefined,
+  awayWOBA: number | undefined,
+): number {
+  if (parkFactor == null) return 0;
+  const pf = parkFactor - 1.0; // deviation from neutral
+  if (Math.abs(pf) < 0.01) return 0; // effectively neutral
+
+  // Positive pf = hitter-friendly → favors the better offense
+  const hW = homeWOBA ?? LEAGUE_AVG_WOBA;
+  const aW = awayWOBA ?? LEAGUE_AVG_WOBA;
+  const offenseDiff = (hW - aW) / LEAGUE_AVG_WOBA; // positive = home offense stronger
+  return pf * offenseDiff * PARK_IMPACT;
+}
+
+/**
+ * Recent-form win percentage from last-10 record.
+ */
+function recentFormPct(wins: number, losses: number): number {
+  const total = wins + losses;
+  if (total === 0) return 0.5;
+  return wins / total;
+}
+
+// ---------------------------------------------------------------------------
+// Main prediction
+// ---------------------------------------------------------------------------
+
+export function predictWinProbability(
+  input: AdvancedPredictionInput,
+): PredictionResult {
+  const { home, away, homeStarter, awayStarter, parkFactor } = input;
+
+  // 1 ── Pythagorean base (team true talent)
+  const homePythag = pythagoreanWinPct(home.runsScored, home.runsAllowed);
+  const awayPythag = pythagoreanWinPct(away.runsScored, away.runsAllowed);
+
+  // 2 ── Starter quality adjustment
+  const homeStarterAdj = starterAdjustment(homeStarter);
+  const awayStarterAdj = starterAdjustment(awayStarter);
+
+  // 3 ── Bullpen quality adjustment
+  const homeBullpenAdj = bullpenAdjustment(home.teamERA);
+  const awayBullpenAdj = bullpenAdjustment(away.teamERA);
+
+  // 4 ── Lineup strength adjustment
+  const homeLineupAdj = lineupAdjustment(home.teamWOBA);
+  const awayLineupAdj = lineupAdjustment(away.teamWOBA);
+
+  // Combine adjustments into team strength
+  let homeAdj = clamp(
+    homePythag
+      + (homeStarterAdj - awayStarterAdj)
+      + (homeBullpenAdj - awayBullpenAdj)
+      + (homeLineupAdj - awayLineupAdj),
+    0.25,
+    0.75,
   );
-  const awayPitScore = pitcherScore(
-    input.awayPitcherERA,
-    input.awayPitcherWHIP,
-    input.awayPitcherK,
-    input.awayPitcherBB
+  let awayAdj = clamp(
+    awayPythag
+      + (awayStarterAdj - homeStarterAdj)
+      + (awayBullpenAdj - homeBullpenAdj)
+      + (awayLineupAdj - homeLineupAdj),
+    0.25,
+    0.75,
   );
 
-  // Weighted composite
-  const pitcherWeight = 0.45;
-  const recentFormWeight = 0.20;
-  const baseWeight = 0.35; // baseline 50/50 + home advantage
+  // 5 ── Blend with recent form
+  const homeRecentPct = recentFormPct(home.last10Wins, home.last10Losses);
+  const awayRecentPct = recentFormPct(away.last10Wins, away.last10Losses);
 
-  const homeRaw =
-    homePitScore * pitcherWeight +
-    input.homeRecentWinPct * recentFormWeight +
-    (0.5 + HOME_ADVANTAGE) * baseWeight;
+  const homeBlended =
+    homeAdj * (1 - RECENT_FORM_WEIGHT) + homeRecentPct * RECENT_FORM_WEIGHT;
+  const awayBlended =
+    awayAdj * (1 - RECENT_FORM_WEIGHT) + awayRecentPct * RECENT_FORM_WEIGHT;
 
-  const awayRaw =
-    awayPitScore * pitcherWeight +
-    input.awayRecentWinPct * recentFormWeight +
-    0.5 * baseWeight;
+  // 6 ── Log5 head-to-head
+  let homeWinProb = log5(homeBlended, awayBlended);
 
-  // Normalize to percentages
-  const total = homeRaw + awayRaw;
-  let homeWinPct = total > 0 ? (homeRaw / total) * 100 : 50;
-  let awayWinPct = total > 0 ? (awayRaw / total) * 100 : 50;
+  // 7 ── Home field advantage
+  homeWinProb += HOME_ADVANTAGE;
 
-  // Clamp to 25-75 range (avoid extreme predictions)
-  homeWinPct = Math.max(25, Math.min(75, homeWinPct));
-  awayWinPct = 100 - homeWinPct;
+  // 8 ── Park factor
+  homeWinProb += parkAdjustment(parkFactor, home.teamWOBA, away.teamWOBA);
 
-  // Confidence based on data quality and difference
-  const diff = Math.abs(homeWinPct - awayWinPct);
-  let confidence: "high" | "medium" | "low" = "medium";
-  if (diff >= 15 && input.homePitcherERA > 0 && input.awayPitcherERA > 0) {
-    confidence = "high";
-  } else if (diff < 5 || input.homePitcherERA === 0 || input.awayPitcherERA === 0) {
-    confidence = "low";
-  }
+  // 9 ── Regression to the mean
+  homeWinProb = homeWinProb * (1 - REGRESSION_FACTOR) + 0.5 * REGRESSION_FACTOR;
 
-  // Build factors
-  const factors: PredictionFactor[] = [
-    {
-      label: "Starter ERA",
-      homeValue: input.homePitcherERA > 0 ? input.homePitcherERA.toFixed(2) : "-",
-      awayValue: input.awayPitcherERA > 0 ? input.awayPitcherERA.toFixed(2) : "-",
-      advantage:
-        input.homePitcherERA === 0 || input.awayPitcherERA === 0
-          ? "even"
-          : input.homePitcherERA < input.awayPitcherERA
-          ? "home"
-          : input.homePitcherERA > input.awayPitcherERA
-          ? "away"
-          : "even",
-    },
-    {
-      label: "Starter WHIP",
-      homeValue: input.homePitcherWHIP > 0 ? input.homePitcherWHIP.toFixed(2) : "-",
-      awayValue: input.awayPitcherWHIP > 0 ? input.awayPitcherWHIP.toFixed(2) : "-",
-      advantage:
-        input.homePitcherWHIP === 0 || input.awayPitcherWHIP === 0
-          ? "even"
-          : input.homePitcherWHIP < input.awayPitcherWHIP
-          ? "home"
-          : input.homePitcherWHIP > input.awayPitcherWHIP
-          ? "away"
-          : "even",
-    },
-    {
-      label: "Recent Win%",
-      homeValue: `${(input.homeRecentWinPct * 100).toFixed(0)}%`,
-      awayValue: `${(input.awayRecentWinPct * 100).toFixed(0)}%`,
-      advantage:
-        input.homeRecentWinPct > input.awayRecentWinPct
-          ? "home"
-          : input.homeRecentWinPct < input.awayRecentWinPct
-          ? "away"
-          : "even",
-    },
-    {
-      label: "Home Advantage",
-      homeValue: "+3.5%",
-      awayValue: "-",
-      advantage: "home",
-    },
-  ];
+  // Final clamp
+  homeWinProb = clamp(homeWinProb, 0.2, 0.8);
+
+  const homeWinPct = round1(homeWinProb * 100);
+  const awayWinPct = round1((1 - homeWinProb) * 100);
 
   return {
-    homeWinPct: Math.round(homeWinPct * 10) / 10,
-    awayWinPct: Math.round(awayWinPct * 10) / 10,
-    confidence,
-    factors,
+    homeWinPct,
+    awayWinPct,
+    confidence: assessConfidence(input, Math.abs(homeWinPct - awayWinPct)),
+    factors: buildFactors(
+      input,
+      homePythag,
+      awayPythag,
+      homeRecentPct,
+      awayRecentPct,
+    ),
+    model: "StatScope Model v2.1",
   };
+}
+
+// ---------------------------------------------------------------------------
+// Confidence heuristic
+// ---------------------------------------------------------------------------
+
+function assessConfidence(
+  input: AdvancedPredictionInput,
+  diffPct: number,
+): "high" | "medium" | "low" {
+  const totalGames =
+    input.home.wins + input.home.losses + input.away.wins + input.away.losses;
+
+  if (totalGames < 20) return "low";
+  if (!input.homeStarter && !input.awayStarter) return "low";
+
+  const homeIP = input.homeStarter?.inningsPitched ?? 0;
+  const awayIP = input.awayStarter?.inningsPitched ?? 0;
+  if (homeIP < 10 && awayIP < 10) return "low";
+
+  // Richer data available → can be high confidence
+  const hasTeamStats =
+    (input.home.teamERA ?? 0) > 0 && (input.home.teamWOBA ?? 0) > 0;
+
+  if (
+    diffPct >= 10 &&
+    homeIP >= 30 &&
+    awayIP >= 30 &&
+    totalGames >= 40 &&
+    hasTeamStats
+  ) {
+    return "high";
+  }
+
+  return "medium";
+}
+
+// ---------------------------------------------------------------------------
+// Factor breakdown (shown in UI)
+// ---------------------------------------------------------------------------
+
+function buildFactors(
+  input: AdvancedPredictionInput,
+  homePythag: number,
+  awayPythag: number,
+  homeRecentPct: number,
+  awayRecentPct: number,
+): PredictionFactor[] {
+  const { home, away, homeStarter, awayStarter, parkFactor } = input;
+  const factors: PredictionFactor[] = [];
+
+  // Record
+  factors.push({
+    label: "Record",
+    homeValue: `${home.wins}-${home.losses}`,
+    awayValue: `${away.wins}-${away.losses}`,
+    advantage: cmp(homePythag, awayPythag),
+  });
+
+  // Pythagorean expected win %
+  factors.push({
+    label: "Expected Win%",
+    homeValue: `${(homePythag * 100).toFixed(1)}%`,
+    awayValue: `${(awayPythag * 100).toFixed(1)}%`,
+    advantage: cmp(homePythag, awayPythag),
+  });
+
+  // Run differential
+  const homeRD = home.runsScored - home.runsAllowed;
+  const awayRD = away.runsScored - away.runsAllowed;
+  factors.push({
+    label: "Run Diff",
+    homeValue: homeRD >= 0 ? `+${homeRD}` : `${homeRD}`,
+    awayValue: awayRD >= 0 ? `+${awayRD}` : `${awayRD}`,
+    advantage: cmp(homeRD, awayRD),
+  });
+
+  // Starter ERA
+  const hERA = homeStarter?.era ?? 0;
+  const aERA = awayStarter?.era ?? 0;
+  factors.push({
+    label: "Starter ERA",
+    homeValue: hERA > 0 ? hERA.toFixed(2) : "-",
+    awayValue: aERA > 0 ? aERA.toFixed(2) : "-",
+    advantage: hERA === 0 || aERA === 0 ? "even" : cmp(aERA, hERA),
+  });
+
+  // Starter FIP
+  const hFIP = homeStarter?.fip ?? 0;
+  const aFIP = awayStarter?.fip ?? 0;
+  if (hFIP > 0 || aFIP > 0) {
+    factors.push({
+      label: "Starter FIP",
+      homeValue: hFIP > 0 ? hFIP.toFixed(2) : "-",
+      awayValue: aFIP > 0 ? aFIP.toFixed(2) : "-",
+      advantage: hFIP === 0 || aFIP === 0 ? "even" : cmp(aFIP, hFIP),
+    });
+  }
+
+  // Starter WHIP
+  const hWHIP = homeStarter?.whip ?? 0;
+  const aWHIP = awayStarter?.whip ?? 0;
+  factors.push({
+    label: "Starter WHIP",
+    homeValue: hWHIP > 0 ? hWHIP.toFixed(2) : "-",
+    awayValue: aWHIP > 0 ? aWHIP.toFixed(2) : "-",
+    advantage: hWHIP === 0 || aWHIP === 0 ? "even" : cmp(aWHIP, hWHIP),
+  });
+
+  // Bullpen (team ERA)
+  const hTeamERA = home.teamERA;
+  const aTeamERA = away.teamERA;
+  if ((hTeamERA ?? 0) > 0 || (aTeamERA ?? 0) > 0) {
+    factors.push({
+      label: "Team ERA",
+      homeValue: hTeamERA ? hTeamERA.toFixed(2) : "-",
+      awayValue: aTeamERA ? aTeamERA.toFixed(2) : "-",
+      advantage:
+        !hTeamERA || !aTeamERA
+          ? "even"
+          : cmp(aTeamERA, hTeamERA), // lower = better
+    });
+  }
+
+  // Lineup wOBA
+  const hWOBA = home.teamWOBA;
+  const aWOBA = away.teamWOBA;
+  if ((hWOBA ?? 0) > 0 || (aWOBA ?? 0) > 0) {
+    factors.push({
+      label: "Lineup wOBA",
+      homeValue: hWOBA ? `.${Math.round(hWOBA * 1000)}` : "-",
+      awayValue: aWOBA ? `.${Math.round(aWOBA * 1000)}` : "-",
+      advantage: !hWOBA || !aWOBA ? "even" : cmp(hWOBA, aWOBA),
+    });
+  }
+
+  // Last 10 games
+  factors.push({
+    label: "Last 10",
+    homeValue: `${home.last10Wins}-${home.last10Losses}`,
+    awayValue: `${away.last10Wins}-${away.last10Losses}`,
+    advantage: cmp(homeRecentPct, awayRecentPct),
+  });
+
+  // Park Factor
+  if (parkFactor != null && parkFactor !== 1.0) {
+    const pfLabel =
+      parkFactor > 1.02 ? "Hitter-friendly" : parkFactor < 0.98 ? "Pitcher-friendly" : "Neutral";
+    factors.push({
+      label: "Park Factor",
+      homeValue: parkFactor.toFixed(2),
+      awayValue: pfLabel,
+      advantage: "even",
+    });
+  }
+
+  // Home field
+  factors.push({
+    label: "Home Field",
+    homeValue: "+4.0%",
+    awayValue: "-",
+    advantage: "home",
+  });
+
+  return factors;
+}
+
+// ---------------------------------------------------------------------------
+// Tiny helpers
+// ---------------------------------------------------------------------------
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function round1(v: number): number {
+  return Math.round(v * 10) / 10;
+}
+
+function cmp(a: number, b: number): "home" | "away" | "even" {
+  if (a > b) return "home";
+  if (a < b) return "away";
+  return "even";
 }
