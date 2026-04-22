@@ -60,6 +60,63 @@ export default async function StandingsPage() {
         </p>
       </div>
 
+      {/* Intro guide — how to read the standings */}
+      <section className="mb-8 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
+        <h2 className="text-lg font-semibold text-slate-800">
+          How to Read the {season} MLB Standings
+        </h2>
+        <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+          Major League Baseball groups its 30 teams into two leagues —
+          American League (AL) and National League (NL) — and each league is
+          split into three divisions of five teams: East, Central, and West.
+          The table below shows every division ranked by win percentage. The
+          team at the top of each division at season&apos;s end clinches a
+          playoff berth; the three best remaining records per league earn
+          Wild Card spots.
+        </p>
+        <dl className="mt-4 grid gap-4 sm:grid-cols-2 text-sm">
+          <div>
+            <dt className="font-semibold text-slate-700">W / L</dt>
+            <dd className="text-slate-600 mt-1">
+              Wins and losses on the regular season. Each team plays 162
+              games from late March through early October.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-slate-700">PCT</dt>
+            <dd className="text-slate-600 mt-1">
+              Winning percentage — wins divided by games played. A .600 team
+              (e.g. 97-65) is a strong contender; below .500 means more
+              losses than wins.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-slate-700">GB (Games Back)</dt>
+            <dd className="text-slate-600 mt-1">
+              How many games behind the division leader a team is. A GB of
+              3.0 means the team would need to win three more games while
+              the leader loses three to tie. &quot;--&quot; marks the
+              division leader.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-slate-700">Wild Card</dt>
+            <dd className="text-slate-600 mt-1">
+              Six additional playoff spots (three per league) go to the
+              non-division-winners with the best records. This keeps second-
+              and third-place teams in strong divisions relevant deep into
+              September.
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-4 text-sm text-slate-600 leading-relaxed">
+          Click any team row to open that club&apos;s full page — roster by
+          position, recent results, run differential, and the latest team
+          news. For predicted win probability on today&apos;s games, visit
+          the <Link href="/" className="text-blue-600 hover:underline">home page</Link>.
+        </p>
+      </section>
+
       <div className="grid gap-6 lg:grid-cols-2">
         {DIVISION_ORDER.map((divId) => {
           const teams = divisionMap.get(divId);

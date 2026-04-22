@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTeamBySlug, getTeamById, type Team } from "@/data/teams";
 import { displayName } from "@/data/players";
 import { fetchStandings, type TeamRecord, type ScheduleGame } from "@/lib/sports/mlb/api";
+import { getParkFactor } from "@/data/parkFactors";
 import TeamBadge from "@/components/ui/TeamBadge";
 import StatsGrid from "@/components/ui/StatsGrid";
 
@@ -211,6 +212,21 @@ function getDivisionLabel(league: "AL" | "NL", division: string): string {
   return `${leagueName} ${divMap[division] ?? division}`;
 }
 
+// --- Park environment description ---
+
+function getParkEnvironmentText(
+  factor: number,
+  type: "hitter" | "neutral" | "pitcher"
+): string {
+  if (type === "hitter") {
+    return `${factor.toFixed(2)} — a hitter-friendly environment where runs come easier than league average. Expect elevated offensive output, more home runs, and higher totals in over/under markets when this team plays at home.`;
+  }
+  if (type === "pitcher") {
+    return `${factor.toFixed(2)} — a pitcher-friendly park that suppresses offense relative to the league. Pitcher lines tend to look better at home, and the over/under total should trend lower versus a neutral venue.`;
+  }
+  return `${factor.toFixed(2)} — effectively neutral. The venue neither meaningfully helps nor hurts either side of the ball, so national league-average expectations apply.`;
+}
+
 // --- Metadata ---
 
 export async function generateMetadata({
@@ -355,6 +371,49 @@ export default async function TeamDetailPage({
           </div>
         </div>
       </div>
+
+      {/* ===== About this team + park context (unique per franchise) ===== */}
+      {(() => {
+        const park = getParkFactor(team.id);
+        const divisionLabel = getDivisionLabel(team.league, team.division);
+        const leagueFullName =
+          team.league === "AL" ? "American League" : "National League";
+        return (
+          <section className="mb-8 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
+            <h2 className="text-lg font-semibold text-slate-800">
+              About the {team.name}
+            </h2>
+            <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+              The {team.name} are a Major League Baseball franchise based in{" "}
+              {team.city}, competing in the {divisionLabel}. They share the
+              division with four rivals and play a 162-game regular season
+              from late March through early October, with the top finisher
+              in each division and the three best remaining records in the{" "}
+              {leagueFullName} advancing to the postseason via the Wild Card.
+            </p>
+            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+              Home games are played at <strong>{park.venue}</strong>, where
+              the five-year rolling park factor sits at{" "}
+              {getParkEnvironmentText(park.factor, park.type)} Our
+              win-probability and over/under models apply this factor
+              directly when the {team.abbreviation} host a series, which is
+              why home and away projections for the same two clubs can look
+              noticeably different.
+            </p>
+            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+              Below you&apos;ll find the team&apos;s{" "}
+              {useFallback
+                ? `${activeSeason} final season line (the ${CURRENT_SEASON} season has not produced enough data yet)`
+                : `current ${activeSeason} record and run differential`}
+              , the active roster split into position players and pitchers
+              (click any name to open that player&apos;s sabermetric
+              breakdown), the most recent completed games with links to full
+              analysis, and the latest team-specific news pulled from the
+              official {team.abbreviation} feed.
+            </p>
+          </section>
+        );
+      })()}
 
       {/* ===== Fallback Season Notice ===== */}
       {useFallback && teamRecord && (

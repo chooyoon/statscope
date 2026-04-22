@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { teams } from "@/data/teams";
 import NewsClient from "./NewsClient";
 
@@ -163,6 +164,35 @@ export default async function NewsPage({
               : "Latest MLB news and team updates"}
           </p>
         </div>
+
+        {/* Intro block explaining the hub */}
+        <section className="mb-8 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
+          <h2 className="text-lg font-semibold text-slate-800">
+            {activeTeam
+              ? `Your ${activeTeam.name} News Hub`
+              : "Your MLB News Hub, Filterable by Team"}
+          </h2>
+          <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+            {activeTeam
+              ? `Every headline below is pulled directly from the official ${activeTeam.name} news feed, refreshed every 30 minutes. Stories cover lineup changes, injury updates, transactions, and game recaps — straight from the club source, no middle-man rewriting. Use the team badges above to switch to another franchise, or click "All" to see league-wide MLB coverage.`
+              : "The headlines below combine the league-wide MLB.com news feed with team-specific coverage, refreshed every 30 minutes. Use the colored team badges above to filter by any of the 30 franchises — the feed will re-fetch from that club's official RSS source, so you only see stories relevant to your team. Stories link back to their original publisher; StatScope does not rehost or modify content."}
+          </p>
+          <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+            Looking for analysis instead of headlines? Check today&apos;s{" "}
+            <Link href="/" className="text-blue-600 hover:underline">
+              game predictions
+            </Link>
+            , the live{" "}
+            <Link href="/standings" className="text-blue-600 hover:underline">
+              standings
+            </Link>
+            , or a specific{" "}
+            <Link href="/matchup" className="text-blue-600 hover:underline">
+              player matchup
+            </Link>
+            .
+          </p>
+        </section>
 
         {/* Team Filter Badges */}
         <div className="mb-8">

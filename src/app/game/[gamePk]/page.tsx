@@ -715,6 +715,42 @@ export default async function GameDetailPage({
         />
       </section>
 
+      {/* ===== How to read this game analysis ===== */}
+      <section className="mb-8 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
+        <h2 className="text-lg font-semibold text-slate-800">
+          How to Read This {awayTeam?.name ?? "Away"} vs{" "}
+          {homeTeam?.name ?? "Home"} Analysis
+        </h2>
+        <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+          Below this summary you&apos;ll find, in order: a head-to-head team
+          stats comparison (runs, wOBA, OPS, ERA, WHIP), a deep dive on the
+          two probable starters with FIP, BABIP, K% and BB%, a bullpen
+          breakdown, a lineup view with each hitter&apos;s season sabermetric
+          line, and finally our win-probability, moneyline, over/under, and
+          run-line (-1.5) projections. The numbers are pulled live from the
+          official MLB Stats API each time this page loads.
+        </p>
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+          Our projections come from the StatScope v2.2 win-probability
+          model. It blends Pythagorean expectation with starter FIP,
+          bullpen ERA, lineup wOBA, a 30% weight on the last 30 days of
+          form, Log5 matchup logic, a 6.6% home-field bonus, the park
+          factor of{" "}
+          <strong>
+            {boxscore.teams.home.team.venue?.name ?? "the host venue"}
+          </strong>
+          , and a 22% regression toward league average. The weights were
+          grid-searched on 246 historical games (Brier score 0.2336), and
+          the full methodology is documented on our{" "}
+          <Link href="/methodology" className="text-blue-600 hover:underline">
+            methodology page
+          </Link>
+          . Remember: these are model estimates, not picks. Use them as one
+          input alongside news, weather, and the sportsbook line — and
+          always bet responsibly.
+        </p>
+      </section>
+
       {/* ===== 2. TEAM STATS SUMMARY ===== */}
       {gameStarted && (
         <section className="mb-8">

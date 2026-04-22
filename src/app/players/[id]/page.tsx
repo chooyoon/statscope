@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   fetchPlayerStats,
@@ -424,6 +425,59 @@ export default async function PlayerDetailPage({
           </div>
         </div>
       </div>
+
+      {/* How to read these stats — orients first-time visitors */}
+      <section className="mb-8 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
+        <h2 className="text-lg font-semibold text-slate-800">
+          Reading {displayNameFull(player.id, player.fullName)}&apos;s{" "}
+          {CURRENT_SEASON} Sabermetric Line
+        </h2>
+        {playerType === "hitting" ? (
+          <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+            This page translates the standard batting line into modern
+            sabermetrics. Instead of just AVG/HR/RBI you&apos;ll see{" "}
+            <strong>wOBA</strong> (weighted on-base average — the single best
+            snapshot of offensive value, where .320 is league average and
+            .400+ is elite), <strong>wRC+</strong> (park- and league-adjusted
+            runs created, where 100 is average and 130 means 30% better than
+            league), <strong>ISO</strong> (isolated power — slugging minus
+            batting average, a clean power indicator), <strong>BABIP</strong>{" "}
+            (batting average on balls in play — roughly .300 for an average
+            hitter; sustained deviations often signal real skill change, but
+            short-term swings can be luck), and <strong>K% / BB%</strong> for
+            plate discipline.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+            For pitchers we lead with <strong>FIP</strong> (Fielding
+            Independent Pitching — what ERA should be if defense were league
+            average; a 4.00 FIP is roughly average),{" "}
+            <strong>K% and BB%</strong> (strikeout and walk rate per batter
+            faced, the most predictive rate stats for future ERA), and{" "}
+            <strong>BABIP</strong> against (around .300 is neutral; lower
+            often means good defense or weak contact, higher can signal bad
+            luck or hard contact allowed). ERA, WHIP, and raw IP are still
+            here — but FIP tends to be the better predictor of next-season
+            performance.
+          </p>
+        )}
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+          The radar chart below normalizes each metric so that <em>100</em>{" "}
+          equals league average; anything above the dotted ring means the
+          player is beating the league, and bigger polygons mean broader
+          excellence. For a full glossary with formulas and worked examples,
+          visit the{" "}
+          <Link href="/learn" className="text-blue-600 hover:underline">
+            Learn section
+          </Link>
+          . If you want to compare this player head-to-head with another,
+          jump to the{" "}
+          <Link href="/matchup" className="text-blue-600 hover:underline">
+            Matchup tool
+          </Link>
+          .
+        </p>
+      </section>
 
       {/* Sabermetrics Radar */}
       {radarData.length > 0 && (
