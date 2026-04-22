@@ -13,6 +13,7 @@ function useNavItems() {
   return [
     { href: "/", label: t("Today's Games", "오늘의 경기") },
     { href: "/standings", label: t("Standings", "팀 순위") },
+    { href: "/track", label: t("Track Record", "예측 성적") },
     { href: "/news", label: t("News", "소식") },
     { href: "/learn", label: t("Learn", "가이드") },
   ];

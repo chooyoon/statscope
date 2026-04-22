@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "start_date": "2026-04-14",
+  "record": {
+    "w": 1,
+    "l": 2
+  },
+  "picks": [
+    {
+      "date": "2026-04-14",
+      "checked": true,
+      "picks": [
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 121,
+          "home": "Los Angeles Dodgers",
+          "away": "New York Mets",
+          "prob": 79.0,
+          "ml": "-376",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": "W",
+          "final_score": "1-2"
+        },
+        {
+          "fav": "Pittsburgh Pirates",
+          "fav_id": 134,
+          "home_id": 134,
+          "away_id": 120,
+          "home": "Pittsburgh Pirates",
+          "away": "Washington Nationals",
+          "prob": 74.7,
+          "ml": "-296",
+          "ou_line": 12.5,
+          "ou_lean": "push",
+          "result": "L",
+          "final_score": "5-4"
+        },
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 141,
+          "home": "Milwaukee Brewers",
+          "away": "Toronto Blue Jays",
+          "prob": 72.1,
+          "ml": "-258",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": "L",
+          "final_score": "9-7"
+        }
+      ]
+    }
+  ]
+}

@@ -194,9 +194,17 @@ export default async function HomePage({
             ERA, lineup wOBA, recent 30-day form, Log5 matchup logic, a 6.6%
             home-field adjustment, the park factor of the venue, and a 22%
             regression term toward league average. The weights were
-            grid-searched against 246 real games (Brier score 0.2336) — you
-            can re-run the backtest yourself from the GitHub repository linked
-            on our <Link href="/about" className="text-blue-600 hover:underline">About</Link>{" "}
+            grid-searched against 246 real games (Brier score 0.2336), and
+            every pick we post publicly is logged in our{" "}
+            <Link href="/track" className="text-blue-600 hover:underline">
+              Track Record
+            </Link>{" "}
+            so you can see the live hit rate, ROI, and calibration curve —
+            you can also re-run the backtest yourself from the GitHub
+            repository linked on our{" "}
+            <Link href="/about" className="text-blue-600 hover:underline">
+              About
+            </Link>{" "}
             page.
           </p>
           <p className="mt-3 text-slate-600 leading-relaxed">

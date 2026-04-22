@@ -3,7 +3,7 @@ name: StatScope Bluesky Bot
 on:
   schedule:
     # All times UTC (ET = UTC-4 during EDT)
-    # 9 AM ET = 13:00 UTC → Morning recaps
+    # 9 AM ET = 13:00 UTC → Morning recaps + results check
     - cron: '0 13 * * *'
     # 12 PM ET = 16:00 UTC → Daily prediction picks
     - cron: '0 16 * * *'
@@ -16,9 +16,13 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: 'Bot command (auto/recap/preview/leaders/interact)'
+        description: 'Bot command (auto/recap/preview/leaders/interact/picks/check-results)'
         required: false
         default: 'auto'
+
+# Required so the bot can commit the updated picks-history.json back to main.
+permissions:
+  contents: write
 
 jobs:
   post:
@@ -27,6 +31,9 @@ jobs:
     if: github.event.schedule != '0 15 * * *' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
 
       - uses: actions/setup-python@v5
         with:
@@ -62,6 +69,16 @@ jobs:
             fi
           fi
 
+      # In the morning recap slot (~9 AM ET), resolve yesterday's pick
+      # results first so the /track page reflects them before today's posts
+      # go out. This never talks to Bluesky, so it's cheap to run.
+      - name: Check yesterday's pick results
+        if: steps.cmd.outputs.command == 'recap'
+        env:
+          STATSCOPE_URL: https://statscope-eta.vercel.app
+        working-directory: x-bot
+        run: python x_bot.py check-results
+
       - name: Run bot
         env:
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
@@ -69,6 +86,21 @@ jobs:
           STATSCOPE_URL: https://statscope-eta.vercel.app
         working-directory: x-bot
         run: python x_bot.py ${{ steps.cmd.outputs.command }}
+
+      # Commit updated picks-history.json back to main so /track sees the
+      # new record on the next Vercel deploy. No-op if nothing changed.
+      - name: Commit picks-history updates
+        run: |
+          git config user.name "statscope-bot"
+          git config user.email "bot@statscope.local"
+          if [ -n "$(git status --porcelain public/data/picks-history.json)" ]; then
+            git add public/data/picks-history.json
+            git commit -m "chore(bot): update picks-history [skip ci]"
+            git push
+            echo "picks-history.json pushed."
+          else
+            echo "No picks-history changes to commit."
+          fi
 
   interact:
     runs-on: ubuntu-latest

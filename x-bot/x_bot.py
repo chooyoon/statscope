@@ -465,6 +465,159 @@ def format_korean_tracker() -> str:
 # ─── Duplicate Prevention ─────────────────────────────────
 HISTORY_FILE = Path(__file__).parent / ".post_history.json"
 
+# Public picks history — served to the /track page on the website.
+# Path: <repo_root>/public/data/picks-history.json
+PICKS_HISTORY_FILE = Path(__file__).parent.parent / "public" / "data" / "picks-history.json"
+
+
+def _load_picks_history() -> dict:
+    """Load the canonical, append-only picks history consumed by /track."""
+    if PICKS_HISTORY_FILE.exists():
+        try:
+            return json.loads(PICKS_HISTORY_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {
+        "schema_version": 1,
+        "start_date": now_et().strftime("%Y-%m-%d"),
+        "record": {"w": 0, "l": 0},
+        "picks": [],
+    }
+
+
+def _save_picks_history(h: dict) -> None:
+    PICKS_HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PICKS_HISTORY_FILE.write_text(
+        json.dumps(h, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _moneyline_from_prob(p: float) -> str:
+    """Convert a 0-1 win probability to an American moneyline string."""
+    if p >= 0.5:
+        return str(round(-(p / (1 - p)) * 100))
+    return "+" + str(round(((1 - p) / p) * 100))
+
+
+def save_top3_picks_to_history(top3: list) -> None:
+    """Append today's top-3 picks to public/data/picks-history.json.
+
+    `top3` is the list of dicts produced inside cmd_picks with keys like
+    an, hn, ai, hi, hW, aW, hML, aML, tot, hE, aE, etc.
+    Idempotent: re-running for the same date replaces that day's entry.
+    """
+    h = _load_picks_history()
+    today = now_et().strftime("%Y-%m-%d")
+    entry = {"date": today, "checked": False, "picks": []}
+    for r in top3:
+        fav_is_home = r["hW"] > 50
+        fav = r["hn"] if fav_is_home else r["an"]
+        fav_id = r["hi"] if fav_is_home else r["ai"]
+        prob = max(r["hW"], r["aW"])
+        ml = r["hML"] if fav_is_home else r["aML"]
+        projected_total = r["hE"] + r["aE"]
+        if projected_total > r["tot"] + 0.25:
+            lean = "over"
+        elif projected_total < r["tot"] - 0.25:
+            lean = "under"
+        else:
+            lean = "push"
+        entry["picks"].append({
+            "fav": fav,
+            "fav_id": fav_id,
+            "home_id": r["hi"],
+            "away_id": r["ai"],
+            "home": r["hn"],
+            "away": r["an"],
+            "prob": prob,
+            "ml": ml,
+            "ou_line": r["tot"],
+            "ou_lean": lean,
+            "result": None,
+        })
+    h["picks"] = [e for e in h["picks"] if e["date"] != today]
+    h["picks"].append(entry)
+    h["picks"].sort(key=lambda e: e["date"])
+    _save_picks_history(h)
+    print(f"  [picks] Saved {len(entry['picks'])} picks for {today} to picks-history.json")
+
+
+def check_and_update_results() -> dict:
+    """Resolve result field for any unchecked day in the picks history.
+
+    Pulls MLB final scores for each unchecked date and stamps each pick
+    with result (W/L/no_result), final_score, and bumps the cumulative
+    record. Safe to run repeatedly.
+    """
+    h = _load_picks_history()
+    updated_days = 0
+    updated_picks = 0
+
+    for entry in h["picks"]:
+        if entry.get("checked"):
+            continue
+        date = entry["date"]
+        try:
+            sched = requests.get(
+                f"{MLB_API}/schedule?sportId=1&date={date}&hydrate=linescore&gameType=R",
+                timeout=20,
+            ).json()
+        except Exception as e:
+            print(f"  [check] Failed to fetch schedule for {date}: {e}")
+            continue
+
+        scores = {}
+        for d in sched.get("dates", []):
+            for g in d.get("games", []):
+                if g["status"]["abstractGameState"] != "Final":
+                    continue
+                hid = g["teams"]["home"]["team"]["id"]
+                aid = g["teams"]["away"]["team"]["id"]
+                hs = g["teams"]["home"].get("score", 0)
+                as_ = g["teams"]["away"].get("score", 0)
+                scores[(hid, aid)] = {"home_score": hs, "away_score": as_}
+
+        all_resolved = True
+        day_w = 0
+        day_l = 0
+        for pick in entry["picks"]:
+            if pick.get("result") in ("W", "L"):
+                continue
+            key = (pick["home_id"], pick["away_id"])
+            if key not in scores:
+                pick["result"] = "no_result"
+                all_resolved = False
+                continue
+            sc = scores[key]
+            home_won = sc["home_score"] > sc["away_score"]
+            fav_is_home = pick["fav_id"] == pick["home_id"]
+            if (fav_is_home and home_won) or (not fav_is_home and not home_won):
+                pick["result"] = "W"
+                day_w += 1
+            else:
+                pick["result"] = "L"
+                day_l += 1
+            pick["final_score"] = f"{sc['away_score']}-{sc['home_score']}"
+            updated_picks += 1
+
+        if all_resolved and entry["picks"]:
+            entry["checked"] = True
+            updated_days += 1
+        h["record"]["w"] += day_w
+        h["record"]["l"] += day_l
+
+    _save_picks_history(h)
+    print(
+        f"  [check] Updated {updated_picks} pick result(s) across {updated_days} finalized day(s)."
+    )
+    return {"updated_picks": updated_picks, "updated_days": updated_days}
+
+
+def cmd_check_results(dry_run: bool):
+    """Resolve W/L for any unchecked days in picks-history.json."""
+    _ = dry_run  # no external side-effects; dry_run is a no-op
+    check_and_update_results()
+
 
 def _load_history() -> dict:
     if HISTORY_FILE.exists():
@@ -1005,6 +1158,14 @@ def cmd_picks(dry_run: bool):
             print("No predictions available.")
             return
 
+        # Persist picks to the public track-record file before posting,
+        # so /track reflects today's slate even if Bluesky posting fails.
+        if not dry_run:
+            try:
+                save_top3_picks_to_history(top3)
+            except Exception as e:
+                print(f"  [picks] Failed to save picks history: {e}")
+
         # Post 1: Header
         header = f"🎯 StatScope Picks — {now_et().strftime('%b %d')}\n\n"
         header += f"Top 3 picks from my personal 9-factor prediction model\n(backtested on 246 games)\n\n"
@@ -1113,7 +1274,16 @@ def main():
     parser = argparse.ArgumentParser(description="StatScope Bluesky Bot")
     parser.add_argument(
         "command",
-        choices=["recap", "preview", "leaders", "korean", "auto", "interact", "picks"],
+        choices=[
+            "recap",
+            "preview",
+            "leaders",
+            "korean",
+            "auto",
+            "interact",
+            "picks",
+            "check-results",
+        ],
         help="Post type",
     )
     parser.add_argument(
@@ -1135,6 +1305,7 @@ def main():
         "auto": cmd_auto,
         "interact": cmd_interact,
         "picks": cmd_picks,
+        "check-results": cmd_check_results,
     }
 
     commands[args.command](args.dry_run)
