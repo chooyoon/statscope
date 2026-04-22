@@ -53,6 +53,51 @@
           "final_score": "9-7"
         }
       ]
+    },
+    {
+      "date": "2026-04-22",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Chicago Cubs",
+          "fav_id": 112,
+          "home_id": 112,
+          "away_id": 143,
+          "home": "Chicago Cubs",
+          "away": "Philadelphia Phillies",
+          "prob": 80.0,
+          "ml": "-400",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "San Diego Padres",
+          "fav_id": 135,
+          "home_id": 115,
+          "away_id": 135,
+          "home": "Colorado Rockies",
+          "away": "San Diego Padres",
+          "prob": 69.0,
+          "ml": "-223",
+          "ou_line": 11.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 137,
+          "away_id": 119,
+          "home": "San Francisco Giants",
+          "away": "Los Angeles Dodgers",
+          "prob": 67.5,
+          "ml": "-208",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
