@@ -149,6 +149,51 @@
           "final_score": "3-10"
         }
       ]
+    },
+    {
+      "date": "2026-04-25",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 143,
+          "home": "Atlanta Braves",
+          "away": "Philadelphia Phillies",
+          "prob": 80.0,
+          "ml": "-400",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 117,
+          "away_id": 147,
+          "home": "Houston Astros",
+          "away": "New York Yankees",
+          "prob": 68.3,
+          "ml": "-215",
+          "ou_line": 11.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Angels",
+          "fav_id": 108,
+          "home_id": 118,
+          "away_id": 108,
+          "home": "Kansas City Royals",
+          "away": "Los Angeles Angels",
+          "prob": 63.1,
+          "ml": "-171",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
