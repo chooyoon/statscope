@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 2,
+    "w": 4,
     "l": 4
   },
   "picks": [
@@ -117,7 +117,8 @@
           "ml": "-400",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-5"
         },
         {
           "fav": "New York Yankees",
@@ -130,7 +131,7 @@
           "ml": "-191",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Baltimore Orioles",
@@ -143,7 +144,8 @@
           "ml": "-183",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-10"
         }
       ]
     }
