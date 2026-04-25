@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 4,
+    "w": 5,
     "l": 4
   },
   "picks": [
@@ -104,7 +104,7 @@
     },
     {
       "date": "2026-04-24",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -131,7 +131,8 @@
           "ml": "-191",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "12-4"
         },
         {
           "fav": "Baltimore Orioles",
