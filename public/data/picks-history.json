@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 6,
-    "l": 5
+    "l": 6
   },
   "picks": [
     {
@@ -152,7 +152,7 @@
     },
     {
       "date": "2026-04-25",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -165,7 +165,8 @@
           "ml": "-400",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "8-5"
         },
         {
           "fav": "New York Yankees",
