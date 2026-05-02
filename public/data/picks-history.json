@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 8,
+    "w": 10,
     "l": 7
   },
   "picks": [
@@ -261,7 +261,8 @@
           "ml": "-300",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "2-7"
         },
         {
           "fav": "Chicago Cubs",
@@ -274,7 +275,8 @@
           "ml": "-249",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "5-6"
         },
         {
           "fav": "Seattle Mariners",
@@ -287,7 +289,7 @@
           "ml": "-219",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
