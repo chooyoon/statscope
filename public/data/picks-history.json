@@ -341,6 +341,51 @@
           "final_score": "1-5"
         }
       ]
+    },
+    {
+      "date": "2026-05-03",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 147,
+          "away_id": 110,
+          "home": "New York Yankees",
+          "away": "Baltimore Orioles",
+          "prob": 79.7,
+          "ml": "-393",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago Cubs",
+          "fav_id": 112,
+          "home_id": 112,
+          "away_id": 109,
+          "home": "Chicago Cubs",
+          "away": "Arizona Diamondbacks",
+          "prob": 79.1,
+          "ml": "-379",
+          "ou_line": 12.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 137,
+          "home": "Tampa Bay Rays",
+          "away": "San Francisco Giants",
+          "prob": 74.6,
+          "ml": "-294",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
