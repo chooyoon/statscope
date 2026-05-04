@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 13,
+    "w": 16,
     "l": 8
   },
   "picks": [
@@ -344,7 +344,7 @@
     },
     {
       "date": "2026-05-03",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "New York Yankees",
@@ -357,7 +357,8 @@
           "ml": "-393",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-11"
         },
         {
           "fav": "Chicago Cubs",
@@ -370,7 +371,8 @@
           "ml": "-379",
           "ou_line": 12.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "4-8"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -383,7 +385,8 @@
           "ml": "-294",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-2"
         }
       ]
     }
