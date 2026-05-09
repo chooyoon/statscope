@@ -3,6 +3,7 @@ import { join } from "path";
 import Link from "next/link";
 import { getTeamById } from "@/data/teams";
 import EnhancedPickBadge from "./EnhancedPickBadge";
+import PickTrackerButton from "./PickTrackerButton";
 
 interface LivePick {
   fav: string;
@@ -257,13 +258,28 @@ export default async function TodayPicksSection({
                   {narrative}
                 </p>
 
-                {/* View game link */}
-                <Link
-                  href={`/?date=${pick.home_id}`}
-                  className="text-xs text-blue-600 hover:underline font-semibold"
-                >
-                  View game →
-                </Link>
+                {/* View game link + Track button */}
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={`/?date=${pick.home_id}`}
+                    className="text-xs text-blue-600 hover:underline font-semibold"
+                  >
+                    View game →
+                  </Link>
+                  <PickTrackerButton
+                    date={dayEntry.date}
+                    fav={pick.fav}
+                    fav_id={pick.fav_id}
+                    home_id={pick.home_id}
+                    away_id={pick.away_id}
+                    home={pick.home}
+                    away={pick.away}
+                    prob={pick.prob}
+                    ml={pick.ml}
+                    ou_line={pick.ou_line}
+                    ou_lean={pick.ou_lean}
+                  />
+                </div>
               </div>
             );
           })}
