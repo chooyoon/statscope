@@ -17,6 +17,7 @@ import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateCommentLike } from "@/lib/comments";
 import { calculateAnalystBadge } from "@/lib/analyst";
+import { useLang } from "@/contexts/LangContext";
 
 interface Comment {
   id: string;
@@ -65,6 +66,7 @@ interface UserBadgeCache {
 
 export default function GameComments({ gamePk }: { gamePk: string }) {
   const { user } = useAuth();
+  const { t } = useLang();
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState("");
   const [guestName, setGuestName] = useState("Guest");
@@ -380,7 +382,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
         {/* Display name (when already set) */}
         {!user && isNameSet && (
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-medium text-slate-700 dark:text-slate-200">{guestName}</span>로 댓글 작성 중
+            <span className="font-medium text-slate-700 dark:text-slate-200">{guestName}</span> {t("로 댓글 작성 중", "commenting as")}
           </p>
         )}
 
@@ -404,7 +406,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
             value={text}
             onChange={(e) => setText(e.target.value.slice(0, 300))}
             onKeyDown={handleKeyDown}
-            placeholder="댓글을 작성하세요... (Enter로 전송, Shift+Enter는 줄바꿈)"
+            placeholder={t("댓글을 작성하세요... (Enter로 전송, Shift+Enter는 줄바꿈)", "Write a comment... (Enter to send, Shift+Enter for new line)")}
             maxLength={300}
             rows={2}
             className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-700/50 resize-none transition-colors"
@@ -424,7 +426,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           }
           className="w-full px-3 py-2 text-xs font-semibold rounded-lg transition-all bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:hover:shadow-none"
         >
-          {isSending ? "전송 중..." : "댓글 작성"}
+          {isSending ? t("전송 중...", "Sending...") : t("댓글 작성", "Post Comment")}
         </button>
       </form>
     </section>
