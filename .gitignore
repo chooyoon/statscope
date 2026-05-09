@@ -47,3 +47,4 @@ x-bot/.reddit_pick_history.json
 x-bot/reddit_post.txt
 x-bot/bot_log.txt
 x-bot/logs/
+.env*.local

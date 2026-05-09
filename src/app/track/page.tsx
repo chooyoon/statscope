@@ -186,17 +186,21 @@ interface MonthlyRecord {
   losses: number;
 }
 
-function computeMonthlyRecords(settled: LivePick[]): MonthlyRecord[] {
+function computeMonthlyRecords(live: LiveHistory): MonthlyRecord[] {
   const monthMap = new Map<string, { w: number; l: number }>();
 
-  for (const pick of settled) {
-    const date = new Date(pick.final_score ? pick.final_score.split(' ')[0] : "2000-01-01");
-    const month = date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+  for (const day of live.picks) {
+    for (const pick of day.picks) {
+      if (pick.result !== "W" && pick.result !== "L") continue;
 
-    const current = monthMap.get(month) ?? { w: 0, l: 0 };
-    if (pick.result === "W") current.w++;
-    else if (pick.result === "L") current.l++;
-    monthMap.set(month, current);
+      const date = new Date(day.date + "T12:00:00");
+      const month = date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+
+      const current = monthMap.get(month) ?? { w: 0, l: 0 };
+      if (pick.result === "W") current.w++;
+      else if (pick.result === "L") current.l++;
+      monthMap.set(month, current);
+    }
   }
 
   return Array.from(monthMap.entries()).map(([month, record]) => ({
@@ -211,22 +215,31 @@ interface ROIDataPoint {
   cumProfit: number;
 }
 
-function computeROICumulative(settled: LivePick[]): ROIDataPoint[] {
+function computeROICumulative(live: LiveHistory): ROIDataPoint[] {
   const stake = 100;
   let cumProfit = 0;
-  const sorted = [...settled].sort((a, b) =>
-    new Date(a.final_score?.split(' ')[0] || "2000-01-01").getTime() -
-    new Date(b.final_score?.split(' ')[0] || "2000-01-01").getTime()
+  const allPicks: Array<{ date: string; pick: LivePick }> = [];
+
+  for (const day of live.picks) {
+    for (const pick of day.picks) {
+      if (pick.result === "W" || pick.result === "L") {
+        allPicks.push({ date: day.date, pick });
+      }
+    }
+  }
+
+  const sorted = allPicks.sort((a, b) =>
+    new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  return sorted.map((pick) => {
+  return sorted.map(({ date, pick }) => {
     if (pick.result === "W") {
       cumProfit += mlProfit(pick.ml, stake);
     } else if (pick.result === "L") {
       cumProfit -= stake;
     }
     return {
-      date: pick.final_score?.split(' ')[0] || "TBD",
+      date,
       cumProfit,
     };
   });
@@ -258,8 +271,8 @@ export default async function TrackPage() {
   const settled = liveSettled(live);
   const liveMetrics = computeLiveMetrics(settled);
   const liveBins = computeLiveBins(settled);
-  const monthlyRecords = computeMonthlyRecords(settled);
-  const roiCumulative = computeROICumulative(settled);
+  const monthlyRecords = computeMonthlyRecords(live);
+  const roiCumulative = computeROICumulative(live);
   const allDays = live.picks.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const liveMetricsForHeader = computeLiveMetrics(settled);
