@@ -8,6 +8,8 @@ import TrackSection, {
   type CalibrationBin,
   type TrackMetrics,
 } from "./TrackSection";
+import MonthlyPerformanceChart from "./MonthlyPerformanceChart";
+import ROICumulativeChart from "./ROICumulativeChart";
 import { isKR } from "@/lib/config";
 
 const T = (en: string, ko: string) => isKR ? ko : en;
@@ -178,6 +180,58 @@ function computeLiveBins(settled: LivePick[]): CalibrationBin[] {
   return bins;
 }
 
+interface MonthlyRecord {
+  month: string;
+  wins: number;
+  losses: number;
+}
+
+function computeMonthlyRecords(settled: LivePick[]): MonthlyRecord[] {
+  const monthMap = new Map<string, { w: number; l: number }>();
+
+  for (const pick of settled) {
+    const date = new Date(pick.final_score ? pick.final_score.split(' ')[0] : "2000-01-01");
+    const month = date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+
+    const current = monthMap.get(month) ?? { w: 0, l: 0 };
+    if (pick.result === "W") current.w++;
+    else if (pick.result === "L") current.l++;
+    monthMap.set(month, current);
+  }
+
+  return Array.from(monthMap.entries()).map(([month, record]) => ({
+    month,
+    wins: record.w,
+    losses: record.l,
+  }));
+}
+
+interface ROIDataPoint {
+  date: string;
+  cumProfit: number;
+}
+
+function computeROICumulative(settled: LivePick[]): ROIDataPoint[] {
+  const stake = 100;
+  let cumProfit = 0;
+  const sorted = [...settled].sort((a, b) =>
+    new Date(a.final_score?.split(' ')[0] || "2000-01-01").getTime() -
+    new Date(b.final_score?.split(' ')[0] || "2000-01-01").getTime()
+  );
+
+  return sorted.map((pick) => {
+    if (pick.result === "W") {
+      cumProfit += mlProfit(pick.ml, stake);
+    } else if (pick.result === "L") {
+      cumProfit -= stake;
+    }
+    return {
+      date: pick.final_score?.split(' ')[0] || "TBD",
+      cumProfit,
+    };
+  });
+}
+
 function walkForwardMetrics(wf: WalkForwardFile): TrackMetrics {
   return {
     wins: wf.record.w,
@@ -204,32 +258,67 @@ export default async function TrackPage() {
   const settled = liveSettled(live);
   const liveMetrics = computeLiveMetrics(settled);
   const liveBins = computeLiveBins(settled);
+  const monthlyRecords = computeMonthlyRecords(settled);
+  const roiCumulative = computeROICumulative(settled);
   const allDays = live.picks.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">
-          {T("Prediction Track Record", "예측 성적")}
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          {T(
-            `Two independent measures of how well our v2.2 win-probability
-            model is actually doing. Every pick the model has publicly posted
-            is logged below, and every recent completed game is re-scored
-            using only stats that would have been available the prior day —
-            the closest honest simulation of realtime performance we can
-            produce.`,
-            `우리의 v2.2 승리 확률 모델이 실제로 얼마나 잘 작동하는지에 대한 두 가지 독립적인 측정 방식입니다.
-            모델이 공개적으로 게시한 모든 픽은 아래에 기록되며,
-            최근에 완료된 모든 경기는 이전 날에 이용 가능했을 통계만 사용하여 다시 채점됩니다 —
-            우리가 제공할 수 있는 실시간 성능의 가장 정직한 시뮬레이션입니다.`
-          )}
-        </p>
-      </div>
+  const liveMetricsForHeader = computeLiveMetrics(settled);
 
-      {/* Why we publish this */}
-      <section className="mb-10 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Dark Banner Header */}
+      <section className="bg-slate-900 border-b border-slate-700">
+        <div className="mx-auto max-w-7xl px-4 py-12">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            {/* Left: Title */}
+            <div className="lg:col-span-2">
+              <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
+                {T("Prediction Track Record", "예측 성적")}
+              </h1>
+              <p className="text-sm text-slate-300">
+                {T(
+                  "Two independent measures of model performance with full transparency.",
+                  "모델 성능의 두 가지 독립적인 측정 방식으로 완전한 투명성을 제공합니다."
+                )}
+              </p>
+            </div>
+            {/* Right: Key Stats */}
+            {liveMetricsForHeader && (
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-lg bg-slate-800 p-3 border border-slate-700">
+                  <p className="text-xs text-slate-400 font-semibold">
+                    {T("Record", "성적")}
+                  </p>
+                  <p className="text-lg font-bold text-white mt-1">
+                    {liveMetricsForHeader.wins}–{liveMetricsForHeader.losses}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-800 p-3 border border-slate-700">
+                  <p className="text-xs text-slate-400 font-semibold">
+                    {T("Win Rate", "승률")}
+                  </p>
+                  <p className="text-lg font-bold text-white mt-1">
+                    {liveMetricsForHeader.winRatePct.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-800 p-3 border border-slate-700">
+                  <p className="text-xs text-slate-400 font-semibold">ROI</p>
+                  <p className="text-lg font-bold text-white mt-1">
+                    {liveMetricsForHeader.roiPct >= 0 ? "+" : ""}
+                    {liveMetricsForHeader.roiPct.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 py-8">
+
+        {/* Why we publish this */}
+        <section className="mb-10 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
         <h2 className="text-lg font-semibold text-slate-800">
           {T("Why We Publish This", "투명성을 중시하는 이유")}
         </h2>
@@ -269,10 +358,10 @@ export default async function TrackPage() {
             `를 참조하세요. 모든 것은 우리의 공개 저장소에 커밋된 스크립트에서 재현 가능합니다.`
           )}
         </p>
-      </section>
+        </section>
 
-      {/* Section 1: Live Posted Picks */}
-      <TrackSection
+        {/* Section 1: Live Posted Picks */}
+        <TrackSection
         id="live"
         rank="primary"
         title={T("Live Posted Picks", "실시간 공개 픽")}
@@ -307,6 +396,31 @@ export default async function TrackPage() {
             </>
           ) : undefined
         }
+        chartsSection={
+          settled.length > 0 ? (
+            <div className="space-y-8">
+              {/* Monthly Performance */}
+              {monthlyRecords.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">
+                    {T("Monthly Performance", "월별 성적")}
+                  </h3>
+                  <MonthlyPerformanceChart data={monthlyRecords} />
+                </div>
+              )}
+
+              {/* ROI Cumulative */}
+              {roiCumulative.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">
+                    {T("Cumulative ROI", "누적 ROI")}
+                  </h3>
+                  <ROICumulativeChart data={roiCumulative} />
+                </div>
+              )}
+            </div>
+          ) : undefined
+        }
         footer={
           allDays.length > 0 ? (
             <div>
@@ -322,7 +436,7 @@ export default async function TrackPage() {
                     <div className="overflow-x-auto rounded-lg ring-1 ring-slate-200/60">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                          <tr className="border-b border-slate-200 bg-slate-100 text-[10px] uppercase tracking-wider text-slate-600 font-semibold">
                             <th className="px-3 py-2 text-left font-semibold">
                               {T("Matchup", "대전")}
                             </th>
@@ -349,7 +463,9 @@ export default async function TrackPage() {
                             return (
                               <tr
                                 key={idx}
-                                className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                                className={`border-b border-slate-100 last:border-0 hover:opacity-75 transition-opacity ${
+                                  p.result === "W" ? "bg-emerald-50" : p.result === "L" ? "bg-red-50" : ""
+                                }`}
                               >
                                 <td className="px-3 py-3 text-slate-600">
                                   <span className="text-slate-500">
@@ -415,11 +531,11 @@ export default async function TrackPage() {
             </div>
           ) : undefined
         }
-      />
+        />
 
-      {/* Section 2: Walk-Forward Simulation */}
-      {wf ? (
-        <TrackSection
+        {/* Section 2: Walk-Forward Simulation */}
+        {wf ? (
+          <TrackSection
           id="walk-forward"
           rank="secondary"
           title={T("Walk-Forward Simulation", "워크포워드 시뮬레이션")}
@@ -465,7 +581,7 @@ export default async function TrackPage() {
                 <div className="overflow-x-auto rounded-lg ring-1 ring-slate-200/60">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                      <tr className="border-b border-slate-200 bg-slate-100 text-[10px] uppercase tracking-wider text-slate-600 font-semibold">
                         <th className="px-3 py-2 text-left font-semibold">
                           {T("Date", "날짜")}
                         </th>
@@ -507,7 +623,9 @@ export default async function TrackPage() {
                         return (
                           <tr
                             key={r.gamePk}
-                            className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                            className={`border-b border-slate-100 last:border-0 hover:opacity-75 transition-opacity ${
+                              r.result === "W" ? "bg-emerald-50" : "bg-red-50"
+                            }`}
                           >
                             <td className="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">
                               {formatDate(r.date)}
@@ -576,18 +694,18 @@ export default async function TrackPage() {
                 </p>
               </div>
             ) : undefined
-          }
-        />
-      ) : (
-        <section className="mb-10 rounded-2xl bg-white px-6 py-10 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/60">
-          {T(
-            "Walk-forward simulation is regenerating — check back in a few minutes.",
-            "워크포워드 시뮬레이션이 재생성 중입니다 — 몇 분 후 다시 확인하세요."
-          )}
-        </section>
-      )}
+            }
+          />
+        ) : (
+          <section className="mb-10 rounded-2xl bg-white px-6 py-10 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/60">
+            {T(
+              "Walk-forward simulation is regenerating — check back in a few minutes.",
+              "워크포워드 시뮬레이션이 재생성 중입니다 — 몇 분 후 다시 확인하세요."
+            )}
+          </section>
+        )}
 
-      <p className="mt-6 text-xs text-slate-500 leading-relaxed">
+        <p className="mt-6 text-xs text-slate-500 leading-relaxed">
         <strong>{T("Disclaimer.", "면책조항.")}</strong> {T(
           `Records and ROI shown above are computed from the public model's posted picks and from an automated walk-forward simulation. Past performance does not guarantee future results. Nothing on this page is financial advice — please wager responsibly and within your limits. Problem gambling? Call 1-800-GAMBLER (US) or visit `,
           `위에 표시된 기록 및 ROI는 공개 모델의 게시된 픽과 자동화된 워크포워드 시뮬레이션에서 계산됩니다. 과거 성과가 미래 결과를 보장하지 않습니다. 이 페이지의 어떤 것도 재정 조언이 아닙니다 — 책임감 있게 한계 내에서 베팅하세요. 도박 중독? 1-800-GAMBLER (US)에 전화하거나 `
@@ -601,7 +719,8 @@ export default async function TrackPage() {
           ncpgambling.org
         </a>
         {T("를 방문하세요.", " visit.")}
-      </p>
+        </p>
+      </div>
     </div>
   );
 }

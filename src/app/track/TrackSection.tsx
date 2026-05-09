@@ -31,6 +31,7 @@ interface TrackSectionProps {
   bins: CalibrationBin[];
   hasData: boolean;
   caveat?: React.ReactNode;
+  chartsSection?: React.ReactNode;
   footer?: React.ReactNode;
 }
 
@@ -45,21 +46,34 @@ function MetricCard({
   sub?: string;
   tone?: "positive" | "negative" | "neutral";
 }) {
+  const borderColor =
+    tone === "positive"
+      ? "border-emerald-500"
+      : tone === "negative"
+        ? "border-red-500"
+        : "border-slate-300";
   const color =
     tone === "positive"
       ? "text-emerald-600"
       : tone === "negative"
         ? "text-red-600"
         : "text-slate-800";
+  const bgColor =
+    tone === "positive"
+      ? "bg-emerald-50"
+      : tone === "negative"
+        ? "bg-red-50"
+        : "bg-white";
+
   return (
-    <div className="rounded-xl bg-slate-50 px-4 py-4 ring-1 ring-slate-200/60">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+    <div className={`rounded-lg ${bgColor} px-4 py-3 ring-1 ring-slate-200/60 border-l-4 ${borderColor}`}>
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
         {label}
       </div>
-      <div className={`mt-1 text-2xl font-extrabold tabular-nums ${color}`}>
+      <div className={`mt-2 text-3xl font-extrabold tabular-nums ${color}`}>
         {value}
       </div>
-      {sub && <div className="mt-1 text-xs text-slate-500">{sub}</div>}
+      {sub && <div className="mt-1 text-xs text-slate-600">{sub}</div>}
     </div>
   );
 }
@@ -82,6 +96,7 @@ export default function TrackSection({
   bins,
   hasData,
   caveat,
+  chartsSection,
   footer,
 }: TrackSectionProps) {
   const brierTone: "positive" | "negative" | "neutral" | undefined =
@@ -189,6 +204,9 @@ export default function TrackSection({
           </div>
         )}
       </div>
+
+      {/* Charts Section */}
+      {chartsSection && <div className="mt-8">{chartsSection}</div>}
 
       {footer && <div className="mt-6">{footer}</div>}
     </section>

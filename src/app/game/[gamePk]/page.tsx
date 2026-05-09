@@ -530,106 +530,93 @@ export default async function GameDetailPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 flex gap-6">
+    <div className="min-h-screen bg-slate-50">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(gameJsonLd) }}
       />
 
-      {/* 좌측: 게임 정보 콘텐츠 */}
-      <div className="flex-1 min-w-0">
-      {/* ===== 1. GAME HEADER ===== */}
-      <section className="mb-8">
-        <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
-          {/* Top bar with status */}
-          <div className="flex items-center justify-center gap-3 py-3 border-b border-slate-200 bg-slate-50">
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass}`}
-            >
-              {statusText}
-            </span>
-          </div>
+      {/* Dark Banner Header */}
+      <section className="bg-slate-900 border-b border-slate-700 mb-8">
+        <div className="mx-auto max-w-7xl px-4 py-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* Left: Teams and Score */}
+            <div className="flex items-center justify-center gap-3 sm:gap-6 flex-1 min-w-0">
+              {/* Away Team */}
+              <div className="flex flex-col items-center gap-2 flex-1">
+                <span className="text-xs text-slate-400 font-semibold uppercase">{T("Away", "원정")}</span>
+                <div className="text-white font-bold text-center">
+                  {awayTeam?.name ?? boxscore.teams.away.team.name}
+                </div>
+                {gameStarted && (
+                  <span className="text-3xl font-extrabold text-white tabular-nums">
+                    {awayRuns}
+                  </span>
+                )}
+              </div>
 
-          {/* Team vs Team with scores */}
-          <div className="flex items-center justify-center gap-4 sm:gap-8 py-8 px-4">
-            {/* Away */}
-            <div className="flex flex-col items-center gap-3 flex-1">
-              <TeamBadge
-                name={awayTeam?.name ?? boxscore.teams.away.team.name}
-                nameKo={awayTeam?.nameKo ?? boxscore.teams.away.team.name}
-                colorPrimary={awayColor}
-                colorAccent={awayTeam?.colorAccent ?? "#818cf8"}
-                teamId={boxscore.teams.away.team.id}
-                size="lg"
-              />
+              {/* VS */}
+              <div className="text-slate-400 text-sm font-bold">VS</div>
+
+              {/* Home Team */}
+              <div className="flex flex-col items-center gap-2 flex-1">
+                <span className="text-xs text-slate-400 font-semibold uppercase">{T("Home", "홈")}</span>
+                <div className="text-white font-bold text-center">
+                  {homeTeam?.name ?? boxscore.teams.home.team.name}
+                </div>
+                {gameStarted && (
+                  <span className="text-3xl font-extrabold text-white tabular-nums">
+                    {homeRuns}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Status and Inning Info */}
+            <div className="flex flex-col items-center sm:items-end gap-2">
+              <span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass}`}>
+                {statusText}
+              </span>
               {gameStarted && (
-                <span
-                  className="text-4xl sm:text-5xl font-extrabold tabular-nums"
-                  style={{ color: awayRuns >= homeRuns ? awayColor : undefined }}
-                >
-                  {awayRuns}
+                <span className="text-sm text-slate-300">
+                  {linescore.currentInning ? `${T("Inning", "이닝")} ${linescore.currentInning}` : ""}
                 </span>
               )}
-              <span className="text-xs text-slate-500">{T("Away", "원정")}</span>
-            </div>
-
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-slate-600 text-lg font-bold">VS</span>
-            </div>
-
-            {/* Home */}
-            <div className="flex flex-col items-center gap-3 flex-1">
-              <TeamBadge
-                name={homeTeam?.name ?? boxscore.teams.home.team.name}
-                nameKo={homeTeam?.nameKo ?? boxscore.teams.home.team.name}
-                colorPrimary={homeColor}
-                colorAccent={homeTeam?.colorAccent ?? "#818cf8"}
-                teamId={boxscore.teams.home.team.id}
-                size="lg"
-              />
-              {gameStarted && (
-                <span
-                  className="text-4xl sm:text-5xl font-extrabold tabular-nums"
-                  style={{ color: homeRuns >= awayRuns ? homeColor : undefined }}
-                >
-                  {homeRuns}
-                </span>
-              )}
-              <span className="text-xs text-slate-500">{T("Home", "홈")}</span>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Inning-by-Inning Linescore Table */}
-          {gameStarted && linescore.innings && linescore.innings.length > 0 && (
-            <div className="border-t border-slate-200 overflow-x-auto">
+      {/* Main Content Area */}
+      <div className="mx-auto max-w-7xl px-4 py-8 flex gap-6">
+        {/* 좌측: 게임 정보 콘텐츠 */}
+        <div className="flex-1 min-w-0">
+        {/* ===== 1. LINESCORE TABLE ===== */}
+        {gameStarted && linescore.innings && linescore.innings.length > 0 && (
+          <section className="mb-8 rounded-xl bg-white shadow-sm ring-1 ring-slate-200/60 overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[500px]">
                 <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-slate-500 w-24">
+                  <tr className="border-b border-slate-200 bg-slate-100 text-[10px] uppercase tracking-wider text-slate-600 font-semibold">
+                    <th className="px-3 py-2 text-left w-24">
                       {T("Team", "팀")}
                     </th>
                     {linescore.innings.map((inn) => (
                       <th
                         key={inn.num}
-                        className="px-2 py-2 text-center text-xs font-semibold text-slate-500 w-8"
+                        className="px-2 py-2 text-center w-8"
                       >
                         {inn.num}
                       </th>
                     ))}
-                    <th className="px-3 py-2 text-center text-xs font-bold text-slate-400 w-10">
-                      R
-                    </th>
-                    <th className="px-3 py-2 text-center text-xs font-bold text-slate-400 w-10">
-                      H
-                    </th>
-                    <th className="px-3 py-2 text-center text-xs font-bold text-slate-400 w-10">
-                      E
-                    </th>
+                    <th className="px-3 py-2 text-center w-10">R</th>
+                    <th className="px-3 py-2 text-center w-10">H</th>
+                    <th className="px-3 py-2 text-center w-10">E</th>
                   </tr>
                 </thead>
                 <tbody>
                   {/* Away row */}
-                  <tr className="border-b border-slate-100 hover:bg-slate-50">
+                  <tr className="border-b border-slate-100 hover:opacity-75 transition-opacity bg-slate-50">
                     <td className="px-3 py-2 text-xs font-bold" style={{ color: awayColor }}>
                       {awayTeam?.abbreviation ?? "AWAY"}
                     </td>
@@ -652,7 +639,7 @@ export default async function GameDetailPage({
                     </td>
                   </tr>
                   {/* Home row */}
-                  <tr className="hover:bg-slate-50">
+                  <tr className="border-b border-slate-100 hover:opacity-75 transition-opacity">
                     <td className="px-3 py-2 text-xs font-bold" style={{ color: homeColor }}>
                       {homeTeam?.abbreviation ?? "HOME"}
                     </td>
@@ -677,9 +664,8 @@ export default async function GameDetailPage({
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
-      </section>
+          </section>
+        )}
 
       {/* ===== ROSTER SABERMETRICS COMPARISON ===== */}
       <RosterAnalysis
@@ -1092,6 +1078,7 @@ export default async function GameDetailPage({
       <div className="w-80 flex-shrink-0 sticky top-8 h-fit">
         <GameComments gamePk={String(gamePk)} />
       </div>
+    </div>
     </div>
   );
 }
