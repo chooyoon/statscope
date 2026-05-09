@@ -40,11 +40,43 @@ match /gameComments/{gamePk} {
 4. Update the `gameComments` section with the above rules
 5. Click **Publish**
 
+## TTL (Time To Live) Policy - Auto-Delete Comments After 7 Days
+
+1. Go to **Firestore Database** → **Data** tab
+2. Click on a document in `gameComments/{gamePk}/messages`
+3. Verify the `expiresAt` field exists (set to 7 days from creation)
+4. Go back to **Rules** tab and add at the database root level:
+
+```firestore
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // TTL policy: automatically delete documents with expiresAt field past current time
+    match /{document=**} {
+      allow delete: if resource.data.expiresAt == null || 
+        resource.data.expiresAt < request.time;
+    }
+    
+    // ... rest of your rules
+  }
+}
+```
+
+Then in **Firestore Database** settings:
+1. Click **TTL Policy** (or **Manage TTLs**)
+2. Create new TTL policy on collection `gameComments/{gamePk}/messages`
+3. Set field: `expiresAt`
+4. This will automatically delete documents when their `expiresAt` time passes
+
+**Result**: Comments automatically disappear after 7 days, keeping database lean and responsive.
+
 ## Testing
 
-After applying rules, test:
+After applying rules and TTL, test:
 - ✓ Load comments on a game page
+- ✓ Post a new comment (verify `expiresAt` field exists in Firestore)
 - ✓ Click heart icon to like a comment (logged-in users only)
 - ✓ Verify like count increments
 - ✓ Click again to unlike
 - ✓ Verify guest users cannot like (button doesn't show)
+- ✓ After 7 days, comments automatically disappear from database

@@ -166,6 +166,10 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
         setIsNameSet(true);
       }
 
+      // Set expireAt to 7 days from now for automatic deletion via Firestore TTL
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
       await addDoc(
         collection(db, "gameComments", gamePk, "messages"),
         {
@@ -176,6 +180,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           createdAt: serverTimestamp(),
           likes: 0,
           userLikes: [],
+          expiresAt: expiresAt,
         }
       );
 
