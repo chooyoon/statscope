@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import Link from "next/link";
 import { getTeamById } from "@/data/teams";
+import EnhancedPickBadge from "./EnhancedPickBadge";
 
 interface LivePick {
   fav: string;
@@ -218,6 +219,14 @@ export default async function TodayPicksSection({
                   </span>{" "}
                   @ <span className="font-semibold text-slate-700">{pick.home}</span>
                 </p>
+
+                {/* Enhanced badge */}
+                <div className="mb-3">
+                  <EnhancedPickBadge
+                    gameId={`${awayTeam?.abbreviation || "?"}@${homeTeam?.abbreviation || "?"}`}
+                    baseProb={pick.prob}
+                  />
+                </div>
 
                 {/* Probability badge */}
                 <div className={`rounded-lg ${probBgColor} p-3 mb-4`}>

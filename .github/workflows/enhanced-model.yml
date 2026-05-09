@@ -1,0 +1,81 @@
+name: Enhanced Model (v2.3)
+
+on:
+  schedule:
+    # 15:00 UTC = 11am ET, 1 hour before base picks
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Game date (YYYY-MM-DD)'
+        required: false
+        default: ''
+
+jobs:
+  enhanced-picks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache pybaseball data
+        uses: actions/cache@v3
+        with:
+          path: ~/.pybaseball
+          key: pybaseball-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            pybaseball-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements-enhanced.txt
+
+      - name: Determine game date
+        id: date
+        run: |
+          if [ -z "${{ github.event.inputs.date }}" ]; then
+            echo "date=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          else
+            echo "date=${{ github.event.inputs.date }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run enhanced model
+        run: |
+          python scripts/enhanced_model.py \
+            --date ${{ steps.date.outputs.date }} \
+            --season 2026 \
+            --output public/data/enhanced-picks.json
+
+      - name: Verify output
+        run: |
+          if [ -f public/data/enhanced-picks.json ]; then
+            echo "✓ enhanced-picks.json created"
+            head -20 public/data/enhanced-picks.json
+          else
+            echo "✗ enhanced-picks.json not found"
+            exit 1
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/enhanced-picks.json
+          git commit -m "chore: update enhanced-picks for ${{ steps.date.outputs.date }} [skip ci]" || echo "No changes to commit"
+          git push
+
+      - name: Trigger Vercel revalidation
+        if: github.event_name == 'schedule'
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/git/namespaces/$(echo ${{ github.repository }} | cut -d'/' -f1)/projects/$(echo ${{ github.repository }} | cut -d'/' -f2)/deployments?teamId=${{ secrets.VERCEL_TEAM_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"gitSource":{"ref":"main"}}' || echo "Vercel revalidation skipped"
