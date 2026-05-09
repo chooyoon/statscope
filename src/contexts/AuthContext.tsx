@@ -85,16 +85,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function signInWithGoogle() {
-    const authInstance = getFirebaseAuth();
-    if (!authInstance) return;
-    await signInWithPopup(authInstance, googleProvider);
+    try {
+      const authInstance = getFirebaseAuth();
+      if (!authInstance) {
+        console.error("Firebase auth not configured");
+        return;
+      }
+      await signInWithPopup(authInstance, googleProvider);
+    } catch (error: any) {
+      console.error("Sign in error:", error?.code, error?.message);
+      if (error?.code !== "auth/popup-closed-by-user") {
+        alert("Sign in failed: " + error?.message);
+      }
+    }
   }
 
   async function signOut() {
-    const authInstance = getFirebaseAuth();
-    if (!authInstance) return;
-    await firebaseSignOut(authInstance);
-    setProfile(null);
+    try {
+      const authInstance = getFirebaseAuth();
+      if (!authInstance) return;
+      await firebaseSignOut(authInstance);
+      setProfile(null);
+    } catch (error: any) {
+      console.error("Sign out error:", error?.message);
+    }
   }
 
   async function updateProfile(data: Partial<UserProfile>) {
