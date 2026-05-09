@@ -12,12 +12,12 @@ import { isKR } from "@/lib/config";
 function useNavItems() {
   const { t } = useLang();
   return [
-    { href: "/", label: t("Today's Games", "오늘의 경기") },
-    { href: "/standings", label: t("Standings", "팀 순위") },
-    { href: "/track", label: t("Track Record", "예측 성적") },
-    { href: "/news", label: t("News", "소식") },
-    { href: "/blog", label: t("Blog", "블로그") },
-    { href: "/learn", label: t("Learn", "가이드") },
+    { href: "/", label: t("오늘의 경기", "Today's Games") },
+    { href: "/standings", label: t("팀 순위", "Standings") },
+    { href: "/track", label: t("예측 성적", "Track Record") },
+    { href: "/news", label: t("소식", "News") },
+    { href: "/blog", label: t("블로그", "Blog") },
+    { href: "/learn", label: t("가이드", "Learn") },
   ];
 }
 
