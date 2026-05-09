@@ -731,32 +731,35 @@ export default async function GameDetailPage({
           {homeTeam?.name ?? "Home"} {T("Analysis", "분석")}
         </h2>
         <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-          Below this summary you&apos;ll find, in order: a head-to-head team
-          stats comparison (runs, wOBA, OPS, ERA, WHIP), a deep dive on the
-          two probable starters with FIP, BABIP, K% and BB%, a bullpen
-          breakdown, a lineup view with each hitter&apos;s season sabermetric
-          line, and finally our win-probability, moneyline, over/under, and
-          run-line (-1.5) projections. The numbers are pulled live from the
-          official MLB Stats API each time this page loads.
+          {isKR
+            ? "이 요약 아래에서 다음을 순서대로 찾을 수 있습니다: 팀 맞대결 통계 비교 (득점, wOBA, OPS, ERA, WHIP), 예상 선발 투수 2명에 대한 심화 분석 (FIP, BABIP, K%, BB%), 불펜 분석, 각 타자의 시즌 세이버메트릭 라인 및 최종적으로 승리 확률, 머니라인, 오버/언더, 런라인(-1.5) 예측. 숫자는 이 페이지가 로드될 때마다 공식 MLB Stats API에서 실시간으로 가져옵니다."
+            : "Below this summary you'll find, in order: a head-to-head team stats comparison (runs, wOBA, OPS, ERA, WHIP), a deep dive on the two probable starters with FIP, BABIP, K% and BB%, a bullpen breakdown, a lineup view with each hitter's season sabermetric line, and finally our win-probability, moneyline, over/under, and run-line (-1.5) projections. The numbers are pulled live from the official MLB Stats API each time this page loads."}
         </p>
         <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-          Our projections come from the StatScope v2.2 win-probability
-          model. It blends Pythagorean expectation with starter FIP,
-          bullpen ERA, lineup wOBA, a 30% weight on the last 30 days of
-          form, Log5 matchup logic, a 6.6% home-field bonus, the park
-          factor of{" "}
-          <strong>
-            {boxscore.teams.home.team.venue?.name ?? "the host venue"}
-          </strong>
-          , and a 22% regression toward league average. The weights were
-          grid-searched on 246 historical games (Brier score 0.2336), and
-          the full methodology is documented on our{" "}
-          <Link href="/methodology" className="text-blue-600 hover:underline">
-            methodology page
-          </Link>
-          . Remember: these are model estimates, not picks. Use them as one
-          input alongside news, weather, and the sportsbook line — and
-          always bet responsibly.
+          {isKR
+            ? <>
+              예측은 StatScope v2.2 승률 모델에서 나옵니다. 피타고라스 기댓값과 선발 투수 FIP, 불펜 ERA, 타순 wOBA, 최근 30일 폼 가중치 30%, Log5 맞대결 로직, 6.6% 홈필드 보너스, <strong>{boxscore.teams.home.team.venue?.name ?? "개최 구장"}</strong>의 파크 팩터, 리그 평균으로의 22% 회귀를 혼합합니다. 가중치는 246개 과거 경기에서 그리드 탐색됨 (Brier 점수 0.2336)이며, 전체 방법론은 <Link href="/methodology" className="text-blue-600 hover:underline">방법론 페이지</Link>에 기록되어 있습니다. 기억하세요: 이것은 모델 추정치이지 픽이 아닙니다. 뉴스, 날씨, 북메이커 라인과 함께 한 가지 입력으로 사용하세요 — 항상 책임감 있게 베팅하세요.
+            </>
+            : <>
+              Our projections come from the StatScope v2.2 win-probability
+              model. It blends Pythagorean expectation with starter FIP,
+              bullpen ERA, lineup wOBA, a 30% weight on the last 30 days of
+              form, Log5 matchup logic, a 6.6% home-field bonus, the park
+              factor of{" "}
+              <strong>
+                {boxscore.teams.home.team.venue?.name ?? "the host venue"}
+              </strong>
+              , and a 22% regression toward league average. The weights were
+              grid-searched on 246 historical games (Brier score 0.2336), and
+              the full methodology is documented on our{" "}
+              <Link href="/methodology" className="text-blue-600 hover:underline">
+                methodology page
+              </Link>
+              . Remember: these are model estimates, not picks. Use them as one
+              input alongside news, weather, and the sportsbook line — and
+              always bet responsibly.
+            </>
+          }
         </p>
       </section>
 
