@@ -14,6 +14,8 @@ export interface Team {
   logo: string;
 }
 
+const LOGO_BASE = 'https://a.espncdn.com/i/teamlogos/mlb/500';
+
 export const teams: Record<number, Team> = {
   108: {
     id: 108,
@@ -28,7 +30,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#BA0021',
     colorAccent: '#003263',
     colorBg: '#1a0008',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-108.svg',
+    logo: `${LOGO_BASE}/laa.png`,
   },
   109: {
     id: 109,
@@ -43,7 +45,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#A71930',
     colorAccent: '#E3D4AD',
     colorBg: '#1a0610',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-109.svg',
+    logo: `${LOGO_BASE}/ari.png`,
   },
   110: {
     id: 110,
@@ -58,7 +60,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#DF4601',
     colorAccent: '#27251F',
     colorBg: '#1a0e02',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-110.svg',
+    logo: `${LOGO_BASE}/bal.png`,
   },
   111: {
     id: 111,
@@ -73,7 +75,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#BD3039',
     colorAccent: '#0C2340',
     colorBg: '#1a0a0b',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-111.svg',
+    logo: `${LOGO_BASE}/bos.png`,
   },
   112: {
     id: 112,
@@ -88,7 +90,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#0E3386',
     colorAccent: '#CC3433',
     colorBg: '#030a1a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-112.svg',
+    logo: `${LOGO_BASE}/chc.png`,
   },
   113: {
     id: 113,
@@ -103,7 +105,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#C6011F',
     colorAccent: '#000000',
     colorBg: '#1a0007',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-114.svg',
+    logo: `${LOGO_BASE}/cin.png`,
   },
   114: {
     id: 114,
@@ -118,7 +120,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#00385D',
     colorAccent: '#E31937',
     colorBg: '#000c14',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-115.svg',
+    logo: `${LOGO_BASE}/cle.png`,
   },
   115: {
     id: 115,
@@ -133,7 +135,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#33006F',
     colorAccent: '#C4CED4',
     colorBg: '#0a0016',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-116.svg',
+    logo: `${LOGO_BASE}/col.png`,
   },
   116: {
     id: 116,
@@ -148,7 +150,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#0C2340',
     colorAccent: '#FA4616',
     colorBg: '#03080e',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-117.svg',
+    logo: `${LOGO_BASE}/det.png`,
   },
   117: {
     id: 117,
@@ -163,7 +165,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#002D62',
     colorAccent: '#EB6E1F',
     colorBg: '#000a16',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-118.svg',
+    logo: `${LOGO_BASE}/hou.png`,
   },
   118: {
     id: 118,
@@ -178,7 +180,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#004687',
     colorAccent: '#BD9B60',
     colorBg: '#000e1a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-119.svg',
+    logo: `${LOGO_BASE}/kc.png`,
   },
   119: {
     id: 119,
@@ -193,7 +195,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#005A9C',
     colorAccent: '#EF3E42',
     colorBg: '#00101a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-120.svg',
+    logo: `${LOGO_BASE}/lad.png`,
   },
   120: {
     id: 120,
@@ -208,7 +210,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#AB0003',
     colorAccent: '#14225A',
     colorBg: '#1a0001',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-121.svg',
+    logo: `${LOGO_BASE}/wsh.png`,
   },
   121: {
     id: 121,
@@ -223,7 +225,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#002D72',
     colorAccent: '#FF5910',
     colorBg: '#000a18',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-133.svg',
+    logo: `${LOGO_BASE}/nym.png`,
   },
   133: {
     id: 133,
@@ -238,7 +240,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#003831',
     colorAccent: '#EFB21E',
     colorBg: '#000c0a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-134.svg',
+    logo: `${LOGO_BASE}/oak.png`,
   },
   134: {
     id: 134,
@@ -253,7 +255,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#27251F',
     colorAccent: '#FDB827',
     colorBg: '#0c0b09',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-135.svg',
+    logo: `${LOGO_BASE}/pit.png`,
   },
   135: {
     id: 135,
@@ -268,7 +270,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#2F241D',
     colorAccent: '#FFC425',
     colorBg: '#0e0b08',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-136.svg',
+    logo: `${LOGO_BASE}/sd.png`,
   },
   136: {
     id: 136,
@@ -283,7 +285,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#0C2C56',
     colorAccent: '#005C5C',
     colorBg: '#030a14',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-137.svg',
+    logo: `${LOGO_BASE}/sea.png`,
   },
   137: {
     id: 137,
@@ -298,7 +300,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#FD5A1E',
     colorAccent: '#27251F',
     colorBg: '#1a0e06',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-138.svg',
+    logo: `${LOGO_BASE}/sf.png`,
   },
   138: {
     id: 138,
@@ -313,7 +315,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#C41E3A',
     colorAccent: '#0C2340',
     colorBg: '#1a060e',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-139.svg',
+    logo: `${LOGO_BASE}/stl.png`,
   },
   139: {
     id: 139,
@@ -328,7 +330,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#092C5C',
     colorAccent: '#8FBCE6',
     colorBg: '#020a14',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-140.svg',
+    logo: `${LOGO_BASE}/tb.png`,
   },
   140: {
     id: 140,
@@ -343,7 +345,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#003278',
     colorAccent: '#C0111F',
     colorBg: '#000a18',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-141.svg',
+    logo: `${LOGO_BASE}/tex.png`,
   },
   141: {
     id: 141,
@@ -358,7 +360,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#134A8E',
     colorAccent: '#1D2D5C',
     colorBg: '#040e1a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-142.svg',
+    logo: `${LOGO_BASE}/tor.png`,
   },
   142: {
     id: 142,
@@ -373,7 +375,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#002B5C',
     colorAccent: '#D31145',
     colorBg: '#000a14',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-143.svg',
+    logo: `${LOGO_BASE}/min.png`,
   },
   143: {
     id: 143,
@@ -388,7 +390,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#E81828',
     colorAccent: '#002D72',
     colorBg: '#1a0508',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-144.svg',
+    logo: `${LOGO_BASE}/phi.png`,
   },
   144: {
     id: 144,
@@ -403,7 +405,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#CE1141',
     colorAccent: '#13274F',
     colorBg: '#1a040d',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-145.svg',
+    logo: `${LOGO_BASE}/atl.png`,
   },
   145: {
     id: 145,
@@ -418,7 +420,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#27251F',
     colorAccent: '#C4CED4',
     colorBg: '#0c0b09',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-146.svg',
+    logo: `${LOGO_BASE}/cws.png`,
   },
   146: {
     id: 146,
@@ -433,7 +435,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#00A3E0',
     colorAccent: '#EF3340',
     colorBg: '#00161a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-147.svg',
+    logo: `${LOGO_BASE}/mia.png`,
   },
   147: {
     id: 147,
@@ -448,7 +450,7 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#003087',
     colorAccent: '#E4002C',
     colorBg: '#000a1a',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-158.svg',
+    logo: `${LOGO_BASE}/nyy.png`,
   },
   158: {
     id: 158,
@@ -463,27 +465,18 @@ export const teams: Record<number, Team> = {
     colorPrimary: '#12284B',
     colorAccent: '#FFC52F',
     colorBg: '#040a12',
-    logo: 'https://www.mlbstatic.com/team-logos/team-logo-60-158.svg',
+    logo: `${LOGO_BASE}/mil.png`,
   },
 };
 
-/**
- * Find a team by its URL-safe slug.
- */
 export function getTeamBySlug(slug: string): Team | undefined {
   return Object.values(teams).find((team) => team.slug === slug);
 }
 
-/**
- * Find a team by its MLB API ID.
- */
 export function getTeamById(id: number): Team | undefined {
   return teams[id];
 }
 
-/**
- * Get a team's primary and accent colors by ID.
- */
 export function getTeamColor(id: number): { primary: string; accent: string; bg: string } {
   const team = teams[id];
   if (!team) {

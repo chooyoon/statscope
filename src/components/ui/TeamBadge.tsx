@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { getTeamById } from "@/data/teams";
 
 interface TeamBadgeProps {
@@ -35,6 +36,7 @@ export default function TeamBadge({
   size = "md",
   dark = false,
 }: TeamBadgeProps) {
+  const [logoError, setLogoError] = useState(false);
   const s = sizeMap[size];
   const team = teamId ? getTeamById(teamId) : null;
 
@@ -43,17 +45,18 @@ export default function TeamBadge({
       <div
         className={`${s.circle} rounded-full flex items-center justify-center font-extrabold text-white shadow-lg overflow-hidden`}
         style={{
-          background: team?.logo
+          background: team?.logo && !logoError
             ? "transparent"
             : `linear-gradient(135deg, ${colorPrimary}, ${colorAccent})`,
         }}
       >
-        {team?.logo ? (
+        {team?.logo && !logoError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={team.logo}
             alt={name}
             className="w-full h-full object-contain p-1"
+            onError={() => setLogoError(true)}
           />
         ) : (
           <span className={s.text}>{getInitials(name)}</span>
