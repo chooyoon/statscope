@@ -382,6 +382,7 @@ export default async function GameDetailPage({
           inningsPitched: parseIP(hss?.inningsPitched as string | number ?? "0"),
           strikeOuts: num(hss?.strikeOuts),
           baseOnBalls: num(hss?.baseOnBalls),
+          battersFaced: num(hss?.battersFaced),
         }
       : null,
     awayStarter: awayAdv
@@ -392,6 +393,7 @@ export default async function GameDetailPage({
           inningsPitched: parseIP(ass?.inningsPitched as string | number ?? "0"),
           strikeOuts: num(ass?.strikeOuts),
           baseOnBalls: num(ass?.baseOnBalls),
+          battersFaced: num(ass?.battersFaced),
         }
       : null,
     parkFactor: parkFactorData.factor,

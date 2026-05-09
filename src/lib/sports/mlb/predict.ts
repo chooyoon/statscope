@@ -39,6 +39,7 @@ export interface StarterData {
   inningsPitched: number;
   strikeOuts: number;
   baseOnBalls: number;
+  battersFaced?: number; // optional for K% calculation (v2.3)
 }
 
 export interface AdvancedPredictionInput {
@@ -78,13 +79,20 @@ const LEAGUE_AVG_WOBA = 0.315;
 const MIN_IP_FULL_WEIGHT = 50; // innings for full starter confidence
 
 // Backtested & optimized on 246 completed 2026 games (Brier 0.2336)
+// Updated after 24-game sample (v2.3): higher regression due to overconfidence in 65-80% range
 const HOME_ADVANTAGE = 0.066; // +6.6 pp (2026 observed: ~55 % home win rate)
 const STARTER_IMPACT = 0.0264; // starter FIP/ERA dominates — 2.2× baseline
 const BULLPEN_IMPACT = 0.0024; // small after Pythagorean already captures RA
 const LINEUP_IMPACT = 0.064; // small after Pythagorean already captures RS
 const PARK_IMPACT = 0.024; // modest venue adjustment
 const RECENT_FORM_WEIGHT = 0.30; // 30 % recent form, 70 % season — streaks matter
-const REGRESSION_FACTOR = 0.22; // pull 22 % toward 50 % — reduces overconfidence
+const REGRESSION_FACTOR = 0.32; // pull 32 % toward 50 % (up from 0.22) — data shows model is ~5pp overconfident
+
+// New v2.3 factors: Pitcher strikeout and walk rates
+const LEAGUE_AVG_K_PCT = 0.22; // MLB average strikeout percentage
+const LEAGUE_AVG_BB9 = 3.1; // MLB average walks per 9 innings
+const STRIKEOUT_IMPACT = 0.012; // high K% pitchers → better (positive impact)
+const WALK_IMPACT = 0.008; // high BB rates → worse (negative impact)
 
 // ---------------------------------------------------------------------------
 // Core math helpers
@@ -169,6 +177,32 @@ function parkAdjustment(
 }
 
 /**
+ * Strikeout rate adjustment (v2.3).
+ * High-K pitchers limit opponent offensive output → stronger edge.
+ */
+function strikeoutAdjustment(starter: StarterData | null): number {
+  if (!starter || !starter.battersFaced || starter.battersFaced === 0) return 0;
+  const kPct = starter.strikeOuts / starter.battersFaced;
+  const diffFromLeague = kPct - LEAGUE_AVG_K_PCT;
+  return (diffFromLeague / LEAGUE_AVG_K_PCT) * STRIKEOUT_IMPACT;
+}
+
+/**
+ * Walk rate adjustment (v2.3).
+ * High-walk pitchers are less efficient → weaker edge.
+ */
+function walkAdjustment(starter: StarterData | null): number {
+  if (!starter || !starter.inningsPitched || starter.inningsPitched === 0)
+    return 0;
+  const ip = typeof starter.inningsPitched === "string"
+    ? parseFloat(starter.inningsPitched)
+    : starter.inningsPitched;
+  const bb9 = (starter.baseOnBalls / ip) * 9;
+  const diffFromLeague = bb9 - LEAGUE_AVG_BB9;
+  return -(diffFromLeague / LEAGUE_AVG_BB9) * WALK_IMPACT;
+}
+
+/**
  * Recent-form win percentage from last-10 record.
  */
 function recentFormPct(wins: number, losses: number): number {
@@ -194,6 +228,12 @@ export function predictWinProbability(
   const homeStarterAdj = starterAdjustment(homeStarter);
   const awayStarterAdj = starterAdjustment(awayStarter);
 
+  // 2.5 ── Starter strikeout & walk adjustments (v2.3)
+  const homeKAdj = strikeoutAdjustment(homeStarter);
+  const awayKAdj = strikeoutAdjustment(awayStarter);
+  const homeBBAdj = walkAdjustment(homeStarter);
+  const awayBBAdj = walkAdjustment(awayStarter);
+
   // 3 ── Bullpen quality adjustment
   const homeBullpenAdj = bullpenAdjustment(home.teamERA);
   const awayBullpenAdj = bullpenAdjustment(away.teamERA);
@@ -206,6 +246,8 @@ export function predictWinProbability(
   let homeAdj = clamp(
     homePythag
       + (homeStarterAdj - awayStarterAdj)
+      + (homeKAdj - awayKAdj)
+      + (homeBBAdj - awayBBAdj)
       + (homeBullpenAdj - awayBullpenAdj)
       + (homeLineupAdj - awayLineupAdj),
     0.25,
@@ -214,6 +256,8 @@ export function predictWinProbability(
   let awayAdj = clamp(
     awayPythag
       + (awayStarterAdj - homeStarterAdj)
+      + (awayKAdj - homeKAdj)
+      + (awayBBAdj - homeBBAdj)
       + (awayBullpenAdj - homeBullpenAdj)
       + (awayLineupAdj - homeLineupAdj),
     0.25,
@@ -241,8 +285,8 @@ export function predictWinProbability(
   // 9 ── Regression to the mean
   homeWinProb = homeWinProb * (1 - REGRESSION_FACTOR) + 0.5 * REGRESSION_FACTOR;
 
-  // Final clamp
-  homeWinProb = clamp(homeWinProb, 0.2, 0.8);
+  // Final clamp (updated to 0.75 max to reduce overconfidence)
+  homeWinProb = clamp(homeWinProb, 0.2, 0.75);
 
   const homeWinPct = round1(homeWinProb * 100);
   const awayWinPct = round1((1 - homeWinProb) * 100);
@@ -456,6 +500,7 @@ export interface OddsResult {
 
 const MLB_AVG_RPG = 4.5; // league-average runs per game per team
 const RUNS_REGRESSION = 0.15; // 15 % regression toward mean
+const STRIKEOUT_RUN_IMPACT = 0.15; // high K% starter → 15% opponent run reduction
 
 /**
  * Predict game odds: total runs (O/U), moneyline, and run line.
@@ -489,6 +534,15 @@ export function predictOdds(
   const homeOffAdj = awayStarterQ / LEAGUE_AVG_ERA; // <1 if away starter is good
   const awayOffAdj = homeStarterQ / LEAGUE_AVG_ERA; // <1 if home starter is good
 
+  // Add K% impact on run scoring (v2.3)
+  // High K% starter = fewer opponent runs
+  const awayStarterKAdj = awayStarter && awayStarter.battersFaced
+    ? 1 - ((awayStarter.strikeOuts / awayStarter.battersFaced - LEAGUE_AVG_K_PCT) / LEAGUE_AVG_K_PCT) * STRIKEOUT_RUN_IMPACT
+    : 1.0;
+  const homeStarterKAdj = homeStarter && homeStarter.battersFaced
+    ? 1 - ((homeStarter.strikeOuts / homeStarter.battersFaced - LEAGUE_AVG_K_PCT) / LEAGUE_AVG_K_PCT) * STRIKEOUT_RUN_IMPACT
+    : 1.0;
+
   // Park factor
   const pf = parkFactor ?? 1.0;
 
@@ -501,8 +555,9 @@ export function predictOdds(
     : 1.0;
 
   // Combine adjustments: starter covers ~60 % of game, bullpen ~40 %
-  const homeRunsRaw = homeRPG * (homeOffAdj * 0.6 + homeBullpenAdj * 0.4) * pf;
-  const awayRunsRaw = awayRPG * (awayOffAdj * 0.6 + awayBullpenAdj * 0.4) * pf;
+  // Apply K% adjustment to run scoring
+  const homeRunsRaw = homeRPG * (homeOffAdj * 0.6 + homeBullpenAdj * 0.4) * pf * awayStarterKAdj;
+  const awayRunsRaw = awayRPG * (awayOffAdj * 0.6 + awayBullpenAdj * 0.4) * pf * homeStarterKAdj;
 
   // Regression toward league mean
   const homeExpected = round1(homeRunsRaw * (1 - RUNS_REGRESSION) + MLB_AVG_RPG * RUNS_REGRESSION);
@@ -539,9 +594,9 @@ export function predictOdds(
     overUnder: {
       expectedTotal,
       lean:
-        expectedTotal > totalLine + 0.25
+        expectedTotal > totalLine + 0.4
           ? "over"
-          : expectedTotal < totalLine - 0.25
+          : expectedTotal < totalLine - 0.4
           ? "under"
           : "push",
     },

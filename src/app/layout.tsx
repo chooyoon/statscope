@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LangProvider } from "@/contexts/LangContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
+import InstallBanner from "@/components/pwa/InstallBanner";
 import CookieConsent from "@/components/ui/CookieConsent";
 
 export const metadata: Metadata = {
@@ -99,6 +100,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors">
         <ServiceWorkerRegister />
+        <InstallBanner />
         <ThemeProvider>
         <LangProvider>
         <AuthProvider>

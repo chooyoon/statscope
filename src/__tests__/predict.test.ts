@@ -35,10 +35,10 @@ function makeInput(
     },
     homeStarter: overrides.homeStarter !== undefined
       ? overrides.homeStarter
-      : { era: 3.5, fip: 3.2, whip: 1.15, inningsPitched: 100, strikeOuts: 120, baseOnBalls: 30 },
+      : { era: 3.5, fip: 3.2, whip: 1.15, inningsPitched: 100, strikeOuts: 120, baseOnBalls: 30, battersFaced: 120 * 4 },
     awayStarter: overrides.awayStarter !== undefined
       ? overrides.awayStarter
-      : { era: 4.2, fip: 4.0, whip: 1.30, inningsPitched: 90, strikeOuts: 95, baseOnBalls: 40 },
+      : { era: 4.2, fip: 4.0, whip: 1.30, inningsPitched: 90, strikeOuts: 95, baseOnBalls: 40, battersFaced: 95 * 4 },
     parkFactor: overrides.parkFactor ?? 1.0,
   };
 }
@@ -98,7 +98,7 @@ describe("predictWinProbability", () => {
     };
     const starter = {
       era: 4.0, fip: 4.0, whip: 1.3,
-      inningsPitched: 80, strikeOuts: 100, baseOnBalls: 40,
+      inningsPitched: 80, strikeOuts: 100, baseOnBalls: 40, battersFaced: 100 * 4,
     };
     const result = predictWinProbability({
       home: neutral, away: neutral,
@@ -113,8 +113,8 @@ describe("predictWinProbability", () => {
       makeInput({
         home: { wins: 90, losses: 10, runsScored: 800, runsAllowed: 300, last10Wins: 10, last10Losses: 0, teamERA: 2.5, teamWOBA: 0.370 },
         away: { wins: 10, losses: 90, runsScored: 250, runsAllowed: 700, last10Wins: 0, last10Losses: 10, teamERA: 6.0, teamWOBA: 0.260 },
-        homeStarter: { era: 1.5, fip: 1.8, whip: 0.8, inningsPitched: 150, strikeOuts: 250, baseOnBalls: 20 },
-        awayStarter: { era: 8.0, fip: 7.5, whip: 2.2, inningsPitched: 60, strikeOuts: 30, baseOnBalls: 80 },
+        homeStarter: { era: 1.5, fip: 1.8, whip: 0.8, inningsPitched: 150, strikeOuts: 250, baseOnBalls: 20, battersFaced: 250 * 4 },
+        awayStarter: { era: 8.0, fip: 7.5, whip: 2.2, inningsPitched: 60, strikeOuts: 30, baseOnBalls: 80, battersFaced: 30 * 4 },
       }),
     );
     expect(result.homeWinPct).toBeLessThanOrEqual(80);
@@ -175,12 +175,12 @@ describe("predictWinProbability", () => {
   it("better starting pitcher tilts probability", () => {
     const ace = predictWinProbability(
       makeInput({
-        homeStarter: { era: 2.0, fip: 2.2, whip: 0.9, inningsPitched: 120, strikeOuts: 180, baseOnBalls: 25 },
+        homeStarter: { era: 2.0, fip: 2.2, whip: 0.9, inningsPitched: 120, strikeOuts: 180, baseOnBalls: 25, battersFaced: 180 * 4 },
       }),
     );
     const fiveStarter = predictWinProbability(
       makeInput({
-        homeStarter: { era: 5.5, fip: 5.2, whip: 1.6, inningsPitched: 80, strikeOuts: 60, baseOnBalls: 50 },
+        homeStarter: { era: 5.5, fip: 5.2, whip: 1.6, inningsPitched: 80, strikeOuts: 60, baseOnBalls: 50, battersFaced: 60 * 4 },
       }),
     );
     expect(ace.homeWinPct).toBeGreaterThan(fiveStarter.homeWinPct);
@@ -339,10 +339,10 @@ describe("predictOdds", () => {
 
   it("better opposing starter reduces expected runs", () => {
     const aceInput = makeInput({
-      awayStarter: { era: 1.8, fip: 2.0, whip: 0.85, inningsPitched: 120, strikeOuts: 200, baseOnBalls: 20 },
+      awayStarter: { era: 1.8, fip: 2.0, whip: 0.85, inningsPitched: 120, strikeOuts: 200, baseOnBalls: 20, battersFaced: 200 * 4 },
     });
     const bummInput = makeInput({
-      awayStarter: { era: 6.5, fip: 6.0, whip: 1.9, inningsPitched: 60, strikeOuts: 30, baseOnBalls: 50 },
+      awayStarter: { era: 6.5, fip: 6.0, whip: 1.9, inningsPitched: 60, strikeOuts: 30, baseOnBalls: 50, battersFaced: 30 * 4 },
     });
     const aceProb = predictWinProbability(aceInput);
     const bummProb = predictWinProbability(bummInput);
