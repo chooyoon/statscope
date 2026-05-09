@@ -13,6 +13,7 @@ import DateRedirect from "./DateRedirect";
 import HomeClient from "./HomeClient";
 import LiveScoreUpdater from "@/components/game/LiveScoreUpdater";
 import { HeroText, NoGamesText, PitcherLabel, UpcomingTitle } from "./HeroClient";
+import TodayPicksSection from "@/components/picks/TodayPicksSection";
 
 export const metadata: Metadata = {
   title: "StatScope - MLB Deep Analytics Platform",
@@ -234,6 +235,9 @@ export default async function HomePage({
             curated by team.
           </p>
         </section>
+
+        {/* Today's Picks & Analysis */}
+        <TodayPicksSection date={dateParam} />
 
         {/* Date Navigator */}
         <div className="mb-8 flex justify-center">

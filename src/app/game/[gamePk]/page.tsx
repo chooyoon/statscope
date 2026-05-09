@@ -31,6 +31,7 @@ import OddsPreview from "@/components/game/OddsPreview";
 import { predictWinProbability, predictOdds, type AdvancedPredictionInput } from "@/lib/sports/mlb/predict";
 import AnalysisNotes from "./AnalysisNotes";
 import AICommentary from "./AICommentary";
+import GameComments from "./GameComments";
 import {
   InteractiveLineupTable,
   InteractivePitchingTable,
@@ -524,11 +525,14 @@ export default async function GameDetailPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 flex gap-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(gameJsonLd) }}
       />
+
+      {/* 좌측: 게임 정보 콘텐츠 */}
+      <div className="flex-1 min-w-0">
       {/* ===== 1. GAME HEADER ===== */}
       <section className="mb-8">
         <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
@@ -1073,6 +1077,12 @@ export default async function GameDetailPage({
           <span>&larr;</span>
           Back to all games
         </Link>
+      </div>
+      </div>
+
+      {/* 우측: 게임 커뮤니티 채팅 사이드바 */}
+      <div className="w-80 flex-shrink-0 sticky top-8 h-fit">
+        <GameComments gamePk={String(gamePk)} />
       </div>
     </div>
   );

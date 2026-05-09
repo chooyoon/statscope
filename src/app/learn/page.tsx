@@ -195,6 +195,16 @@ export default function LearnPage() {
                 8. How to Use Sabermetrics as a Fan
               </a>
             </li>
+            <li>
+              <a href="#game-totals" className="text-blue-600 hover:underline">
+                9. Applying Sabermetrics to Game Totals & Run Expectancy
+              </a>
+            </li>
+            <li>
+              <a href="#glossary" className="text-blue-600 hover:underline">
+                10. Quick Reference Glossary
+              </a>
+            </li>
           </ol>
         </nav>
 
@@ -637,6 +647,194 @@ export default function LearnPage() {
                 future, but the games are played on the field, not on
                 spreadsheets.
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 9: Game Totals & Run Expectancy */}
+        <section id="game-totals" className="mb-12">
+          <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-8">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">
+              9. Applying Sabermetrics to Game Totals & Run Expectancy
+            </h2>
+            <div className="space-y-4 text-sm text-slate-600 dark:text-slate-400 leading-7">
+              <p>
+                While win probability focuses on which team wins, game totals (over/under) and run production require understanding how sabermetrics translate into expected runs. This section bridges the gap between player statistics and scoring forecasts.
+              </p>
+              <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 mt-4">
+                From wOBA to Expected Runs
+              </h3>
+              <p>
+                League-wide wOBA (Weighted On-Base Average) of roughly 0.315 corresponds to approximately 4.3 runs per game per team. A team with a wOBA of 0.330 should project to score roughly 4.5 runs per game; a team at 0.300 might score 4.1. The linear relationship holds reasonably well, though park factors (covered in Section 6) and opponent pitcher quality introduce variance. When analyzing a game's total, start with each team's wOBA and estimate run production, then adjust for the venue.
+              </p>
+              <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 mt-4">
+                Pitcher Dominance Suppresses Run Scoring
+              </h3>
+              <p>
+                A starting pitcher with a low FIP (Fielding Independent Pitching) and high strikeout rate (K/9 ≥ 10) reliably suppresses run production. FIP under 3.00 indicates elite stuff that limits hard contact. When both starters carry strong FIP numbers, the game total tends to decline as batters struggle to generate hard contact and extra-base hits. Conversely, mediocre starters (FIP 4.00+) allow elevated scoring. The gap between starting pitchers often determines whether a total plays over or under.
+              </p>
+              <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 mt-4">
+                Park Factors Multiply Expected Scoring
+              </h3>
+              <p>
+                Coors Field (park factor 1.30) inflates expected runs roughly 30%. A matchup projected for 8.5 combined runs at a neutral park might yield 11 runs at Coors. Conversely, Petco Park (0.94) suppresses run production. Always multiply your estimated total by the venue's park factor. If you estimate 4.3 runs per team (8.6 combined), apply the park factor: 8.6 × 1.30 = 11.2 at Coors, or 8.6 × 0.94 = 8.1 at Petco. This discipline prevents systematic errors.
+              </p>
+              <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 mt-4">
+                Sample Size: April Pitcher Stats Are Noisy
+              </h3>
+              <p>
+                In April, pitching statistics stabilize slowly. A starter posting a 2.50 ERA through two games may revert toward their true talent level as more innings accumulate. FIP stabilizes faster than ERA, but even FIP in small samples carries uncertainty. When evaluating early-season totals, prefer season-long career benchmarks for pitchers over raw April numbers. By May, season-to-date stats become more reliable. Be cautious with April pitching matchups until the sample size grows.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 10: Glossary */}
+        <section id="glossary" className="mb-12">
+          <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-8">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">
+              10. Quick Reference Glossary
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-7 mb-6">
+              A quick alphabetical guide to the sabermetric and baseball terms used throughout this guide and StatScope's analysis.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-600">
+                    <th className="text-left py-2 text-slate-500 font-semibold">Abbreviation</th>
+                    <th className="text-left py-2 text-slate-500 font-semibold">Full Term</th>
+                    <th className="text-left py-2 text-slate-500 font-semibold">Definition</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">AB</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">At-Bats</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Number of plate appearances that count as official at-bats (excludes walks, HBP)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">AVG</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Batting Average</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Hits divided by at-bats; outdated metric that ignores walks</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">BABIP</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Batting Average on Balls in Play</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Hits on balls put in play (excluding HRs); indicates luck in batting average</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">BB</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Walks (Base on Balls)</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Times a batter reaches base without hitting the ball</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">BB%</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Walk Rate</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Walks as a percentage of plate appearances; stabilizes quickly</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">ERA</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Earned Run Average</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Runs allowed per nine innings; affected by defense and luck</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">ERA+</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Adjusted ERA</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">ERA adjusted for league average and park (100 = average)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">FIP</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Fielding Independent Pitching</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">ERA estimate based on K, BB, HBP, HR only; removes defense</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">HR</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Home Runs</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Hits that travel over the outfield fence</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">IP</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Innings Pitched</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Fractional format (e.g., 6.2 = 6⅔ innings); used to calculate rates</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">ISO</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Isolated Power</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Slugging % minus batting average; measures pure power</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">K</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Strikeouts</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Times a batter is struck out by a pitcher</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">K%</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Strikeout Rate</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Strikeouts as % of plate appearances; stabilizes at ~60 PA</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">OBP</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">On-Base Percentage</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">(H + BB + HBP) / (AB + BB + HBP + SF); better than AVG</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">OPS</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">On-Base Plus Slugging</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">OBP + SLG; quick offensive value metric</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">OPS+</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Adjusted OPS</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">OPS adjusted for league and park (100 = average)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">PA</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Plate Appearances</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">All times a batter steps up to the plate (includes walks, HBP)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">RE24</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Run Expectancy Based on 24 Base-Out States</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Context-dependent run impact metric; accounts for game situation</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">SLG</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Slugging Percentage</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Total bases / at-bats; measures power but inflated by singles</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">WAR</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Wins Above Replacement</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Total player value (hitting, defense, baserunning); best single-number metric</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">WHIP</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Walks + Hits per Inning Pitched</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">(BB + H) / IP; measures baserunner efficiency</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">wOBA</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Weighted On-Base Average</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Weights each way of reaching base by run value; the best hitter metric</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">wRC+</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Weighted Runs Created Plus</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">wOBA adjusted for league and park (100 = average)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">WPA</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Win Probability Added</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">Change in win probability from each plate appearance; context-aware</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-blue-600 font-semibold">xFIP</td>
+                    <td className="py-2 text-slate-700 dark:text-slate-300">Expected Fielding Independent Pitching</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">FIP adjusted for expected HR rate; more stable than FIP</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
