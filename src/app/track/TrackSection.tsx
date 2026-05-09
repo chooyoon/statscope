@@ -1,4 +1,7 @@
 import CalibrationChart from "./CalibrationChart";
+import { isKR } from "@/lib/config";
+
+const T = (en: string, ko: string) => isKR ? ko : en;
 
 export interface CalibrationBin {
   binLabel: string;
@@ -113,29 +116,29 @@ export default function TrackSection({
 
       {caveat && (
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-          <strong>Note:</strong> {caveat}
+          <strong>{T("Note:", "주의:")} </strong> {caveat}
         </div>
       )}
 
       {/* Metrics */}
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          label="Record"
+          label={T("Record", "기록")}
           value={
             metrics ? `${metrics.wins}–${metrics.losses}` : "—"
           }
           sub={
             metrics
-              ? `${metrics.wins + metrics.losses} pick${
+              ? `${metrics.wins + metrics.losses} ${T("pick", "픽")}${
                   metrics.wins + metrics.losses === 1 ? "" : "s"
                 }`
-              : "No data yet"
+              : T("No data yet", "데이터 없음")
           }
         />
         <MetricCard
-          label="Win Rate"
+          label={T("Win Rate", "승률")}
           value={metrics ? `${metrics.winRatePct.toFixed(1)}%` : "—"}
-          sub={metrics ? "vs 50% baseline" : undefined}
+          sub={metrics ? T("vs 50% baseline", "vs 50% 기준") : undefined}
           tone={
             !metrics
               ? "neutral"
@@ -147,13 +150,13 @@ export default function TrackSection({
           }
         />
         <MetricCard
-          label="ROI at posted ML"
+          label={T("ROI at posted ML", "게시된 ML의 ROI")}
           value={
             metrics
               ? `${metrics.roiPct >= 0 ? "+" : ""}${metrics.roiPct.toFixed(1)}%`
               : "—"
           }
-          sub="Flat $100 unit"
+          sub={T("Flat $100 unit", "$100 단위")}
           tone={
             !metrics
               ? "neutral"
@@ -163,9 +166,9 @@ export default function TrackSection({
           }
         />
         <MetricCard
-          label="Brier Score"
+          label={T("Brier Score", "Brier 점수")}
           value={metrics ? metrics.brier.toFixed(4) : "—"}
-          sub="Lower = better, 0.25 = random"
+          sub={T("Lower = better, 0.25 = random", "낮을수록 좋음, 0.25 = 무작위")}
           tone={brierTone}
         />
       </div>
@@ -173,14 +176,16 @@ export default function TrackSection({
       {/* Calibration */}
       <div className="mt-8">
         <h3 className="text-sm font-semibold text-slate-700 mb-2">
-          Calibration Curve
+          {T("Calibration Curve", "캘리브레이션 곡선")}
         </h3>
         {hasData ? (
           <CalibrationChart bins={bins} />
         ) : (
           <div className="rounded-xl bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
-            Calibration renders once this section has at least one settled
-            pick.
+            {T(
+              "Calibration renders once this section has at least one settled pick.",
+              "이 섹션에 최소 1개의 결제된 픽이 있으면 캘리브레이션이 렌더링됩니다."
+            )}
           </div>
         )}
       </div>

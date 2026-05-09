@@ -97,20 +97,20 @@ async function fetchPitcher(id: number, name: string, pos: string, season: numbe
 function getInsights(batters: BatterRow[]): string[] {
   const r: string[] = [];
   const hot = batters.filter(b => b.wOBA >= 0.350);
-  if (hot.length >= 2) r.push(`wOBA .350+: ${hot.length} players — elite offense`);
+  if (hot.length >= 2) r.push(isKR ? `wOBA .350+: ${hot.length}명 — 엘리트급 공격력` : `wOBA .350+: ${hot.length} players — elite offense`);
   const power = batters.filter(b => b.hr >= 15);
-  if (power.length >= 1) r.push(`Power: ${power.map(b=>`${b.name} ${b.hr}HR`).join(", ")}`);
+  if (power.length >= 1) r.push(isKR ? `장타력: ${power.map(b=>`${b.name} ${b.hr}홈런`).join(", ")}` : `Power: ${power.map(b=>`${b.name} ${b.hr}HR`).join(", ")}`);
   const kHeavy = batters.filter(b => b.kPct >= 28);
-  if (kHeavy.length >= 2) r.push(`High K% (28%+): ${kHeavy.length} players`);
+  if (kHeavy.length >= 2) r.push(isKR ? `높은 삼진율 (28%+): ${kHeavy.length}명` : `High K% (28%+): ${kHeavy.length} players`);
   return r;
 }
 
 function getPInsights(pitchers: PitcherRow[]): string[] {
   const r: string[] = [];
   const elite = pitchers.filter(p => p.fip <= 3.50);
-  if (elite.length >= 1) r.push(`FIP 3.50 or below: ${elite.map(p=>`${p.name} ${p.fip}`).join(", ")}`);
+  if (elite.length >= 1) r.push(isKR ? `FIP 3.50 이하: ${elite.map(p=>`${p.name} ${p.fip}`).join(", ")}` : `FIP 3.50 or below: ${elite.map(p=>`${p.name} ${p.fip}`).join(", ")}`);
   const kArms = pitchers.filter(p => p.kPct >= 25);
-  if (kArms.length >= 1) r.push(`Strikeout (K% 25%+): ${kArms.map(p=>`${p.name} ${p.kPct}%`).join(", ")}`);
+  if (kArms.length >= 1) r.push(isKR ? `삼진 능력 (K% 25%+): ${kArms.map(p=>`${p.name} ${p.kPct}%`).join(", ")}` : `Strikeout (K% 25%+): ${kArms.map(p=>`${p.name} ${p.kPct}%`).join(", ")}`);
   return r;
 }
 
@@ -166,7 +166,7 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
         <span className="inline-block w-1 h-6 bg-amber-500 rounded-full" />
         {T("Roster Sabermetrics Comparison", "로스터 세이버메트릭 비교")}
       </h2>
-      <p className="text-xs text-slate-400 mb-4 ml-3">{season} season{season < new Date().getFullYear() ? " (Pre-season)" : ""}</p>
+      <p className="text-xs text-slate-400 mb-4 ml-3">{season} {T("season", "시즌")}{season < new Date().getFullYear() ? isKR ? " (프리시즌)" : " (Pre-season)" : ""}</p>
 
       {/* Team Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
