@@ -10,9 +10,13 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
+import { updateCommentLike } from "@/lib/comments";
+import { calculateAnalystBadge } from "@/lib/analyst";
 
 interface Comment {
   id: string;
@@ -21,6 +25,8 @@ interface Comment {
   uid: string | null;
   photoURL: string | null;
   createdAt: Timestamp | null;
+  likes: number;
+  userLikes: string[];
 }
 
 function timeAgo(ts: Timestamp | null): string {
@@ -53,6 +59,10 @@ function getAvatarColor(name: string): string {
   return colors[charCode % colors.length];
 }
 
+interface UserBadgeCache {
+  [uid: string]: any;
+}
+
 export default function GameComments({ gamePk }: { gamePk: string }) {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
@@ -62,6 +72,8 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [liking, setLiking] = useState<Set<string>>(new Set());
+  const [badgeCache, setBadgeCache] = useState<UserBadgeCache>({});
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Load guest name from localStorage and subscribe to comments
@@ -100,6 +112,8 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           uid: doc.data().uid,
           photoURL: doc.data().photoURL,
           createdAt: doc.data().createdAt,
+          likes: doc.data().likes || 0,
+          userLikes: doc.data().userLikes || [],
         })) as Comment[];
         setComments(docs);
         setIsLoading(false);
@@ -160,6 +174,8 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           uid: user?.uid ?? null,
           photoURL: user?.photoURL ?? null,
           createdAt: serverTimestamp(),
+          likes: 0,
+          userLikes: [],
         }
       );
 
@@ -169,6 +185,62 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
       setError("Failed to post comment. Please try again.");
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleLike = async (comment: Comment) => {
+    if (!user) return; // Only logged-in users can like
+    if (liking.has(comment.id)) return; // Prevent double-clicking
+
+    const newLiking = new Set(liking);
+    newLiking.add(comment.id);
+    setLiking(newLiking);
+
+    try {
+      const isCurrentlyLiked = comment.userLikes.includes(user.uid);
+      await updateCommentLike(gamePk, comment.id, user.uid, !isCurrentlyLiked);
+    } catch (err) {
+      console.error("Failed to like comment:", err);
+    } finally {
+      const updated = new Set(liking);
+      updated.delete(comment.id);
+      setLiking(updated);
+    }
+  };
+
+  const loadUserBadge = async (uid: string) => {
+    // Check cache first
+    if (badgeCache[uid] !== undefined) {
+      return badgeCache[uid];
+    }
+
+    try {
+      const db = getFirebaseDb();
+      if (!db) return null;
+
+      // Fetch user's picks
+      const picksQuery = query(
+        collection(db, "userPicks", uid, "picks")
+      );
+      const snapshot = await getDocs(picksQuery);
+      const picks = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        uid,
+        ...doc.data(),
+      })) as any[];
+
+      const badge = calculateAnalystBadge(picks);
+
+      // Cache the badge
+      setBadgeCache((prev) => ({
+        ...prev,
+        [uid]: badge,
+      }));
+
+      return badge;
+    } catch (err) {
+      console.error("Failed to load user badge:", err);
+      return null;
     }
   };
 
@@ -196,47 +268,88 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
             No comments yet. Be the first!
           </p>
         ) : (
-          comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="rounded-md bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors p-2 group"
-            >
-              <div className="flex items-center gap-1.5 min-w-0">
-                {/* Avatar */}
-                {comment.photoURL ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={comment.photoURL}
-                    alt={comment.author}
-                    className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-600"
-                  />
-                ) : (
-                  <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold ring-1 ring-slate-200 dark:ring-slate-600 ${getAvatarColor(
-                      comment.author
-                    )}`}
-                  >
-                    {getInitial(comment.author)}
+          comments.map((comment) => {
+            const isLiked = user && comment.userLikes.includes(user.uid);
+            const isLiking = liking.has(comment.id);
+            const badge = comment.uid ? badgeCache[comment.uid] : null;
+
+            // Load badge if user is logged in and we haven't cached it yet
+            if (comment.uid && badgeCache[comment.uid] === undefined) {
+              loadUserBadge(comment.uid);
+            }
+
+            return (
+              <div
+                key={comment.id}
+                className="rounded-md bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors p-2 group"
+              >
+                <div className="flex items-start gap-1.5 min-w-0">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    {/* Avatar */}
+                    {comment.photoURL ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={comment.photoURL}
+                        alt={comment.author}
+                        className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-600"
+                      />
+                    ) : (
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold ring-1 ring-slate-200 dark:ring-slate-600 ${getAvatarColor(
+                          comment.author
+                        )}`}
+                      >
+                        {getInitial(comment.author)}
+                      </div>
+                    )}
+
+                    {/* Author with optional badge */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-100 flex-shrink-0">
+                        {comment.author}
+                      </span>
+                      {badge && (
+                        <span
+                          className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${badge.bgColor} ${badge.color}`}
+                          title={badge.name}
+                        >
+                          {badge.emoji}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
 
-                {/* Author */}
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-100 flex-shrink-0">
-                  {comment.author}
-                </span>
+                  {/* Comment text */}
+                  <p className="text-xs text-slate-600 dark:text-slate-300 truncate flex-1">
+                    {comment.text}
+                  </p>
 
-                {/* Comment text */}
-                <p className="text-xs text-slate-600 dark:text-slate-300 truncate flex-1">
-                  {comment.text}
-                </p>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Like button */}
+                    {user && (
+                      <button
+                        onClick={() => handleLike(comment)}
+                        disabled={isLiking}
+                        className={`text-xs font-medium px-1.5 py-0.5 rounded transition-all ${
+                          isLiked
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-slate-500 dark:text-slate-400 hover:text-red-500"
+                        } disabled:opacity-50 disabled:cursor-wait`}
+                      >
+                        ❤️ {comment.likes > 0 ? comment.likes : ""}
+                      </button>
+                    )}
 
-                {/* Time */}
-                <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {timeAgo(comment.createdAt)}
-                </span>
+                    {/* Time */}
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                      {timeAgo(comment.createdAt)}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>
