@@ -148,26 +148,34 @@ export default async function HomePage({
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=1920&q=80&auto=format&fit=crop"
-            alt="Baseball stadium aerial view"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/80" />
-        </div>
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:py-24 text-center relative z-10">
-          <HeroText />
-        </div>
-        {/* Bottom wave decoration */}
-        <div className="absolute bottom-0 left-0 right-0 z-10">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
-            <path d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z" fill="#f8fafc" />
-          </svg>
+      {/* Hero Section - FanGraphs 스타일 다크 배너 */}
+      <section className="bg-slate-900 border-b border-slate-700">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+            {/* 왼쪽: 로고 + 부제 */}
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                <span className="text-blue-400">Stat</span><span className="text-white">Scope</span>
+              </h1>
+              <p className="mt-2 text-sm sm:text-base text-slate-400">{T("MLB Deep Analytics Platform", "MLB 데이터 분석 플랫폼")}</p>
+            </div>
+
+            {/* 오른쪽: 핵심 통계 3개 (모바일에서는 아래로) */}
+            <div className="flex gap-6 sm:gap-8 w-full sm:w-auto">
+              <div className="flex-1 sm:flex-none text-center">
+                <p className="text-2xl sm:text-3xl font-extrabold text-white">{sortedGames.length}</p>
+                <p className="mt-1 text-xs sm:text-sm text-slate-400">{T("Today's Games", "오늘 경기 수")}</p>
+              </div>
+              <div className="flex-1 sm:flex-none text-center">
+                <p className="text-2xl sm:text-3xl font-extrabold text-white">{games.some(g => g.status.abstractGameState === "Live") ? "LIVE" : "—"}</p>
+                <p className="mt-1 text-xs sm:text-sm text-slate-400">{T("Status", "상태")}</p>
+              </div>
+              <div className="flex-1 sm:flex-none text-center">
+                <p className="text-2xl sm:text-3xl font-extrabold text-white">{hasLiveGames ? "🔴" : "⚪"}</p>
+                <p className="mt-1 text-xs sm:text-sm text-slate-400">{hasLiveGames ? T("Active", "진행중") : T("Idle", "대기중")}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -178,78 +186,28 @@ export default async function HomePage({
         {/* Live Score Auto-updater */}
         <LiveScoreUpdater hasLiveGames={hasLiveGames} />
 
-        {/* Intro Section — plain-text overview for first-time visitors */}
-        <section className="mb-10 rounded-2xl bg-white px-6 py-8 shadow-sm ring-1 ring-slate-200/60">
-          <h2 className="text-2xl font-bold text-slate-800">
-            {T("Data-Driven MLB Analysis, Made for Fans", "팬을 위한 데이터 기반 MLB 분석")}
-          </h2>
-          <p className="mt-3 text-slate-600 leading-relaxed">
-            {T(
-              `StatScope is a free, independent baseball analytics platform built for Major League Baseball fans, fantasy players, and anyone who wants to understand the game beyond the box score. Every matchup on this page is paired with a transparent win-probability estimate, moneyline and over/under projections, park-adjusted run expectancy, and lineup-level sabermetrics (wOBA, wRC+, FIP, BABIP) drawn directly from the official MLB Stats API.`,
-              `StatScope는 메이저리그 팬, 판타지 선수, 그리고 박스 스코어를 넘어 게임을 이해하고자 하는 누구든지를 위해 구축된 무료의 독립적인 야구 분석 플랫폼입니다. 이 페이지의 모든 경기는 투명한 승리 확률 추정치, 머니라인 및 오버/언더 예측, 공원 조정 득점 기대값, 그리고 공식 MLB Stats API에서 직접 가져온 라인업 수준의 세이버메트릭스(wOBA, wRC+, FIP, BABIP)와 함께 제공됩니다.`
-            )}
-          </p>
-          <p className="mt-3 text-slate-600 leading-relaxed">
-            {T(
-              `Unlike most scoreboards, we show our work. Our win-probability model (v2.2) blends Pythagorean expectation, starter FIP, bullpen ERA, lineup wOBA, recent 30-day form, Log5 matchup logic, a 6.6% home-field adjustment, the park factor of the venue, and a 22% regression term toward league average. The weights were grid-searched against 246 real games (Brier score 0.2336), and every pick we post publicly is logged in our `,
-              `대부분의 스코어보드와 달리 우리는 작업을 보여줍니다. 우리의 승리 확률 모델(v2.2)은 Pythagorean 기대값, 선발 투수 FIP, 불펜 ERA, 라인업 wOBA, 최근 30일 폼, Log5 경기 로직, 6.6% 홈 필드 조정, 경기장의 공원 계수, 그리고 리그 평균으로의 22% 회귀항을 혼합합니다. 가중치는 246개의 실제 경기를 그리드 검색하여 결정되었으며(Brier 점수 0.2336), 우리가 공개적으로 게시한 모든 픽은 우리의 `
-            )}
-            <Link href="/track" className="text-blue-600 hover:underline">
-              {T("Track Record", "예측 성적")}
-            </Link>
-            {T(
-              ` so you can see the live hit rate, ROI, and calibration curve — you can also re-run the backtest yourself from the GitHub repository linked on our `,
-              `에 기록되어 있으므로 실시간 적중률, ROI 및 캘리브레이션 곡선을 볼 수 있습니다 — 우리의 `
-            )}
-            <Link href="/about" className="text-blue-600 hover:underline">
-              {T("About", "정보")}
-            </Link>
-            {T(
-              ` page.`,
-              ` 페이지에 연결된 GitHub 저장소에서 백테스트를 직접 다시 실행할 수도 있습니다.`
-            )}
-          </p>
-          <p className="mt-3 text-slate-600 leading-relaxed">
-            {T(
-              `New to sabermetrics? The `,
-              `세이버메트릭스가 처음이신가요? `
-            )}
-            <Link href="/learn" className="text-blue-600 hover:underline font-medium">
-              {T("Learn", "학습")}
-            </Link>
-            {T(
-              ` section explains every advanced stat we use — what it measures, why it matters, and how to read it in context. For the full methodology, assumptions, and known limitations of our models, head to `,
-              ` 섹션에서는 우리가 사용하는 모든 고급 통계를 설명합니다 — 무엇을 측정하는지, 왜 중요한지, 그리고 맥락에서 읽는 방법. 우리 모델의 전체 방법론, 가정 및 알려진 제한 사항을 보려면 `
-            )}
-            <Link href="/methodology" className="text-blue-600 hover:underline font-medium">
-              {T("Methodology", "방법론")}
-            </Link>
-            {T(
-              `. You can also browse `,
-              `로 이동하세요. `
-            )}
-            <Link href="/standings" className="text-blue-600 hover:underline font-medium">
-              {T("standings", "팀 순위")}
-            </Link>
-            {T(
-              `, jump into a `,
-              `, `
-            )}
-            <Link href="/matchup" className="text-blue-600 hover:underline font-medium">
-              {T("player matchup", "선수 대전")}
-            </Link>
-            {T(
-              `, or catch the latest `,
-              `, 또는 최신 `
-            )}
-            <Link href="/news" className="text-blue-600 hover:underline font-medium">
-              {T("MLB news", "MLB 뉴스")}
-            </Link>
-            {T(
-              ` curated by team.`,
-              `를 팀별로 큐레이션한 것을 봅니다.`
-            )}
-          </p>
+        {/* Intro Section - 간결한 feature grid */}
+        <section className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link href="/track" className="group rounded-xl bg-white px-4 py-5 shadow-sm ring-1 ring-slate-200/60 hover:ring-blue-300 transition-all">
+            <p className="text-2xl mb-2">📊</p>
+            <p className="text-sm font-semibold text-slate-900">{T("Win Probability", "승률 예측")}</p>
+            <p className="mt-1 text-xs text-slate-500">{T("Model predictions", "모델 기반 분석")}</p>
+          </Link>
+          <Link href="/track" className="group rounded-xl bg-white px-4 py-5 shadow-sm ring-1 ring-slate-200/60 hover:ring-blue-300 transition-all">
+            <p className="text-2xl mb-2">🎯</p>
+            <p className="text-sm font-semibold text-slate-900">{T("Daily Picks", "일일 픽")}</p>
+            <p className="mt-1 text-xs text-slate-500">{T("Tracked & logged", "추적 및 기록")}</p>
+          </Link>
+          <Link href="/learn" className="group rounded-xl bg-white px-4 py-5 shadow-sm ring-1 ring-slate-200/60 hover:ring-blue-300 transition-all">
+            <p className="text-2xl mb-2">📈</p>
+            <p className="text-sm font-semibold text-slate-900">{T("Sabermetrics", "고급 통계")}</p>
+            <p className="mt-1 text-xs text-slate-500">{T("Learn advanced stats", "통계 학습")}</p>
+          </Link>
+          <Link href="/news" className="group rounded-xl bg-white px-4 py-5 shadow-sm ring-1 ring-slate-200/60 hover:ring-blue-300 transition-all">
+            <p className="text-2xl mb-2">📰</p>
+            <p className="text-sm font-semibold text-slate-900">{T("MLB News", "MLB 뉴스")}</p>
+            <p className="mt-1 text-xs text-slate-500">{T("Team curated", "팀별 뉴스")}</p>
+          </Link>
         </section>
 
         {/* Today's Picks & Analysis */}

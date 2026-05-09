@@ -202,13 +202,13 @@ export default async function TodayPicksSection({
             return (
               <div
                 key={idx}
-                className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60 p-5 flex flex-col"
+                className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/60 p-4 flex flex-col"
               >
-                {/* Matchup header */}
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
+                {/* 상단: 팀 정보 + 결과 배지 */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
                     <span
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
                       style={{
                         backgroundColor: awayTeam?.colorPrimary || "#6B7280",
                       }}
@@ -216,9 +216,9 @@ export default async function TodayPicksSection({
                     >
                       {awayTeam?.abbreviation || "?"}
                     </span>
-                    <span className="text-slate-500">@</span>
+                    <span className="text-slate-400 text-xs">@</span>
                     <span
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
                       style={{
                         backgroundColor: homeTeam?.colorPrimary || "#6B7280",
                       }}
@@ -226,29 +226,16 @@ export default async function TodayPicksSection({
                     >
                       {homeTeam?.abbreviation || "?"}
                     </span>
+                    <span className="text-xs text-slate-600 font-medium ml-2">
+                      {pick.away.split(" ").pop()} vs {pick.home.split(" ").pop()}
+                    </span>
                   </div>
                   {resultBadge && resultBadge}
                 </div>
 
-                {/* Matchup names */}
-                <p className="text-xs text-slate-500 mb-3 leading-snug">
-                  <span className="font-semibold text-slate-700">
-                    {pick.away}
-                  </span>{" "}
-                  @ <span className="font-semibold text-slate-700">{pick.home}</span>
-                </p>
-
-                {/* Enhanced badge */}
-                <div className="mb-3">
-                  <EnhancedPickBadge
-                    gameId={`${awayTeam?.abbreviation || "?"}@${homeTeam?.abbreviation || "?"}`}
-                    baseProb={pick.prob}
-                  />
-                </div>
-
-                {/* Probability badge */}
-                <div className={`rounded-lg ${probBgColor} p-3 mb-4`}>
-                  <div className={`text-xl font-extrabold ${probTextColor}`}>
+                {/* 확률 + 신뢰도 */}
+                <div className={`rounded-lg ${probBgColor} p-3 mb-3`}>
+                  <div className={`text-3xl font-extrabold ${probTextColor}`}>
                     {pick.prob.toFixed(1)}%
                   </div>
                   <div className="text-xs text-slate-600 mt-1">
@@ -260,20 +247,21 @@ export default async function TodayPicksSection({
                   </div>
                 </div>
 
-                {/* Odds chips */}
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full">
-                    ML: {pick.ml}
-                  </span>
-                  <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full">
-                    O/U: {pick.ou_line}
-                  </span>
+                {/* 배당률 한 줄 */}
+                <div className="flex gap-3 mb-3 text-xs">
+                  <span className="text-slate-600"><strong>ML:</strong> {pick.ml}</span>
+                  <span className="text-slate-600"><strong>O/U:</strong> {pick.ou_line}</span>
                 </div>
 
-                {/* Narrative */}
-                <p className="text-sm text-slate-600 leading-7 mb-4 flex-grow">
-                  {narrative}
-                </p>
+                {/* Narrative - Accordion (기본 접힘) */}
+                <details className="mb-4 flex-grow">
+                  <summary className="cursor-pointer text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    {isKR ? "상세 분석 ▼" : "Analysis ▼"}
+                  </summary>
+                  <p className="text-sm text-slate-600 leading-7 mt-3 pt-3 border-t border-slate-200">
+                    {narrative}
+                  </p>
+                </details>
 
                 {/* View game link + Track button */}
                 <div className="flex items-center justify-between">
