@@ -7,6 +7,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import LangToggle from "./LangToggle";
 import ThemeToggle from "./ThemeToggle";
 import { useLang } from "@/contexts/LangContext";
+import { isKR } from "@/lib/config";
 
 function useNavItems() {
   const { t } = useLang();
@@ -62,7 +63,7 @@ export default function Header() {
         {/* Auth + Lang + Theme */}
         <div className="hidden md:flex items-center gap-2">
           <ThemeToggle />
-          <LangToggle />
+          {!isKR && <LangToggle />}
           <AuthButton />
         </div>
 

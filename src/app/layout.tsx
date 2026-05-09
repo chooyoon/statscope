@@ -7,19 +7,61 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
 import InstallBanner from "@/components/pwa/InstallBanner";
 import CookieConsent from "@/components/ui/CookieConsent";
+import { isKR, SITE_URL } from "@/lib/config";
 
-export const metadata: Metadata = {
-  title: "StatScope - MLB Deep Analytics Platform",
-  description:
-    "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability. Data-driven baseball analytics.",
-  metadataBase: new URL("https://statscope-eta.vercel.app"),
-  openGraph: {
-    type: "website",
-    siteName: "StatScope",
-    title: "StatScope - MLB Deep Analytics Platform",
-    description:
-      "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability.",
-    locale: "en_US",
+const metadata: Metadata = isKR
+  ? {
+      title: "StatScope KR - MLB 심층 분석 플랫폼",
+      description:
+        "MLB 게임 분석, 투수 매치업, 팀 비교, 승리 확률 예측. 통계 기반의 야구 분석 플랫폼.",
+      metadataBase: new URL("https://statscope.kr"),
+      openGraph: {
+        type: "website",
+        siteName: "StatScope KR",
+        title: "StatScope KR - MLB 심층 분석 플랫폼",
+        description:
+          "MLB 게임 분석, 투수 매치업, 팀 비교, 승리 확률 예측.",
+        locale: "ko_KR",
+        images: [
+          {
+            url: "/og-image.png",
+            width: 1200,
+            height: 630,
+            alt: "StatScope KR - MLB 심층 분석 플랫폼",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "StatScope KR - MLB 심층 분석 플랫폼",
+        description:
+          "MLB 게임 분석, 투수 매치업, 승리 확률 예측.",
+        images: ["/og-image.png"],
+      },
+      alternates: {
+        canonical: "https://statscope.kr",
+      },
+      keywords: [
+        "MLB", "메이저리그", "야구", "통계", "승리확률", "게임예측",
+        "투수", "야구분석", "통계야구", "배팅라인", "배팅오즈", "statscope",
+      ],
+      robots: {
+        index: true,
+        follow: true,
+      },
+    }
+  : {
+      title: "StatScope - MLB Deep Analytics Platform",
+      description:
+        "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability. Data-driven baseball analytics.",
+      metadataBase: new URL("https://statscope-eta.vercel.app"),
+      openGraph: {
+        type: "website",
+        siteName: "StatScope",
+        title: "StatScope - MLB Deep Analytics Platform",
+        description:
+          "Free MLB sabermetrics analysis: game previews, pitcher matchups, roster comparison, win probability.",
+        locale: "en_US",
     images: [
       {
         url: "/og-image.png",

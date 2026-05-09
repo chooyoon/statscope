@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { isKR, DEFAULT_LANG } from "@/lib/config";
 
 type Lang = "en" | "ko";
 
@@ -8,14 +9,24 @@ interface LangContextType {
   lang: Lang;
   setLang: (lang: Lang) => void;
   t: (en: string, ko: string) => string;
+  isRegionLocked: boolean;
 }
 
 const LangContext = createContext<LangContextType | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(DEFAULT_LANG);
+  const [isRegionLocked, setIsRegionLocked] = useState(isKR);
 
   useEffect(() => {
+    // KR 버전은 항상 한국어 (언어 변경 불가)
+    if (isKR) {
+      setLangState("ko");
+      setIsRegionLocked(true);
+      return;
+    }
+
+    // US 버전: 저장된 언어 또는 브라우저 감지
     const saved = localStorage.getItem("statscope-lang") as Lang | null;
     if (saved === "en" || saved === "ko") {
       setLangState(saved);
@@ -27,6 +38,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
   }, []);
 
   function setLang(l: Lang) {
+    // KR 버전은 언어 변경 불가
+    if (isRegionLocked) return;
+
     setLangState(l);
     localStorage.setItem("statscope-lang", l);
   }
@@ -36,7 +50,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t }}>
+    <LangContext.Provider value={{ lang, setLang, t, isRegionLocked }}>
       {children}
     </LangContext.Provider>
   );

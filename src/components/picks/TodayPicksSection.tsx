@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getTeamById } from "@/data/teams";
 import EnhancedPickBadge from "./EnhancedPickBadge";
 import PickTrackerButton from "./PickTrackerButton";
+import { isKR } from "@/lib/config";
 
 interface LivePick {
   fav: string;
@@ -99,7 +100,9 @@ export default async function TodayPicksSection({
           <div className="flex items-center gap-3 mb-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
             <h2 className="text-2xl font-bold text-slate-800">
-              {isToday ? "Today's" : "Latest"} Model Analysis
+              {isKR
+                ? (isToday ? "오늘의" : "최신") + " 모델 분석"
+                : (isToday ? "Today's" : "Latest") + " Model Analysis"}
             </h2>
             <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
               v2.2
@@ -114,9 +117,9 @@ export default async function TodayPicksSection({
         {!isToday && (
           <div className="mb-6 rounded-xl bg-amber-50 border border-amber-200 p-4">
             <p className="text-xs text-amber-700">
-              📅 Showing picks from <strong>{dayEntry.date}</strong> — no picks
-              have been posted yet for today. Check back before game time for the
-              latest analysis.
+              {isKR
+                ? `📅 ${dayEntry.date}의 픽을 보여주고 있습니다 — 오늘 포스트된 픽이 아직 없습니다. 경기 시작 전에 최신 분석을 확인하세요.`
+                : `📅 Showing picks from ${dayEntry.date} — no picks have been posted yet for today. Check back before game time for the latest analysis.`}
             </p>
           </div>
         )}
