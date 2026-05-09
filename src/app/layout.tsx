@@ -8,6 +8,7 @@ import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
 import InstallBanner from "@/components/pwa/InstallBanner";
 import CookieConsent from "@/components/ui/CookieConsent";
 import { isKR, SITE_URL } from "@/lib/config";
+import { Analytics } from "@vercel/analytics/react";
 
 const metadata: Metadata = isKR
   ? {
@@ -152,6 +153,7 @@ export default function RootLayout({
         </AuthProvider>
         </LangProvider>
         </ThemeProvider>
+        <Analytics />
         <footer className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-8">
           <div className="mx-auto max-w-7xl px-4 text-center">
             <div className="flex flex-wrap items-center justify-center gap-3 mb-3">
