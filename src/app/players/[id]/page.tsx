@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import {
   fetchPlayerStats,
   fetchPlayerYearByYear,
+  fetchPlayerVsTeam,
+  fetchPlayerGameLog,
+  fetchPlayerStatSplits,
   type MLBPlayer,
   type MLBStatSplit,
 } from "@/lib/sports/mlb/api";
@@ -147,12 +150,19 @@ export default async function PlayerDetailPage({
     // Check if this is primarily a pitcher
     if (player && isPitcher(player.primaryPosition.abbreviation)) {
       playerType = "pitching";
-      const [pitchingData, pitchingYBY] = await Promise.all([
+      const [pitchingData, pitchingYBY, gameLogData, vsTeamData, splitsData] = await Promise.all([
         fetchPlayerStats(playerId, CURRENT_SEASON, "pitching"),
         fetchPlayerYearByYear(playerId, "pitching"),
+        fetchPlayerGameLog(playerId, CURRENT_SEASON, "pitching"),
+        fetchPlayerVsTeam(playerId, CURRENT_SEASON, "pitching"),
+        fetchPlayerStatSplits(playerId, CURRENT_SEASON, "pitching"),
       ]);
       seasonStat = pitchingData.people?.[0]?.stats?.[0]?.splits?.[0]?.stat ?? null;
       yearByYearSplits = pitchingYBY.people?.[0]?.stats?.[0]?.splits ?? [];
+      // Store pitcher-specific data for advanced sections
+      (player as any).pitcherGameLog = gameLogData.people?.[0]?.stats?.[0]?.splits ?? [];
+      (player as any).pitcherVsTeam = vsTeamData.people?.[0]?.stats?.[0]?.splits ?? [];
+      (player as any).pitcherSplits = splitsData.people?.[0]?.stats?.[0]?.splits ?? [];
     } else {
       seasonStat = hittingSeason ?? null;
       yearByYearSplits = hittingYears;
@@ -620,6 +630,189 @@ export default async function PlayerDetailPage({
             />
           </div>
         </section>
+      )}
+
+      {/* Pitcher-specific sections */}
+      {playerType === "pitching" && (
+        <>
+          {/* Last N Starts */}
+          {(player as any).pitcherGameLog && (player as any).pitcherGameLog.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span className="inline-block w-1 h-6 bg-purple-500 rounded-full" />
+                Last Starts
+              </h2>
+              <div className="rounded-xl bg-white border border-slate-200 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700">Date</th>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700">Opp</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">IP</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">H</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">R</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">ER</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">BB</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">K</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">HR</th>
+                      <th className="px-4 py-3 text-right font-semibold text-slate-700">ERA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {((player as any).pitcherGameLog as any[]).slice(0, 5).map((game: any, idx: number) => {
+                      const stat = game.stat || {};
+                      const ipStr = stat.inningsPitched || "0";
+                      const h = getSafeNumber(stat.hits);
+                      const r = getSafeNumber(stat.runs);
+                      const er = getSafeNumber(stat.earnedRuns);
+                      const bb = getSafeNumber(stat.baseOnBalls);
+                      const k = getSafeNumber(stat.strikeOuts);
+                      const hr = getSafeNumber(stat.homeRuns);
+                      const era = h === 0 && er === 0 && parseFloat(ipStr) > 0 ? "0.00" : stat.era || "-";
+                      const date = game.gameDate ? new Date(game.gameDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "-";
+                      const oppTeam = game.team?.teamName || game.team?.name || "-";
+
+                      return (
+                        <tr key={idx} className="border-t border-slate-200 hover:bg-slate-50">
+                          <td className="px-4 py-3 text-slate-700">{date}</td>
+                          <td className="px-4 py-3 text-slate-700 font-medium">{oppTeam}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{ipStr}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{h}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{r}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{er}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{bb}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{k}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{hr}</td>
+                          <td className="px-4 py-3 text-right text-slate-700 font-medium">{era}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* vs Teams */}
+          {(player as any).pitcherVsTeam && (player as any).pitcherVsTeam.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span className="inline-block w-1 h-6 bg-emerald-500 rounded-full" />
+                vs All Teams
+              </h2>
+              <div className="rounded-xl bg-white border border-slate-200 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700">Team</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">G</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">IP</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">ERA</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">K</th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700">BB</th>
+                      <th className="px-4 py-3 text-right font-semibold text-slate-700">WHIP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {((player as any).pitcherVsTeam as any[]).sort((a: any, b: any) => {
+                      const aERA = getSafeNumber(a.stat?.era ?? 999);
+                      const bERA = getSafeNumber(b.stat?.era ?? 999);
+                      return aERA - bERA;
+                    }).map((vsTeam: any, idx: number) => {
+                      const stat = vsTeam.stat || {};
+                      const teamName = vsTeam.team?.teamName || vsTeam.team?.name || "-";
+                      const g = getSafeNumber(stat.gamesPlayed);
+                      const ip = stat.inningsPitched || "0";
+                      const era = getSafeNumber(stat.era);
+                      const k = getSafeNumber(stat.strikeOuts);
+                      const bb = getSafeNumber(stat.baseOnBalls);
+                      const whip = getSafeNumber(stat.whip);
+
+                      return (
+                        <tr key={idx} className="border-t border-slate-200 hover:bg-slate-50">
+                          <td className="px-4 py-3 text-slate-700 font-medium">{teamName}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{g}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{ip}</td>
+                          <td className={`px-4 py-3 text-center font-semibold ${era < 3.0 ? "text-emerald-600" : era > 5.0 ? "text-red-600" : "text-slate-700"}`}>
+                            {era.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-center text-slate-700">{k}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{bb}</td>
+                          <td className="px-4 py-3 text-right text-slate-700">{whip.toFixed(3)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* Splits */}
+          {(player as any).pitcherSplits && (player as any).pitcherSplits.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span className="inline-block w-1 h-6 bg-indigo-500 rounded-full" />
+                Splits
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {(() => {
+                  const splits: Record<string, any> = {};
+                  ((player as any).pitcherSplits as any[]).forEach((split: any) => {
+                    const splitType = split.type?.displayName || "-";
+                    const splitName = split.season || split.stat?.handedness || split.stat?.venueId || "-";
+                    if (!splits[splitType]) splits[splitType] = {};
+                    splits[splitType][splitName] = split;
+                  });
+
+                  return Object.entries(splits).map(([splitType, splitData]: [string, any]) => {
+                    const entries = Object.entries(splitData);
+                    if (entries.length === 0) return null;
+
+                    return (
+                      <div key={splitType} className="rounded-xl bg-white border border-slate-200 p-6">
+                        <h3 className="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wide">{splitType}</h3>
+                        <div className="space-y-4">
+                          {entries.map(([name, split]: [string, any]) => {
+                            const stat = (split as any).stat || {};
+                            const era = getSafeNumber(stat.era);
+                            const whip = getSafeNumber(stat.whip);
+                            const kPct = stat.strikeOutsPer9 ? parseFloat(stat.strikeOutsPer9) : 0;
+                            const ba = stat.avg || "-";
+
+                            return (
+                              <div key={name} className="pb-4 border-b border-slate-200 last:border-b-0">
+                                <p className="text-sm font-medium text-slate-700 mb-2">{name === "L" ? "vs LHB" : name === "R" ? "vs RHB" : name}</p>
+                                <div className="grid grid-cols-4 gap-2 text-xs">
+                                  <div>
+                                    <p className="text-slate-500">ERA</p>
+                                    <p className="font-bold text-slate-900">{era.toFixed(2)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-500">WHIP</p>
+                                    <p className="font-bold text-slate-900">{whip.toFixed(2)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-500">K/9</p>
+                                    <p className="font-bold text-slate-900">{kPct.toFixed(1)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-500">BA</p>
+                                    <p className="font-bold text-slate-900">{ba}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </section>
+          )}
+        </>
       )}
 
     </div>

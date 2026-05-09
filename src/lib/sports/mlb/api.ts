@@ -196,6 +196,38 @@ export async function fetchPlayerVsPlayerTotal(
   );
 }
 
+// --- Player Game Log ---
+
+export async function fetchPlayerGameLog(
+  playerId: number,
+  season: number,
+  group: "hitting" | "pitching"
+): Promise<PlayerResponse> {
+  return mlbFetch<PlayerResponse>(
+    `/people/${playerId}`,
+    {
+      hydrate: `stats(group=[${group}],type=[gameLog],season=${season})`,
+    },
+    { revalidate: 3600 }
+  );
+}
+
+// --- Player Stat Splits ---
+
+export async function fetchPlayerStatSplits(
+  playerId: number,
+  season: number,
+  group: "hitting" | "pitching"
+): Promise<PlayerResponse> {
+  return mlbFetch<PlayerResponse>(
+    `/people/${playerId}`,
+    {
+      hydrate: `stats(group=[${group}],type=[statSplits],season=${season})`,
+    },
+    { revalidate: 3600 }
+  );
+}
+
 // --- Schedule ---
 
 export interface ScheduleResponse {

@@ -154,6 +154,20 @@ async function fetchTeamNews(teamId: number): Promise<NewsArticle[]> {
   }
 }
 
+async function fetchTeamStatSplits(teamId: number, season: number): Promise<any> {
+  try {
+    const res = await fetch(
+      `${MLB_API_BASE}/teams/${teamId}/stats?stats=statSplits&group=hitting,pitching&season=${season}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return { stats: [] };
+    const data = await res.json();
+    return data;
+  } catch {
+    return { stats: [] };
+  }
+}
+
 function decodeXmlEntities(str: string): string {
   return str
     .replace(/&amp;/g, "&")
@@ -272,12 +286,13 @@ export default async function TeamDetailPage({
     teamRecord = fallbackStandings ? findTeamRecord(fallbackStandings, team.id) : null;
   }
 
-  // Fetch roster, schedule, and news in parallel
+  // Fetch roster, schedule, news, and stat splits in parallel
   const rosterYear = new Date().getFullYear(); // Roster always uses current year
-  const [rosterData, recentGames, newsArticles] = await Promise.all([
+  const [rosterData, recentGames, newsArticles, statSplitsData] = await Promise.all([
     fetchRoster(team.id, rosterYear),
     fetchTeamSchedule(team.id, activeSeason),
     fetchTeamNews(team.id),
+    fetchTeamStatSplits(team.id, activeSeason),
   ]);
 
   // Split roster
@@ -762,6 +777,93 @@ export default async function TeamDetailPage({
                 })}
               </tbody>
             </table>
+          </div>
+        </section>
+      )}
+
+      {/* ===== Team Stat Splits ===== */}
+      {statSplitsData?.stats && statSplitsData.stats.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+            <span className="inline-block w-1.5 h-8 bg-indigo-500 rounded-full" />
+            Team Splits
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {(() => {
+              const splitGroups: Record<string, any> = {};
+
+              (statSplitsData.stats || []).forEach((statGroup: any) => {
+                const splits = statGroup.splits || [];
+                splits.forEach((split: any) => {
+                  const displayName = split.type?.displayName || split.season || "-";
+                  if (!splitGroups[displayName]) {
+                    splitGroups[displayName] = [];
+                  }
+                  splitGroups[displayName].push(split);
+                });
+              });
+
+              return Object.entries(splitGroups).map(([groupName, splits]: [string, any]) => {
+                // Filter relevant splits (home/away, day/night)
+                if (!["Home/Away", "Day/Night", "Home", "Away", "Day", "Night"].some(x => groupName.includes(x))) {
+                  return null;
+                }
+
+                const splitEntries = (splits as any[]).slice(0, 2);
+                if (splitEntries.length === 0) return null;
+
+                return (
+                  <div key={groupName} className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
+                    <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
+                      <h3 className="font-bold text-slate-900 text-lg">{groupName}</h3>
+                    </div>
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        {splitEntries.map((split: any, idx: number) => {
+                          const stat = split.stat || {};
+                          const label = split.season || split.type?.displayName || split.homeAway || "-";
+                          const wins = stat.wins ?? stat.gamesWon ?? "-";
+                          const losses = stat.losses ?? stat.gamesLost ?? "-";
+                          const runsScored = stat.runsScored ?? "-";
+                          const runsAllowed = stat.runsAllowed ?? "-";
+                          const era = stat.era ?? "-";
+                          const ops = stat.ops ?? "-";
+
+                          return (
+                            <div key={idx} className="pb-4 border-b border-slate-200 last:border-b-0 last:pb-0">
+                              <p className="text-sm font-semibold text-slate-700 mb-3">{label}</p>
+                              <div className="grid grid-cols-3 gap-3">
+                                <div className="text-center">
+                                  <p className="text-xs text-slate-500 font-medium">Record</p>
+                                  <p className="text-lg font-bold text-slate-900">
+                                    {wins}-{losses}
+                                  </p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-xs text-slate-500 font-medium">RS/RA</p>
+                                  <p className="text-lg font-bold text-slate-900">
+                                    {runsScored}/{runsAllowed}
+                                  </p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-xs text-slate-500 font-medium">
+                                    {era !== "-" ? "ERA" : ops !== "-" ? "OPS" : "---"}
+                                  </p>
+                                  <p className="text-lg font-bold text-slate-900">
+                                    {era !== "-" ? era : ops}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </section>
       )}
