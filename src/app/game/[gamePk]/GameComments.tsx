@@ -58,6 +58,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState("");
   const [guestName, setGuestName] = useState("Guest");
+  const [isNameSet, setIsNameSet] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,6 +75,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
     const saved = localStorage.getItem("statscope_guest_name");
     if (saved) {
       setGuestName(saved);
+      setIsNameSet(true);
     }
 
     const db = getFirebaseDb();
@@ -115,6 +117,17 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
     return unsubscribe;
   }, [gamePk]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget.form;
+      if (form) {
+        const submitEvent = new Event('submit', { bubbles: true });
+        form.dispatchEvent(submitEvent);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim() || text.length > 300) return;
@@ -136,6 +149,7 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
       // Save guest name for next time
       if (!user && guestName.trim()) {
         localStorage.setItem("statscope_guest_name", guestName.trim());
+        setIsNameSet(true);
       }
 
       await addDoc(
@@ -166,13 +180,13 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
   const isOverLimit = charCount > 300;
 
   return (
-    <section className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 shadow-sm h-[600px] flex flex-col">
-      <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2 flex-shrink-0">
-        <span>💬</span> <span className="truncate">Chat ({comments.length})</span>
+    <section className="rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 shadow h-[550px] flex flex-col">
+      <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2 flex-shrink-0 uppercase tracking-wide">
+        <span>💬</span> Chat <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">{comments.length}</span>
       </h2>
 
       {/* Comments list */}
-      <div className="flex-1 overflow-y-auto space-y-3 bg-slate-50 dark:bg-slate-900 rounded-lg p-3 mb-4">
+      <div className="flex-1 overflow-y-auto space-y-1.5 rounded-lg p-2 mb-4">
         {isLoading ? (
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">
             Loading comments...
@@ -185,20 +199,20 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3"
+              className="rounded-md bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors p-2 group"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-1.5 min-w-0">
                 {/* Avatar */}
                 {comment.photoURL ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={comment.photoURL}
                     alt={comment.author}
-                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                    className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-600"
                   />
                 ) : (
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold ${getAvatarColor(
+                    className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold ring-1 ring-slate-200 dark:ring-slate-600 ${getAvatarColor(
                       comment.author
                     )}`}
                   >
@@ -206,20 +220,20 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
                   </div>
                 )}
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                      {comment.author}
-                    </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {timeAgo(comment.createdAt)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 break-words">
-                    {comment.text}
-                  </p>
-                </div>
+                {/* Author */}
+                <span className="text-xs font-medium text-slate-700 dark:text-slate-100 flex-shrink-0">
+                  {comment.author}
+                </span>
+
+                {/* Comment text */}
+                <p className="text-xs text-slate-600 dark:text-slate-300 truncate flex-1">
+                  {comment.text}
+                </p>
+
+                {/* Time */}
+                <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {timeAgo(comment.createdAt)}
+                </span>
               </div>
             </div>
           ))
@@ -229,8 +243,8 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-2 flex-shrink-0">
-        {/* Guest name field (hidden if logged in) */}
-        {!user && (
+        {/* Guest name field */}
+        {!user && !isNameSet && (
           <div>
             <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-0.5">
               Name
@@ -245,17 +259,24 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           </div>
         )}
 
+        {/* Display name (when already set) */}
+        {!user && isNameSet && (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-medium text-slate-700 dark:text-slate-200">{guestName}</span>로 댓글 작성 중
+          </p>
+        )}
+
         {/* Text input + char counter */}
         <div>
-          <div className="flex items-baseline justify-between mb-0.5">
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+          <div className="flex items-baseline justify-between mb-1">
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
               Comment
             </label>
             <span
               className={`text-xs font-medium ${
                 isOverLimit
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-slate-500 dark:text-slate-400"
+                  ? "text-red-500 dark:text-red-400"
+                  : "text-slate-400 dark:text-slate-500"
               }`}
             >
               {charCount}/300
@@ -264,10 +285,11 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value.slice(0, 300))}
-            placeholder="Write..."
+            onKeyDown={handleKeyDown}
+            placeholder="댓글을 작성하세요... (Enter로 전송, Shift+Enter는 줄바꿈)"
             maxLength={300}
             rows={2}
-            className="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-700/50 resize-none transition-colors"
           />
         </div>
 
@@ -282,9 +304,9 @@ export default function GameComments({ gamePk }: { gamePk: string }) {
           disabled={
             !text.trim() || isOverLimit || isSending || isLoading
           }
-          className="w-full px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 text-xs font-semibold rounded-lg transition-all bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed disabled:hover:shadow-none"
         >
-          {isSending ? "..." : "Post"}
+          {isSending ? "전송 중..." : "댓글 작성"}
         </button>
       </form>
     </section>
