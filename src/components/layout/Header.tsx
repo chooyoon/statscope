@@ -4,10 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButton from "@/components/auth/AuthButton";
-import LangToggle from "./LangToggle";
 import ThemeToggle from "./ThemeToggle";
 import { useLang } from "@/contexts/LangContext";
-import { isKR } from "@/lib/config";
 
 function useNavItems() {
   const { t } = useLang();
@@ -60,10 +58,9 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Auth + Lang + Theme */}
+        {/* Auth + Theme */}
         <div className="hidden md:flex items-center gap-2">
           <ThemeToggle />
-          {!isKR && <LangToggle />}
           <AuthButton />
         </div>
 
