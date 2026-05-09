@@ -3,6 +3,9 @@ import { displayName } from "@/data/players";
 import { getTeamById } from "@/data/teams";
 import { getActiveSeason } from "@/lib/sports/mlb/season";
 import Collapsible from "@/components/ui/Collapsible";
+import { isKR } from "@/lib/config";
+
+const T = (en: string, ko: string) => isKR ? ko : en;
 
 function num(val: unknown): number {
   if (typeof val === "number") return val;
@@ -161,7 +164,7 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
     <section className="mb-8">
       <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
         <span className="inline-block w-1 h-6 bg-amber-500 rounded-full" />
-        Roster Sabermetrics Comparison
+        {T("Roster Sabermetrics Comparison", "로스터 세이버메트릭 비교")}
       </h2>
       <p className="text-xs text-slate-400 mb-4 ml-3">{season} season{season < new Date().getFullYear() ? " (Pre-season)" : ""}</p>
 
@@ -179,10 +182,10 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
               <h3 className="text-sm font-bold" style={{ color: t.color }}>{t.name} ({t.side})</h3>
             </div>
             <div className="px-4 py-3 grid grid-cols-4 gap-2 border-b border-slate-100">
-              <Mini label="Avg wOBA" value={avg(t.batters.map(b => b.wOBA))} />
-              <Mini label="Avg OPS" value={avg(t.batters.map(b => parseFloat(b.ops)))} />
-              <Mini label="Pitching FIP" value={avgF(t.pitchers.map(p => p.fip))} />
-              <Mini label="Pitching K%" value={`${avgF(t.pitchers.map(p => p.kPct))}%`} />
+              <Mini label={T("Avg wOBA", "평균 wOBA")} value={avg(t.batters.map(b => b.wOBA))} />
+              <Mini label={T("Avg OPS", "평균 OPS")} value={avg(t.batters.map(b => parseFloat(b.ops)))} />
+              <Mini label={T("Pitching FIP", "투수 FIP")} value={avgF(t.pitchers.map(p => p.fip))} />
+              <Mini label={T("Pitching K%", "투수 K%")} value={`${avgF(t.pitchers.map(p => p.kPct))}%`} />
             </div>
             <div className="px-4 py-3 space-y-1.5">
               {getInsights(t.batters).map((s, i) => (
@@ -196,7 +199,7 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
                 </p>
               ))}
               {getInsights(t.batters).length === 0 && getPInsights(t.pitchers).length === 0 && (
-                <p className="text-xs text-slate-400">Collecting data...</p>
+                <p className="text-xs text-slate-400">{T("Collecting data...", "데이터 수집 중...")}</p>
               )}
             </div>
           </div>
@@ -206,11 +209,11 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
       {/* Batter Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {[{ name: awayName, color: awayColor, batters: ab }, { name: homeName, color: homeColor, batters: hb }].map((t) => (
-          <Collapsible key={t.name} title={`${t.name} Batting (by wOBA) — ${t.batters.length} players`} titleColor={t.color}>
+          <Collapsible key={t.name} title={`${t.name} ${T("Batting (by wOBA)", "타격 (wOBA순)")} — ${t.batters.length} ${T("players", "선수")}`} titleColor={t.color}>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[440px]">
                 <thead><tr className="border-b border-slate-200 text-slate-400">
-                  <th className="px-3 py-2 text-left">Player</th>
+                  <th className="px-3 py-2 text-left">{T("Player", "선수")}</th>
                   <th className="px-2 py-2 text-center">AVG</th>
                   <th className="px-2 py-2 text-center">OPS</th>
                   <th className="px-2 py-2 text-center font-bold text-slate-500">wOBA</th>
@@ -240,17 +243,17 @@ export default async function RosterAnalysis({ homeTeamId, awayTeamId, homeColor
       {/* Pitcher Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {[{ name: awayName, color: awayColor, pitchers: ap }, { name: homeName, color: homeColor, pitchers: hp }].map((t) => (
-          <Collapsible key={t.name} title={`${t.name} Pitching (by FIP) — ${t.pitchers.length} players`} titleColor={t.color}>
+          <Collapsible key={t.name} title={`${t.name} ${T("Pitching (by FIP)", "투구 (FIP순)")} — ${t.pitchers.length} ${T("players", "선수")}`} titleColor={t.color}>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[440px]">
                 <thead><tr className="border-b border-slate-200 text-slate-400">
-                  <th className="px-3 py-2 text-left">Pitcher</th>
+                  <th className="px-3 py-2 text-left">{T("Pitcher", "투수")}</th>
                   <th className="px-2 py-2 text-center">ERA</th>
                   <th className="px-2 py-2 text-center font-bold text-slate-500">FIP</th>
                   <th className="px-2 py-2 text-center">WHIP</th>
                   <th className="px-2 py-2 text-center">K%</th>
                   <th className="px-2 py-2 text-center">BB%</th>
-                  <th className="px-2 py-2 text-center">Record</th>
+                  <th className="px-2 py-2 text-center">{T("Record", "기록")}</th>
                 </tr></thead>
                 <tbody>
                   {t.pitchers.map((p) => (

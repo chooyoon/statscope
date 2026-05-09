@@ -41,6 +41,9 @@ import Collapsible from "@/components/ui/Collapsible";
 import FielderStaffClient from "./FielderStaffClient";
 import RosterAnalysis from "./RosterAnalysis";
 import { getActiveSeason } from "@/lib/sports/mlb/season";
+import { isKR } from "@/lib/config";
+
+const T = (en: string, ko: string) => isKR ? ko : en;
 
 
 function num(val: unknown): number {
@@ -567,7 +570,7 @@ export default async function GameDetailPage({
                   {awayRuns}
                 </span>
               )}
-              <span className="text-xs text-slate-500">Away</span>
+              <span className="text-xs text-slate-500">{T("Away", "원정")}</span>
             </div>
 
             <div className="flex flex-col items-center gap-1">
@@ -592,7 +595,7 @@ export default async function GameDetailPage({
                   {homeRuns}
                 </span>
               )}
-              <span className="text-xs text-slate-500">Home</span>
+              <span className="text-xs text-slate-500">{T("Home", "홈")}</span>
             </div>
           </div>
 
@@ -603,7 +606,7 @@ export default async function GameDetailPage({
                 <thead>
                   <tr className="border-b border-slate-200">
                     <th className="px-3 py-2 text-left text-xs font-semibold text-slate-500 w-24">
-                      Team
+                      {T("Team", "팀")}
                     </th>
                     {linescore.innings.map((inn) => (
                       <th
@@ -724,8 +727,8 @@ export default async function GameDetailPage({
       {/* ===== How to read this game analysis ===== */}
       <section className="mb-8 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-200/60">
         <h2 className="text-lg font-semibold text-slate-800">
-          How to Read This {awayTeam?.name ?? "Away"} vs{" "}
-          {homeTeam?.name ?? "Home"} Analysis
+          {T("How to Read This", "이 분석을 읽는 방법")} {awayTeam?.name ?? "Away"} vs{" "}
+          {homeTeam?.name ?? "Home"} {T("Analysis", "분석")}
         </h2>
         <p className="mt-2 text-sm text-slate-600 leading-relaxed">
           Below this summary you&apos;ll find, in order: a head-to-head team
@@ -762,44 +765,44 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-blue-500 rounded-full" />
-            Team Stats Comparison
+            {T("Team Stats Comparison", "팀 통계 비교")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Batting comparison */}
             <div className="rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                Batting
+                {T("Batting", "타격")}
               </h3>
               <TeamStatRow
-                label="Hits"
+                label={T("Hits", "안타")}
                 away={num(boxscore.teams.away.teamStats?.batting?.hits)}
                 home={num(boxscore.teams.home.teamStats?.batting?.hits)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="Runs"
+                label={T("Runs", "득점")}
                 away={num(boxscore.teams.away.teamStats?.batting?.runs)}
                 home={num(boxscore.teams.home.teamStats?.batting?.runs)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="Home Runs"
+                label={T("Home Runs", "홈런")}
                 away={num(boxscore.teams.away.teamStats?.batting?.homeRuns)}
                 home={num(boxscore.teams.home.teamStats?.batting?.homeRuns)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="Walks"
+                label={T("Walks", "볼넷")}
                 away={num(boxscore.teams.away.teamStats?.batting?.baseOnBalls)}
                 home={num(boxscore.teams.home.teamStats?.batting?.baseOnBalls)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="Strikeouts"
+                label={T("Strikeouts", "삼진")}
                 away={num(boxscore.teams.away.teamStats?.batting?.strikeOuts)}
                 home={num(boxscore.teams.home.teamStats?.batting?.strikeOuts)}
                 awayColor={awayColor}
@@ -811,17 +814,17 @@ export default async function GameDetailPage({
             {/* Pitching comparison */}
             <div className="rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                Pitching
+                {T("Pitching", "투구")}
               </h3>
               <TeamStatRow
-                label="Strikeouts"
+                label={T("Strikeouts", "삼진")}
                 away={num(boxscore.teams.away.teamStats?.pitching?.strikeOuts)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.strikeOuts)}
                 awayColor={awayColor}
                 homeColor={homeColor}
               />
               <TeamStatRow
-                label="Hits Allowed"
+                label={T("Hits Allowed", "피안타")}
                 away={num(boxscore.teams.away.teamStats?.pitching?.hits)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.hits)}
                 awayColor={awayColor}
@@ -829,7 +832,7 @@ export default async function GameDetailPage({
                 lowerIsBetter
               />
               <TeamStatRow
-                label="Walks Allowed"
+                label={T("Walks Allowed", "피볼넷")}
                 away={num(boxscore.teams.away.teamStats?.pitching?.baseOnBalls)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.baseOnBalls)}
                 awayColor={awayColor}
@@ -837,7 +840,7 @@ export default async function GameDetailPage({
                 lowerIsBetter
               />
               <TeamStatRow
-                label="Earned Runs"
+                label={T("Earned Runs", "자책점")}
                 away={num(boxscore.teams.away.teamStats?.pitching?.earnedRuns)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.earnedRuns)}
                 awayColor={awayColor}
@@ -845,7 +848,7 @@ export default async function GameDetailPage({
                 lowerIsBetter
               />
               <TeamStatRow
-                label="HR Allowed"
+                label={T("HR Allowed", "피홈런")}
                 away={num(boxscore.teams.away.teamStats?.pitching?.homeRuns)}
                 home={num(boxscore.teams.home.teamStats?.pitching?.homeRuns)}
                 awayColor={awayColor}
@@ -862,7 +865,7 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-purple-500 rounded-full" />
-            Starting Pitcher Analysis
+            {T("Starting Pitcher Analysis", "선발 투수 분석")}
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Away starter */}
@@ -895,7 +898,7 @@ export default async function GameDetailPage({
           {(awayAdv || homeAdv) && (
             <div className="mt-4 rounded-xl bg-white border border-slate-200 p-5">
               <h3 className="text-sm font-semibold text-slate-400 mb-4">
-                Season Stats Comparison (Starting Pitchers)
+                {T("Season Stats Comparison (Starting Pitchers)", "시즌 통계 비교 (선발 투수)")}
               </h3>
               <div className="space-y-4">
                 <ComparisonBar
@@ -967,10 +970,10 @@ export default async function GameDetailPage({
       <section className="mb-8">
         <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
           <span className="inline-block w-1 h-6 bg-indigo-500 rounded-full" />
-          Roster Composition
+          {T("Roster Composition", "로스터 구성")}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <Collapsible title={`${awayTeam?.name ?? "Away"} Pitching Staff — ${awayRosterPitchers.length}`} titleColor={awayColor}>
+          <Collapsible title={`${awayTeam?.name ?? "Away"} ${T("Pitching Staff", "투수단")} — ${awayRosterPitchers.length}`} titleColor={awayColor}>
             <PitchingStaffClient
               rosterPitchers={awayRosterPitchers}
               teamColor={awayColor}
@@ -979,7 +982,7 @@ export default async function GameDetailPage({
               opposingBatters={homeRosterFieldersFull}
             />
           </Collapsible>
-          <Collapsible title={`${homeTeam?.name ?? "Home"} Pitching Staff — ${homeRosterPitchers.length}`} titleColor={homeColor}>
+          <Collapsible title={`${homeTeam?.name ?? "Home"} ${T("Pitching Staff", "투수단")} — ${homeRosterPitchers.length}`} titleColor={homeColor}>
             <PitchingStaffClient
               rosterPitchers={homeRosterPitchers}
               teamColor={homeColor}
@@ -990,7 +993,7 @@ export default async function GameDetailPage({
           </Collapsible>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Collapsible title={`${awayTeam?.name ?? "Away"} Position Players — ${awayRosterFielders.length}`} titleColor={awayColor}>
+          <Collapsible title={`${awayTeam?.name ?? "Away"} ${T("Position Players", "야수")} — ${awayRosterFielders.length}`} titleColor={awayColor}>
             <FielderStaffClient
               rosterFielders={awayRosterFielders}
               teamColor={awayColor}
@@ -999,7 +1002,7 @@ export default async function GameDetailPage({
               opposingPitchers={homeRosterPitchersFull}
             />
           </Collapsible>
-          <Collapsible title={`${homeTeam?.name ?? "Home"} Position Players — ${homeRosterFielders.length}`} titleColor={homeColor}>
+          <Collapsible title={`${homeTeam?.name ?? "Home"} ${T("Position Players", "야수")} — ${homeRosterFielders.length}`} titleColor={homeColor}>
             <FielderStaffClient
               rosterFielders={homeRosterFielders}
               teamColor={homeColor}
@@ -1016,7 +1019,7 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-green-500 rounded-full" />
-            Batting Lineup
+            {T("Batting Lineup", "타순")}
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <InteractiveLineupTable
@@ -1042,7 +1045,7 @@ export default async function GameDetailPage({
         <section className="mb-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-red-500 rounded-full" />
-            Pitching Results
+            {T("Pitching Results", "투수 기록")}
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <InteractivePitchingTable
@@ -1077,7 +1080,7 @@ export default async function GameDetailPage({
           className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-900 transition-colors"
         >
           <span>&larr;</span>
-          Back to all games
+          {T("Back to all games", "모든 게임으로 돌아가기")}
         </Link>
       </div>
       </div>
@@ -1262,7 +1265,7 @@ function PitcherCard({
             {name}
           </Link>
           <p className="text-xs text-slate-500">
-            {teamName} {side} Starter
+            {teamName} {side} {T("Starter", "선발")}
           </p>
         </div>
       </div>
@@ -1275,30 +1278,30 @@ function PitcherCard({
           <MiniStat label="ER" value={gameER} />
           <MiniStat label="H" value={gameH} />
           <MiniStat label="BB" value={gameBB} />
-          <MiniStat label="Pitches" value={gamePitchCount} />
+          <MiniStat label={T("Pitches", "투구")} value={gamePitchCount} />
         </div>
       )}
 
       {/* Season record summary — always show */}
       {seasonStats && (
         <div className="grid grid-cols-4 gap-2 mb-4 border border-slate-100 rounded-lg p-2">
-          <MiniStat label="W-L" value={`${seasonW}-${seasonL}`} />
-          <MiniStat label="Season IP" value={seasonIP} />
-          <MiniStat label="Season K" value={seasonK} />
+          <MiniStat label={T("W-L", "승-패")} value={`${seasonW}-${seasonL}`} />
+          <MiniStat label={T("Season IP", "시즌 이닝")} value={seasonIP} />
+          <MiniStat label={T("Season K", "시즌 삼진")} value={seasonK} />
           <MiniStat label="ERA" value={advanced?.era.toFixed(2) ?? "-"} />
         </div>
       )}
 
       {!seasonStats && (
         <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 mb-4 text-center">
-          <p className="text-xs text-slate-400">No season data available</p>
+          <p className="text-xs text-slate-400">{T("No season data available", "시즌 데이터 없음")}</p>
         </div>
       )}
 
       {/* Season advanced stats */}
       {advanced && (
         <div className="border-t border-slate-200 pt-3 mt-3">
-          <p className="text-xs text-slate-500 mb-3">Season Record</p>
+          <p className="text-xs text-slate-500 mb-3">{T("Season Record", "시즌 기록")}</p>
           <div className="space-y-2">
             <StatBar
               label="ERA"

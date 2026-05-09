@@ -1,6 +1,9 @@
 import type { BoxscoreResponse, LinescoreResponse } from "@/lib/sports/mlb/api";
 import { getTeamById } from "@/data/teams";
 import { displayName } from "@/data/players";
+import { isKR } from "@/lib/config";
+
+const T = (en: string, ko: string) => isKR ? ko : en;
 
 interface AnalysisNotesProps {
   boxscore: BoxscoreResponse;
@@ -104,14 +107,14 @@ export default function AnalysisNotes({
     if (diff >= 5) {
       insights.push({
         icon: "dominance",
-        title: "Dominant Victory",
+        title: T("Dominant Victory", "압도적 승리"),
         body: `${winner} crushed ${loser} ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)}. A ${diff}-run blowout.`,
         type: "positive",
       });
     } else if (diff === 1) {
       insights.push({
         icon: "close",
-        title: "Close Game",
+        title: T("Close Game", "팽팽한 경기"),
         body: `${winner} edged out a ${Math.max(homeRuns, awayRuns)}-${Math.min(homeRuns, awayRuns)} victory. A nail-biting 1-run game.`,
         type: "neutral",
       });
@@ -167,7 +170,7 @@ export default function AnalysisNotes({
         : "";
     insights.push({
       icon: "bat",
-      title: "Game MVP Batter",
+      title: T("Game MVP Batter", "경기 MVP 타자"),
       body: `${bestBatter.name} (${bestBatter.team}) went ${bestBatter.hits}-for-${bestBatter.ab}${hrNote} with ${bestBatter.rbi} RBI.`,
       type: "positive",
     });
@@ -202,14 +205,14 @@ export default function AnalysisNotes({
       if (ip >= 6 && er <= 2) {
         insights.push({
           icon: "pitcher_good",
-          title: `${teamName} Starter Dominance`,
+          title: `${teamName} ${T("Starter Dominance", "선발 압도")}`,
           body: `${starterName} pitched ${pitching.inningsPitched} IP on ${pitchCount} pitches, ${k} K, ${er} ER — a quality start.`,
           type: "positive",
         });
       } else if (ip < 4 && er >= 4) {
         insights.push({
           icon: "pitcher_bad",
-          title: `${teamName} Starter Early Exit`,
+          title: `${teamName} ${T("Starter Early Exit", "선발 조기 교체")}`,
           body: `${starterName} was pulled after just ${pitching.inningsPitched} IP with ${er} ER, putting pressure on the bullpen.`,
           type: "negative",
         });
@@ -218,14 +221,14 @@ export default function AnalysisNotes({
       if (pitchesPerInning <= 12 && ip >= 5) {
         insights.push({
           icon: "efficiency",
-          title: "Efficient Pitching",
+          title: T("Efficient Pitching", "효율적 투구"),
           body: `${starterName} averaged ${pitchesPerInning.toFixed(1)} pitches per inning — highly efficient.`,
           type: "positive",
         });
       } else if (pitchesPerInning >= 20 && ip >= 3) {
         insights.push({
           icon: "inefficiency",
-          title: "Inefficient Pitching",
+          title: T("Inefficient Pitching", "비효율적 투구"),
           body: `${starterName} averaged ${pitchesPerInning.toFixed(1)} pitches per inning — high workload.`,
           type: "negative",
         });
@@ -242,7 +245,7 @@ export default function AnalysisNotes({
           const teamName = side === "home" ? homeName : awayName;
           insights.push({
             icon: "explosion",
-            title: "Big Inning",
+            title: T("Big Inning", "대량 득점 이닝"),
             body: `${teamName} scored ${runs} runs in the ${side === "home" ? "bottom" : "top"} of the ${inning.num}${inning.num === 1 ? "st" : inning.num === 2 ? "nd" : inning.num === 3 ? "rd" : "th"}, seizing momentum.`,
             type: "positive",
           });
@@ -259,7 +262,7 @@ export default function AnalysisNotes({
       const fewerHits = homeHits > awayHits ? awayName : homeName;
       insights.push({
         icon: "hits",
-        title: "Hit Disparity",
+        title: T("Hit Disparity", "안타 불균형"),
         body: `${moreHits} (${Math.max(homeHits, awayHits)} H) significantly out-hit ${fewerHits} (${Math.min(homeHits, awayHits)} H).`,
         type: "neutral",
       });
@@ -273,7 +276,7 @@ export default function AnalysisNotes({
   if (totalK >= 20) {
     insights.push({
       icon: "strikeout",
-      title: "Strikeout Parade",
+      title: T("Strikeout Parade", "삼진 난발"),
       body: `Both pitching staffs combined for ${totalK} strikeouts — a pitcher's duel. (${awayName} ${awayK}K, ${homeName} ${homeK}K)`,
       type: "neutral",
     });
@@ -286,7 +289,7 @@ export default function AnalysisNotes({
     if (pitcherCount >= 6) {
       insights.push({
         icon: "bullpen",
-        title: `${teamName} Bullpen Overload`,
+        title: `${teamName} ${T("Bullpen Overload", "불펜 과다 사용")}`,
         body: `${teamName} used ${pitcherCount} pitchers. A heavy-workload game for the bullpen.`,
         type: "negative",
       });
@@ -296,7 +299,7 @@ export default function AnalysisNotes({
   if (insights.length === 0) {
     insights.push({
       icon: "game",
-      title: "Game Summary",
+      title: T("Game Summary", "경기 요약"),
       body: `${awayName} ${awayRuns} - ${homeRuns} ${homeName}. A standard game between both teams.`,
       type: "neutral",
     });
@@ -322,7 +325,7 @@ export default function AnalysisNotes({
 
     bullpenInsights.push({
       icon: "bullpen_summary",
-      title: `${teamName} Bullpen Usage`,
+      title: `${teamName} ${T("Bullpen Usage", "불펜 사용")}`,
       body: `${bullpen.length} relievers used, ${ipDisplay} IP total, ${totalRuns} runs allowed.`,
       type: totalRuns === 0 ? "positive" : totalRuns >= 4 ? "negative" : "neutral",
     });
@@ -350,14 +353,14 @@ export default function AnalysisNotes({
     if (better.era !== worse.era) {
       bullpenInsights.push({
         icon: "bullpen_era",
-        title: "Bullpen ERA Comparison",
+        title: T("Bullpen ERA Comparison", "불펜 ERA 비교"),
         body: `${better.teamName} bullpen ERA ${better.era.toFixed(2)} vs ${worse.teamName} bullpen ERA ${worse.era.toFixed(2)}. ${better.teamName} bullpen was more efficient.`,
         type: "neutral",
       });
     } else {
       bullpenInsights.push({
         icon: "bullpen_era",
-        title: "Bullpen ERA Comparison",
+        title: T("Bullpen ERA Comparison", "불펜 ERA 비교"),
         body: `Both teams' bullpen ERA was identical at ${better.era.toFixed(2)}.`,
         type: "neutral",
       });
@@ -366,7 +369,7 @@ export default function AnalysisNotes({
     const bp = bullpenEras[0];
     bullpenInsights.push({
       icon: "bullpen_era",
-      title: `${bp.teamName} Bullpen ERA`,
+      title: `${bp.teamName} ${T("Bullpen ERA", "불펜 ERA")}`,
       body: `${bp.teamName} bullpen ERA: ${bp.era.toFixed(2)} (${bp.ip.toFixed(1)} IP)`,
       type: bp.era <= 3.0 ? "positive" : bp.era >= 6.0 ? "negative" : "neutral",
     });
@@ -386,7 +389,7 @@ export default function AnalysisNotes({
       const best = cleanRelievers[0];
       bullpenInsights.push({
         icon: "bullpen_best",
-        title: "Best Reliever",
+        title: T("Best Reliever", "최고 중원투수"),
         body: `${best.name} (${best.team}) — ${best.ipDisplay} IP, 0 runs, ${best.k} K. The most reliable arm out of the bullpen.`,
         type: "positive",
       });
@@ -400,7 +403,7 @@ export default function AnalysisNotes({
       if (worst.runs >= 2) {
         bullpenInsights.push({
           icon: "bullpen_worst",
-          title: "Struggling Reliever",
+          title: T("Struggling Reliever", "부진 중원투수"),
           body: `${worst.name} (${worst.team}) — ${worst.ipDisplay} IP, ${worst.runs} runs allowed. Gave up the most runs out of the bullpen.`,
           type: "negative",
         });
@@ -428,7 +431,7 @@ export default function AnalysisNotes({
       if (chainParts.length > 0) {
         bullpenInsights.push({
           icon: "bullpen_chain",
-          title: `${winnerName} Bullpen Relay`,
+          title: `${winnerName} ${T("Bullpen Relay", "불펜 릴레이")}`,
           body: chainParts.join(" → "),
           type: "positive",
         });
@@ -448,7 +451,7 @@ export default function AnalysisNotes({
         const isClean = scored === 0;
         bullpenInsights.push({
           icon: "bullpen_leverage",
-          title: "High-Leverage Entry",
+          title: T("High-Leverage Entry", "고위험 상황 등판"),
           body: `${p.name} (${teamName}) entered with ${total} runner${total > 1 ? "s" : ""} on base, allowed ${scored} to score.${isClean ? " Successfully navigated the jam." : ` Let ${scored} inherited runner${scored > 1 ? "s" : ""} come around to score.`}`,
           type: isClean ? "positive" : scored >= 2 ? "negative" : "warning",
         });
@@ -495,7 +498,7 @@ export default function AnalysisNotes({
     <section>
       <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
         <span className="inline-block w-1 h-6 bg-amber-500 rounded-full" />
-        Analysis Notes
+        {T("Analysis Notes", "분석 노트")}
       </h2>
       <div className="space-y-3">
         {insights.map((insight, idx) => (
@@ -527,7 +530,7 @@ export default function AnalysisNotes({
         <>
           <h2 className="text-xl font-bold text-slate-800 mt-8 mb-4 flex items-center gap-2">
             <span className="inline-block w-1 h-6 bg-indigo-500 rounded-full" />
-            Bullpen Analysis
+            {T("Bullpen Analysis", "불펜 분석")}
           </h2>
           <div className="space-y-3">
             {bullpenInsights.map((insight, idx) => (

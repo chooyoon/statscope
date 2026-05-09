@@ -2,6 +2,9 @@ import type { BoxscoreResponse, LinescoreResponse } from "@/lib/sports/mlb/api";
 import { fetchPlayerVsPlayerTotal } from "@/lib/sports/mlb/api";
 import { getTeamById } from "@/data/teams";
 import { displayName } from "@/data/players";
+import { isKR } from "@/lib/config";
+
+const T = (en: string, ko: string) => isKR ? ko : en;
 
 interface StarterInfo {
   id: number;
@@ -303,7 +306,7 @@ async function generatePreGameAnalysis(
       `Advanced metrics: ${awayDisplayName} — FIP ${awayFIP.toFixed(2)}, K% ${awayKPct}%, ${awayIP.toFixed(1)} IP / ${homeDisplayName} — FIP ${homeFIP.toFixed(2)}, K% ${homeKPct}%, ${homeIP.toFixed(1)} IP`
     );
 
-    sections.push({ title: "Today's Starting Matchup", paragraphs });
+    sections.push({ title: T("Today's Starting Matchup", "오늘의 선발 대전"), paragraphs });
   } else if (homeStarter || awayStarter) {
     const paragraphs: string[] = [];
     const knownStarter = homeStarter ?? awayStarter;
@@ -316,7 +319,7 @@ async function generatePreGameAnalysis(
       );
     }
     if (paragraphs.length > 0) {
-      sections.push({ title: "Today's Starting Matchup", paragraphs });
+      sections.push({ title: T("Today's Starting Matchup", "오늘의 선발 대전"), paragraphs });
     }
   }
 
@@ -361,7 +364,7 @@ async function generatePreGameAnalysis(
     }
 
     if (matchupParagraphs.length > 0) {
-      sections.push({ title: "Career H2H Analysis", paragraphs: matchupParagraphs });
+      sections.push({ title: T("Career H2H Analysis", "통산 맞대결 분석"), paragraphs: matchupParagraphs });
     }
   }
 
@@ -455,7 +458,7 @@ async function generatePreGameAnalysis(
     }
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "Team Season Comparison", paragraphs });
+      sections.push({ title: T("Team Season Comparison", "팀 시즌 비교"), paragraphs });
     }
   }
 
@@ -530,7 +533,7 @@ async function generatePreGameAnalysis(
     } catch {}
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "Bullpen Analysis", paragraphs });
+      sections.push({ title: T("Bullpen Analysis", "불펜 분석"), paragraphs });
     }
   }
 
@@ -566,7 +569,7 @@ async function generatePreGameAnalysis(
       `Factors: ${reasons.join(", ")}. Of course, baseball's inherent randomness means actual results may differ.`
     );
 
-    sections.push({ title: "Win Probability", paragraphs });
+    sections.push({ title: T("Win Probability", "승률 예측"), paragraphs });
   }
 
   // 5. Key Points to Watch (data-driven)
@@ -612,7 +615,7 @@ async function generatePreGameAnalysis(
     }
 
     if (paragraphs.length > 0) {
-      sections.push({ title: "Key Tactical Points", paragraphs });
+      sections.push({ title: T("Key Tactical Points", "주요 전술 포인트"), paragraphs });
     }
   }
 
@@ -841,7 +844,7 @@ function generatePostGameAnalysis(
       );
     }
 
-    sections.push({ title: "Game Summary", paragraphs });
+    sections.push({ title: T("Game Summary", "게임 요약"), paragraphs });
   }
 
   // Key Players
@@ -881,7 +884,7 @@ function generatePostGameAnalysis(
 
       if (lines.length > 0) paragraphs.push(lines.join(" "));
     }
-    if (paragraphs.length > 0) sections.push({ title: "Key Players", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: T("Key Players", "주요 선수"), paragraphs });
   }
 
   // Pitching Report (enhanced)
@@ -937,7 +940,7 @@ function generatePostGameAnalysis(
 
       if (lines.length > 0) paragraphs.push(lines.join(" "));
     }
-    if (paragraphs.length > 0) sections.push({ title: "Pitching Report", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: T("Pitching Report", "투수 리포트"), paragraphs });
   }
 
   // Hitting Analysis (enhanced)
@@ -981,7 +984,7 @@ function generatePostGameAnalysis(
         paragraphs.push(`Cleanup cold: ${names.join(", ")}. The silence from the heart of the order proved costly.`);
       }
     }
-    if (paragraphs.length > 0) sections.push({ title: "Hitting Analysis", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: T("Hitting Analysis", "타격 분석"), paragraphs });
   }
 
   // Key Moments
@@ -1019,7 +1022,7 @@ function generatePostGameAnalysis(
         );
       }
     }
-    if (paragraphs.length > 0) sections.push({ title: "Turning Points", paragraphs });
+    if (paragraphs.length > 0) sections.push({ title: T("Turning Points", "주요 장면"), paragraphs });
   }
 
   return sections;
@@ -1052,7 +1055,7 @@ export default async function AICommentary({
 
   if (isFinished) {
     // POST-GAME
-    headerLabel = "Post-Game Analysis";
+    headerLabel = T("Post-Game Analysis", "경기 후 분석");
     headerColor = "border-slate-500";
     sections = generatePostGameAnalysis(boxscore, linescore);
 
@@ -1071,7 +1074,7 @@ export default async function AICommentary({
     }
   } else if (isLive) {
     // LIVE
-    headerLabel = "Live Game";
+    headerLabel = T("Live Game", "경기 중");
     headerColor = "border-green-500";
     sections = generateLiveStatus(boxscore, linescore);
 
@@ -1082,7 +1085,7 @@ export default async function AICommentary({
     headline = `${awayName} ${awayRuns} - ${homeRuns} ${homeName} (${half} ${inning})`;
   } else {
     // PRE-GAME (async - fetches matchup data)
-    headerLabel = "Pre-Game Analysis";
+    headerLabel = T("Pre-Game Analysis", "경기 전 분석");
     headerColor = "border-blue-500";
     sections = await generatePreGameAnalysis(
       boxscore,
@@ -1103,14 +1106,14 @@ export default async function AICommentary({
       <div className={`border-l-4 ${headerColor} bg-slate-50 px-6 py-5`}>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-bold tracking-widest text-blue-600 uppercase">
-            StatScope Analysis
+            {T("StatScope Analysis", "StatScope 분석")}
           </span>
           <span className="text-[10px] text-slate-400">|</span>
           <span className="text-[10px] text-slate-500">{headerLabel}</span>
           {isLive && (
             <span className="ml-2 inline-flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] text-green-600 font-bold">LIVE</span>
+              <span className="text-[10px] text-green-600 font-bold">{T("LIVE", "중계")}</span>
             </span>
           )}
         </div>
@@ -1146,13 +1149,13 @@ export default async function AICommentary({
       <div className="border-t border-slate-200 px-6 py-3 flex items-center justify-between">
         <span className="text-[10px] text-slate-500">
           {isFinished
-            ? "This article was auto-generated from box score data."
+            ? T("This article was auto-generated from box score data.", "이 기사는 박스 스코어 데이터로 자동 생성되었습니다.")
             : isLive
-            ? "Game in progress — data updates in real time."
-            : "This analysis was auto-generated from season stats and career head-to-head data."}
+            ? T("Game in progress — data updates in real time.", "경기 진행 중 — 데이터가 실시간으로 업데이트됩니다.")
+            : T("This analysis was auto-generated from season stats and career head-to-head data.", "이 분석은 시즌 통계와 통산 맞대결 데이터로 자동 생성되었습니다.")}
         </span>
         <span className="text-[10px] text-slate-500 font-mono">
-          StatScope AI Engine
+          {T("StatScope AI Engine", "StatScope AI 엔진")}
         </span>
       </div>
     </article>
