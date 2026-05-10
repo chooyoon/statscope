@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 17,
+    "w": 18,
     "l": 9
   },
   "picks": [
@@ -392,7 +392,7 @@
     },
     {
       "date": "2026-05-09",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Chicago Cubs",
@@ -433,7 +433,8 @@
           "ml": "-160",
           "ou_line": 6.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "13-3"
         }
       ]
     }
