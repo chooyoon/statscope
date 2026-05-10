@@ -437,6 +437,51 @@
           "final_score": "13-3"
         }
       ]
+    },
+    {
+      "date": "2026-05-10",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Philadelphia Phillies",
+          "fav_id": 143,
+          "home_id": 143,
+          "away_id": 115,
+          "home": "Philadelphia Phillies",
+          "away": "Colorado Rockies",
+          "prob": 69.1,
+          "ml": "-223",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Pittsburgh Pirates",
+          "fav_id": 134,
+          "home_id": 137,
+          "away_id": 134,
+          "home": "San Francisco Giants",
+          "away": "Pittsburgh Pirates",
+          "prob": 65.1,
+          "ml": "-186",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Toronto Blue Jays",
+          "fav_id": 141,
+          "home_id": 141,
+          "away_id": 108,
+          "home": "Toronto Blue Jays",
+          "away": "Los Angeles Angels",
+          "prob": 61.6,
+          "ml": "-160",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
