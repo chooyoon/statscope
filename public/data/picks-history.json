@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 18,
-    "l": 9
+    "w": 19,
+    "l": 11
   },
   "picks": [
     {
@@ -440,7 +440,7 @@
     },
     {
       "date": "2026-05-10",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Philadelphia Phillies",
@@ -453,7 +453,8 @@
           "ml": "-223",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "0-6"
         },
         {
           "fav": "Pittsburgh Pirates",
@@ -466,7 +467,8 @@
           "ml": "-186",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "6-7"
         },
         {
           "fav": "Toronto Blue Jays",
@@ -479,7 +481,8 @@
           "ml": "-160",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "6-1"
         }
       ]
     }
