@@ -485,6 +485,51 @@
           "final_score": "6-1"
         }
       ]
+    },
+    {
+      "date": "2026-05-16",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 111,
+          "home": "Atlanta Braves",
+          "away": "Boston Red Sox",
+          "prob": 72.5,
+          "ml": "-263",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 146,
+          "home": "Tampa Bay Rays",
+          "away": "Miami Marlins",
+          "prob": 70.9,
+          "ml": "-244",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Cleveland Guardians",
+          "fav_id": 114,
+          "home_id": 114,
+          "away_id": 113,
+          "home": "Cleveland Guardians",
+          "away": "Cincinnati Reds",
+          "prob": 64.6,
+          "ml": "-182",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
