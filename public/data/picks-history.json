@@ -533,6 +533,51 @@
           "final_score": "4-7"
         }
       ]
+    },
+    {
+      "date": "2026-05-17",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 111,
+          "home": "Atlanta Braves",
+          "away": "Boston Red Sox",
+          "prob": 71.8,
+          "ml": "-255",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Cleveland Guardians",
+          "fav_id": 114,
+          "home_id": 114,
+          "away_id": 113,
+          "home": "Cleveland Guardians",
+          "away": "Cincinnati Reds",
+          "prob": 71.3,
+          "ml": "-248",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Washington Nationals",
+          "fav_id": 120,
+          "home_id": 120,
+          "away_id": 110,
+          "home": "Washington Nationals",
+          "away": "Baltimore Orioles",
+          "prob": 67.7,
+          "ml": "-210",
+          "ou_line": 11.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
