@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 20,
-    "l": 13
+    "w": 22,
+    "l": 14
   },
   "picks": [
     {
@@ -536,7 +536,7 @@
     },
     {
       "date": "2026-05-17",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -549,7 +549,8 @@
           "ml": "-255",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-8"
         },
         {
           "fav": "Cleveland Guardians",
@@ -562,7 +563,8 @@
           "ml": "-248",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-10"
         },
         {
           "fav": "Washington Nationals",
@@ -575,7 +577,8 @@
           "ml": "-210",
           "ou_line": 11.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "7-3"
         }
       ]
     }
