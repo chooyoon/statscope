@@ -628,6 +628,51 @@
           "result": "no_result"
         }
       ]
+    },
+    {
+      "date": "2026-05-19",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 110,
+          "home": "Tampa Bay Rays",
+          "away": "Baltimore Orioles",
+          "prob": 70.3,
+          "ml": "-237",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Minnesota Twins",
+          "fav_id": 142,
+          "home_id": 142,
+          "away_id": 117,
+          "home": "Minnesota Twins",
+          "away": "Houston Astros",
+          "prob": 70.2,
+          "ml": "-236",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Philadelphia Phillies",
+          "fav_id": 143,
+          "home_id": 143,
+          "away_id": 113,
+          "home": "Philadelphia Phillies",
+          "away": "Cincinnati Reds",
+          "prob": 68.0,
+          "ml": "-213",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
