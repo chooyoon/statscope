@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 24,
-    "l": 14
+    "w": 26,
+    "l": 16
   },
   "picks": [
     {
@@ -584,7 +584,7 @@
     },
     {
       "date": "2026-05-18",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Tampa Bay Rays",
@@ -625,13 +625,14 @@
           "ml": "-178",
           "ou_line": 11.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "3-6"
         }
       ]
     },
     {
       "date": "2026-05-19",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Tampa Bay Rays",
@@ -644,7 +645,8 @@
           "ml": "-237",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-4"
         },
         {
           "fav": "Minnesota Twins",
@@ -657,7 +659,8 @@
           "ml": "-236",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "2-1"
         },
         {
           "fav": "Philadelphia Phillies",
@@ -670,7 +673,8 @@
           "ml": "-213",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "4-1"
         }
       ]
     }
