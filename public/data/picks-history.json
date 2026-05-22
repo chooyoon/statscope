@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 29,
+    "w": 30,
     "l": 18
   },
   "picks": [
@@ -728,7 +728,7 @@
     },
     {
       "date": "2026-05-21",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Arizona Diamondbacks",
@@ -741,7 +741,8 @@
           "ml": "-238",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "1-2"
         },
         {
           "fav": "New York Yankees",
