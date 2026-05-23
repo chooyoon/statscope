@@ -773,6 +773,51 @@
           "final_score": "9-3"
         }
       ]
+    },
+    {
+      "date": "2026-05-23",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 120,
+          "home": "Atlanta Braves",
+          "away": "Washington Nationals",
+          "prob": 72.2,
+          "ml": "-260",
+          "ou_line": 11.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Arizona Diamondbacks",
+          "fav_id": 109,
+          "home_id": 109,
+          "away_id": 115,
+          "home": "Arizona Diamondbacks",
+          "away": "Colorado Rockies",
+          "prob": 67.0,
+          "ml": "-203",
+          "ou_line": 10.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago White Sox",
+          "fav_id": 145,
+          "home_id": 137,
+          "away_id": 145,
+          "home": "San Francisco Giants",
+          "away": "Chicago White Sox",
+          "prob": 65.2,
+          "ml": "-187",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
