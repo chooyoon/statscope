@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 30,
-    "l": 18
+    "l": 20
   },
   "picks": [
     {
@@ -789,7 +789,8 @@
           "ml": "-260",
           "ou_line": 11.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "2-0"
         },
         {
           "fav": "Arizona Diamondbacks",
@@ -802,7 +803,7 @@
           "ml": "-203",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Chicago White Sox",
@@ -815,7 +816,8 @@
           "ml": "-187",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "3-10"
         }
       ]
     }
