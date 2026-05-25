@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 31,
-    "l": 20
+    "w": 32,
+    "l": 22
   },
   "picks": [
     {
@@ -824,7 +824,7 @@
     },
     {
       "date": "2026-05-24",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -837,7 +837,8 @@
           "ml": "-256",
           "ou_line": 11.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "2-1"
         },
         {
           "fav": "Arizona Diamondbacks",
@@ -850,7 +851,8 @@
           "ml": "-233",
           "ou_line": 11.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-9"
         },
         {
           "fav": "San Diego Padres",
@@ -863,7 +865,8 @@
           "ml": "-185",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "5-2"
         }
       ]
     }
