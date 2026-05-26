@@ -869,6 +869,51 @@
           "final_score": "5-2"
         }
       ]
+    },
+    {
+      "date": "2026-05-26",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 115,
+          "home": "Los Angeles Dodgers",
+          "away": "Colorado Rockies",
+          "prob": 80.0,
+          "ml": "-400",
+          "ou_line": 11.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 138,
+          "home": "Milwaukee Brewers",
+          "away": "St. Louis Cardinals",
+          "prob": 72.1,
+          "ml": "-259",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 118,
+          "away_id": 147,
+          "home": "Kansas City Royals",
+          "away": "New York Yankees",
+          "prob": 65.9,
+          "ml": "-193",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
