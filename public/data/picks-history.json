@@ -964,6 +964,51 @@
           "final_score": "1-2"
         }
       ]
+    },
+    {
+      "date": "2026-05-28",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Pittsburgh Pirates",
+          "fav_id": 134,
+          "home_id": 134,
+          "away_id": 112,
+          "home": "Pittsburgh Pirates",
+          "away": "Chicago Cubs",
+          "prob": 69.9,
+          "ml": "-233",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 111,
+          "away_id": 144,
+          "home": "Boston Red Sox",
+          "away": "Atlanta Braves",
+          "prob": 58.8,
+          "ml": "-143",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago White Sox",
+          "fav_id": 145,
+          "home_id": 145,
+          "away_id": 142,
+          "home": "Chicago White Sox",
+          "away": "Minnesota Twins",
+          "prob": 55.5,
+          "ml": "-125",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
