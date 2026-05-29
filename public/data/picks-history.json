@@ -1013,6 +1013,51 @@
           "final_score": "2-6"
         }
       ]
+    },
+    {
+      "date": "2026-05-29",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 143,
+          "home": "Los Angeles Dodgers",
+          "away": "Philadelphia Phillies",
+          "prob": 72.6,
+          "ml": "-265",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Cleveland Guardians",
+          "fav_id": 114,
+          "home_id": 114,
+          "away_id": 111,
+          "home": "Cleveland Guardians",
+          "away": "Boston Red Sox",
+          "prob": 63.4,
+          "ml": "-173",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 133,
+          "away_id": 147,
+          "home": "Athletics",
+          "away": "New York Yankees",
+          "prob": 62.6,
+          "ml": "-167",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
