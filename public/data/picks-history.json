@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 39,
+    "w": 40,
     "l": 24
   },
   "picks": [
@@ -1029,7 +1029,7 @@
           "ml": "-265",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Cleveland Guardians",
@@ -1042,7 +1042,8 @@
           "ml": "-173",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-4"
         },
         {
           "fav": "New York Yankees",
@@ -1055,7 +1056,7 @@
           "ml": "-167",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
