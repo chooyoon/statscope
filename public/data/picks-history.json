@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 40,
+    "w": 42,
     "l": 24
   },
   "picks": [
@@ -1016,7 +1016,7 @@
     },
     {
       "date": "2026-05-29",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Los Angeles Dodgers",
@@ -1029,7 +1029,8 @@
           "ml": "-265",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "2-4"
         },
         {
           "fav": "Cleveland Guardians",
@@ -1056,7 +1057,8 @@
           "ml": "-167",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "8-2"
         }
       ]
     }
