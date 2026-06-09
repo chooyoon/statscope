@@ -1125,7 +1125,7 @@
           "ml": "-229",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "San Diego Padres",
@@ -1138,7 +1138,7 @@
           "ml": "-158",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "San Francisco Giants",
@@ -1151,7 +1151,7 @@
           "ml": "-151",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
