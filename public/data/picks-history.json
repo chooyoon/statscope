@@ -1205,6 +1205,51 @@
           "final_score": "6-4"
         }
       ]
+    },
+    {
+      "date": "2026-06-11",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Miami Marlins",
+          "fav_id": 146,
+          "home_id": 146,
+          "away_id": 109,
+          "home": "Miami Marlins",
+          "away": "Arizona Diamondbacks",
+          "prob": 72.0,
+          "ml": "-257",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Detroit Tigers",
+          "fav_id": 116,
+          "home_id": 116,
+          "away_id": 142,
+          "home": "Detroit Tigers",
+          "away": "Minnesota Twins",
+          "prob": 60.8,
+          "ml": "-155",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 134,
+          "away_id": 119,
+          "home": "Pittsburgh Pirates",
+          "away": "Los Angeles Dodgers",
+          "prob": 58.7,
+          "ml": "-142",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
