@@ -1253,6 +1253,51 @@
           "final_score": "8-6"
         }
       ]
+    },
+    {
+      "date": "2026-06-12",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 143,
+          "home": "Milwaukee Brewers",
+          "away": "Philadelphia Phillies",
+          "prob": 71.9,
+          "ml": "-256",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Athletics",
+          "fav_id": 133,
+          "home_id": 133,
+          "away_id": 115,
+          "home": "Athletics",
+          "away": "Colorado Rockies",
+          "prob": 63.1,
+          "ml": "-171",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Baltimore Orioles",
+          "fav_id": 110,
+          "home_id": 110,
+          "away_id": 135,
+          "home": "Baltimore Orioles",
+          "away": "San Diego Padres",
+          "prob": 61.8,
+          "ml": "-162",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
