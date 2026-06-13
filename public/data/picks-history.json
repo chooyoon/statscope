@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 50,
+    "w": 52,
     "l": 28
   },
   "picks": [
@@ -1269,7 +1269,8 @@
           "ml": "-256",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "0-6"
         },
         {
           "fav": "Athletics",
@@ -1282,7 +1283,7 @@
           "ml": "-171",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Baltimore Orioles",
@@ -1295,7 +1296,8 @@
           "ml": "-162",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-7"
         }
       ]
     }
