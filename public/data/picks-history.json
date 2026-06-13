@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 52,
+    "w": 53,
     "l": 28
   },
   "picks": [
@@ -1256,7 +1256,7 @@
     },
     {
       "date": "2026-06-12",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Milwaukee Brewers",
@@ -1283,7 +1283,8 @@
           "ml": "-171",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "4-6"
         },
         {
           "fav": "Baltimore Orioles",
