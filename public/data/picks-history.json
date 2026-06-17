@@ -1301,6 +1301,51 @@
           "final_score": "3-7"
         }
       ]
+    },
+    {
+      "date": "2026-06-17",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 147,
+          "away_id": 145,
+          "home": "New York Yankees",
+          "away": "Chicago White Sox",
+          "prob": 73.6,
+          "ml": "-278",
+          "ou_line": 11.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 139,
+          "home": "Los Angeles Dodgers",
+          "away": "Tampa Bay Rays",
+          "prob": 70.8,
+          "ml": "-242",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 114,
+          "home": "Milwaukee Brewers",
+          "away": "Cleveland Guardians",
+          "prob": 68.8,
+          "ml": "-220",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
