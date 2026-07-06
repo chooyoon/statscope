@@ -1445,6 +1445,51 @@
           "final_score": "2-3"
         }
       ]
+    },
+    {
+      "date": "2026-07-06",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 115,
+          "home": "Los Angeles Dodgers",
+          "away": "Colorado Rockies",
+          "prob": 70.8,
+          "ml": "-243",
+          "ou_line": 12.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 121,
+          "home": "Atlanta Braves",
+          "away": "New York Mets",
+          "prob": 68.1,
+          "ml": "-214",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Philadelphia Phillies",
+          "fav_id": 143,
+          "home_id": 118,
+          "away_id": 143,
+          "home": "Kansas City Royals",
+          "away": "Philadelphia Phillies",
+          "prob": 63.5,
+          "ml": "-174",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
