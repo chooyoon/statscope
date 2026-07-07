@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 59,
-    "l": 31
+    "l": 33
   },
   "picks": [
     {
@@ -1461,7 +1461,7 @@
           "ml": "-243",
           "ou_line": 12.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Atlanta Braves",
@@ -1474,7 +1474,8 @@
           "ml": "-214",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "7-6"
         },
         {
           "fav": "Philadelphia Phillies",
@@ -1487,7 +1488,8 @@
           "ml": "-174",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "1-15"
         }
       ]
     }
