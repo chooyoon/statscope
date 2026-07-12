@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 62,
-    "l": 33
+    "l": 34
   },
   "picks": [
     {
@@ -1496,7 +1496,7 @@
     },
     {
       "date": "2026-07-11",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Los Angeles Dodgers",
@@ -1509,7 +1509,8 @@
           "ml": "-271",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "9-2"
         },
         {
           "fav": "Minnesota Twins",
