@@ -1541,6 +1541,51 @@
           "final_score": "0-1"
         }
       ]
+    },
+    {
+      "date": "2026-07-12",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Minnesota Twins",
+          "fav_id": 142,
+          "home_id": 142,
+          "away_id": 108,
+          "home": "Minnesota Twins",
+          "away": "Los Angeles Angels",
+          "prob": 67.2,
+          "ml": "-205",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Baltimore Orioles",
+          "fav_id": 110,
+          "home_id": 110,
+          "away_id": 118,
+          "home": "Baltimore Orioles",
+          "away": "Kansas City Royals",
+          "prob": 67.0,
+          "ml": "-203",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago White Sox",
+          "fav_id": 145,
+          "home_id": 145,
+          "away_id": 133,
+          "home": "Chicago White Sox",
+          "away": "Athletics",
+          "prob": 66.5,
+          "ml": "-199",
+          "ou_line": 11.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
