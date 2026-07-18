@@ -1589,6 +1589,51 @@
           "final_score": "1-9"
         }
       ]
+    },
+    {
+      "date": "2026-07-18",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Boston Red Sox",
+          "fav_id": 111,
+          "home_id": 111,
+          "away_id": 139,
+          "home": "Boston Red Sox",
+          "away": "Tampa Bay Rays",
+          "prob": 71.1,
+          "ml": "-246",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Detroit Tigers",
+          "fav_id": 116,
+          "home_id": 108,
+          "away_id": 116,
+          "home": "Los Angeles Angels",
+          "away": "Detroit Tigers",
+          "prob": 64.5,
+          "ml": "-182",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 140,
+          "home": "Atlanta Braves",
+          "away": "Texas Rangers",
+          "prob": 62.7,
+          "ml": "-168",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
