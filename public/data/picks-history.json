@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 66,
+    "w": 67,
     "l": 35
   },
   "picks": [
@@ -1592,7 +1592,7 @@
     },
     {
       "date": "2026-07-18",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Boston Red Sox",
@@ -1619,7 +1619,8 @@
           "ml": "-182",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "7-0"
         },
         {
           "fav": "Atlanta Braves",
