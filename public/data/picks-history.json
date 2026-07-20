@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 67,
-    "l": 35
+    "w": 69,
+    "l": 36
   },
   "picks": [
     {
@@ -1640,7 +1640,7 @@
     },
     {
       "date": "2026-07-19",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Detroit Tigers",
@@ -1653,7 +1653,8 @@
           "ml": "-230",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "2-3"
         },
         {
           "fav": "Boston Red Sox",
@@ -1666,7 +1667,8 @@
           "ml": "-226",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-6"
         },
         {
           "fav": "Washington Nationals",
@@ -1679,7 +1681,8 @@
           "ml": "-162",
           "ou_line": 12.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "5-2"
         }
       ]
     }
