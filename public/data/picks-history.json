@@ -1781,6 +1781,51 @@
           "final_score": "8-11"
         }
       ]
+    },
+    {
+      "date": "2026-08-01",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 120,
+          "home": "Atlanta Braves",
+          "away": "Washington Nationals",
+          "prob": 69.7,
+          "ml": "-230",
+          "ou_line": 11.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "San Diego Padres",
+          "fav_id": 135,
+          "home_id": 135,
+          "away_id": 137,
+          "home": "San Diego Padres",
+          "away": "San Francisco Giants",
+          "prob": 61.7,
+          "ml": "-161",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Detroit Tigers",
+          "fav_id": 116,
+          "home_id": 133,
+          "away_id": 116,
+          "home": "Athletics",
+          "away": "Detroit Tigers",
+          "prob": 61.2,
+          "ml": "-158",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
