@@ -1829,6 +1829,51 @@
           "final_score": "8-6"
         }
       ]
+    },
+    {
+      "date": "2026-08-02",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 108,
+          "away_id": 158,
+          "home": "Los Angeles Angels",
+          "away": "Milwaukee Brewers",
+          "prob": 68.3,
+          "ml": "-216",
+          "ou_line": 8.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Houston Astros",
+          "fav_id": 117,
+          "home_id": 117,
+          "away_id": 140,
+          "home": "Houston Astros",
+          "away": "Texas Rangers",
+          "prob": 67.4,
+          "ml": "-207",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Detroit Tigers",
+          "fav_id": 116,
+          "home_id": 133,
+          "away_id": 116,
+          "home": "Athletics",
+          "away": "Detroit Tigers",
+          "prob": 62.9,
+          "ml": "-170",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
