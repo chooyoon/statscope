@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 74,
+    "w": 76,
     "l": 38
   },
   "picks": [
@@ -1784,7 +1784,7 @@
     },
     {
       "date": "2026-08-01",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -1811,7 +1811,8 @@
           "ml": "-161",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "5-6"
         },
         {
           "fav": "Detroit Tigers",
@@ -1824,7 +1825,8 @@
           "ml": "-158",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "8-6"
         }
       ]
     }
