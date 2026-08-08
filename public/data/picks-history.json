@@ -1925,6 +1925,51 @@
           "final_score": "2-3"
         }
       ]
+    },
+    {
+      "date": "2026-08-08",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Boston Red Sox",
+          "fav_id": 111,
+          "home_id": 111,
+          "away_id": 133,
+          "home": "Boston Red Sox",
+          "away": "Athletics",
+          "prob": 80.0,
+          "ml": "-400",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago Cubs",
+          "fav_id": 112,
+          "home_id": 118,
+          "away_id": 112,
+          "home": "Kansas City Royals",
+          "away": "Chicago Cubs",
+          "prob": 65.7,
+          "ml": "-191",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 142,
+          "home": "Milwaukee Brewers",
+          "away": "Minnesota Twins",
+          "prob": 64.3,
+          "ml": "-180",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
