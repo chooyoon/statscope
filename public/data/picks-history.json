@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 80,
+    "w": 81,
     "l": 42
   },
   "picks": [
@@ -1928,7 +1928,7 @@
     },
     {
       "date": "2026-08-08",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Boston Red Sox",
@@ -1969,7 +1969,8 @@
           "ml": "-180",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "3-4"
         }
       ]
     }
