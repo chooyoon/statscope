@@ -2037,7 +2037,7 @@
           "ml": "-215",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Los Angeles Dodgers",
@@ -2050,7 +2050,7 @@
           "ml": "-212",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Boston Red Sox",
@@ -2063,7 +2063,7 @@
           "ml": "-188",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
