@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 85,
+    "w": 86,
     "l": 44
   },
   "picks": [
@@ -2085,7 +2085,8 @@
           "ml": "-259",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "4-6"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2098,7 +2099,7 @@
           "ml": "-226",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Arizona Diamondbacks",
@@ -2111,7 +2112,7 @@
           "ml": "-200",
           "ou_line": 12.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
