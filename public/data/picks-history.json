@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 87,
-    "l": 45
+    "w": 88,
+    "l": 46
   },
   "picks": [
     {
@@ -2133,7 +2133,8 @@
           "ml": "-295",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "6-4"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2146,7 +2147,8 @@
           "ml": "-262",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "8-4"
         },
         {
           "fav": "New York Yankees",
@@ -2159,7 +2161,7 @@
           "ml": "-209",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
