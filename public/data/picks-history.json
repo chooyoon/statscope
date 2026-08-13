@@ -2165,6 +2165,51 @@
           "final_score": "5-10"
         }
       ]
+    },
+    {
+      "date": "2026-08-13",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 147,
+          "away_id": 136,
+          "home": "New York Yankees",
+          "away": "Seattle Mariners",
+          "prob": 71.2,
+          "ml": "-247",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago Cubs",
+          "fav_id": 112,
+          "home_id": 120,
+          "away_id": 112,
+          "home": "Washington Nationals",
+          "away": "Chicago Cubs",
+          "prob": 58.7,
+          "ml": "-142",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Minnesota Twins",
+          "fav_id": 142,
+          "home_id": 142,
+          "away_id": 143,
+          "home": "Minnesota Twins",
+          "away": "Philadelphia Phillies",
+          "prob": 55.5,
+          "ml": "-125",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
