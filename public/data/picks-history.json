@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 88,
+    "w": 89,
     "l": 46
   },
   "picks": [
@@ -2120,7 +2120,7 @@
     },
     {
       "date": "2026-08-12",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Detroit Tigers",
@@ -2161,7 +2161,8 @@
           "ml": "-209",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "5-10"
         }
       ]
     }
