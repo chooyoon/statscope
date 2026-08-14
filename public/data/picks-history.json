@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 89,
-    "l": 46
+    "l": 48
   },
   "picks": [
     {
@@ -2181,7 +2181,8 @@
           "ml": "-247",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "1-0"
         },
         {
           "fav": "Chicago Cubs",
@@ -2194,7 +2195,8 @@
           "ml": "-142",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "0-7"
         },
         {
           "fav": "Minnesota Twins",
@@ -2207,7 +2209,7 @@
           "ml": "-125",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
