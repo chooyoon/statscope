@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 89,
-    "l": 48
+    "l": 49
   },
   "picks": [
     {
@@ -2168,7 +2168,7 @@
     },
     {
       "date": "2026-08-13",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "New York Yankees",
@@ -2209,7 +2209,8 @@
           "ml": "-125",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "7-1"
         }
       ]
     }
