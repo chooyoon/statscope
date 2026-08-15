@@ -2261,6 +2261,51 @@
           "final_score": "0-3"
         }
       ]
+    },
+    {
+      "date": "2026-08-15",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 110,
+          "home": "Tampa Bay Rays",
+          "away": "Baltimore Orioles",
+          "prob": 69.4,
+          "ml": "-227",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago Cubs",
+          "fav_id": 112,
+          "home_id": 112,
+          "away_id": 138,
+          "home": "Chicago Cubs",
+          "away": "St. Louis Cardinals",
+          "prob": 66.3,
+          "ml": "-197",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Detroit Tigers",
+          "fav_id": 116,
+          "home_id": 116,
+          "away_id": 145,
+          "home": "Detroit Tigers",
+          "away": "Chicago White Sox",
+          "prob": 65.4,
+          "ml": "-189",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
