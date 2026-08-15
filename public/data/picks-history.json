@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 90,
-    "l": 49
+    "l": 51
   },
   "picks": [
     {
@@ -2216,7 +2216,7 @@
     },
     {
       "date": "2026-08-14",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -2229,7 +2229,8 @@
           "ml": "-231",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "2-0"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2242,7 +2243,8 @@
           "ml": "-216",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "6-5"
         },
         {
           "fav": "Chicago Cubs",
