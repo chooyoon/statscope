@@ -2357,6 +2357,51 @@
           "final_score": "5-0"
         }
       ]
+    },
+    {
+      "date": "2026-08-17",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 110,
+          "home": "Tampa Bay Rays",
+          "away": "Baltimore Orioles",
+          "prob": 65.3,
+          "ml": "-188",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Kansas City Royals",
+          "fav_id": 118,
+          "home_id": 118,
+          "away_id": 133,
+          "home": "Kansas City Royals",
+          "away": "Athletics",
+          "prob": 61.0,
+          "ml": "-156",
+          "ou_line": 10.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 115,
+          "away_id": 119,
+          "home": "Colorado Rockies",
+          "away": "Los Angeles Dodgers",
+          "prob": 61.0,
+          "ml": "-156",
+          "ou_line": 11.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
