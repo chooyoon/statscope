@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 90,
-    "l": 54
+    "w": 92,
+    "l": 55
   },
   "picks": [
     {
@@ -2312,7 +2312,7 @@
     },
     {
       "date": "2026-08-16",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "New York Mets",
@@ -2325,7 +2325,8 @@
           "ml": "-158",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-4"
         },
         {
           "fav": "Chicago Cubs",
@@ -2338,7 +2339,8 @@
           "ml": "-151",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "11-4"
         },
         {
           "fav": "San Diego Padres",
@@ -2351,7 +2353,8 @@
           "ml": "-148",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "5-0"
         }
       ]
     }
