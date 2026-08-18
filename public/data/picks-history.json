@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 93,
+    "w": 95,
     "l": 55
   },
   "picks": [
@@ -2360,7 +2360,7 @@
     },
     {
       "date": "2026-08-17",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Tampa Bay Rays",
@@ -2387,7 +2387,8 @@
           "ml": "-156",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "5-9"
         },
         {
           "fav": "Los Angeles Dodgers",
@@ -2400,7 +2401,8 @@
           "ml": "-156",
           "ou_line": 11.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "11-5"
         }
       ]
     }
