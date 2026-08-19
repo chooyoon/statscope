@@ -2421,7 +2421,7 @@
           "ml": "-219",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Boston Red Sox",
@@ -2434,7 +2434,7 @@
           "ml": "-173",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2447,7 +2447,7 @@
           "ml": "-154",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
