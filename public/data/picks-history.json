@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 97,
-    "l": 56
+    "l": 57
   },
   "picks": [
     {
@@ -2469,7 +2469,7 @@
           "ml": "-253",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2482,7 +2482,7 @@
           "ml": "-199",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Cleveland Guardians",
@@ -2495,7 +2495,8 @@
           "ml": "-162",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "1-0"
         }
       ]
     }
