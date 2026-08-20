@@ -2501,6 +2501,51 @@
           "final_score": "1-0"
         }
       ]
+    },
+    {
+      "date": "2026-08-20",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 141,
+          "home": "Tampa Bay Rays",
+          "away": "Toronto Blue Jays",
+          "prob": 65.6,
+          "ml": "-191",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 136,
+          "home": "Milwaukee Brewers",
+          "away": "Seattle Mariners",
+          "prob": 64.5,
+          "ml": "-182",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Kansas City Royals",
+          "fav_id": 118,
+          "home_id": 118,
+          "away_id": 133,
+          "home": "Kansas City Royals",
+          "away": "Athletics",
+          "prob": 62.8,
+          "ml": "-169",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
