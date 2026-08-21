@@ -2549,6 +2549,51 @@
           "final_score": "2-6"
         }
       ]
+    },
+    {
+      "date": "2026-08-21",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 134,
+          "home": "Los Angeles Dodgers",
+          "away": "Pittsburgh Pirates",
+          "prob": 67.4,
+          "ml": "-206",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Houston Astros",
+          "fav_id": 117,
+          "home_id": 117,
+          "away_id": 133,
+          "home": "Houston Astros",
+          "away": "Athletics",
+          "prob": 66.5,
+          "ml": "-198",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Arizona Diamondbacks",
+          "fav_id": 109,
+          "home_id": 109,
+          "away_id": 113,
+          "home": "Arizona Diamondbacks",
+          "away": "Cincinnati Reds",
+          "prob": 65.9,
+          "ml": "-193",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
