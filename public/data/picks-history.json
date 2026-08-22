@@ -2565,7 +2565,7 @@
           "ml": "-206",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Houston Astros",
@@ -2578,7 +2578,7 @@
           "ml": "-198",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Arizona Diamondbacks",
@@ -2591,7 +2591,7 @@
           "ml": "-193",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
