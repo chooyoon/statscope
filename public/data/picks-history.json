@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 100,
+    "w": 103,
     "l": 59
   },
   "picks": [
@@ -2552,7 +2552,7 @@
     },
     {
       "date": "2026-08-21",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Los Angeles Dodgers",
@@ -2565,7 +2565,8 @@
           "ml": "-206",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "4-5"
         },
         {
           "fav": "Houston Astros",
@@ -2578,7 +2579,8 @@
           "ml": "-198",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "0-4"
         },
         {
           "fav": "Arizona Diamondbacks",
@@ -2591,7 +2593,8 @@
           "ml": "-193",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "0-9"
         }
       ]
     }
