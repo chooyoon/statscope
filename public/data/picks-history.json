@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 107,
-    "l": 60
+    "l": 61
   },
   "picks": [
     {
@@ -2648,7 +2648,7 @@
     },
     {
       "date": "2026-08-23",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Boston Red Sox",
@@ -2675,7 +2675,8 @@
           "ml": "-223",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "4-2"
         },
         {
           "fav": "Los Angeles Dodgers",
