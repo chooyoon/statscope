@@ -2693,6 +2693,51 @@
           "final_score": "0-4"
         }
       ]
+    },
+    {
+      "date": "2026-08-24",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Washington Nationals",
+          "fav_id": 120,
+          "home_id": 120,
+          "away_id": 115,
+          "home": "Washington Nationals",
+          "away": "Colorado Rockies",
+          "prob": 65.6,
+          "ml": "-191",
+          "ou_line": 11.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Chicago White Sox",
+          "fav_id": 145,
+          "home_id": 145,
+          "away_id": 140,
+          "home": "Chicago White Sox",
+          "away": "Texas Rangers",
+          "prob": 63.6,
+          "ml": "-175",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Philadelphia Phillies",
+          "fav_id": 143,
+          "home_id": 136,
+          "away_id": 143,
+          "home": "Seattle Mariners",
+          "away": "Philadelphia Phillies",
+          "prob": 57.0,
+          "ml": "-133",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
