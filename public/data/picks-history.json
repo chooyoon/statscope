@@ -2741,6 +2741,51 @@
           "final_score": "2-9"
         }
       ]
+    },
+    {
+      "date": "2026-08-25",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 147,
+          "away_id": 117,
+          "home": "New York Yankees",
+          "away": "Houston Astros",
+          "prob": 65.6,
+          "ml": "-191",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Washington Nationals",
+          "fav_id": 120,
+          "home_id": 120,
+          "away_id": 115,
+          "home": "Washington Nationals",
+          "away": "Colorado Rockies",
+          "prob": 63.7,
+          "ml": "-176",
+          "ou_line": 10.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 144,
+          "away_id": 119,
+          "home": "Atlanta Braves",
+          "away": "Los Angeles Dodgers",
+          "prob": 59.3,
+          "ml": "-146",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
