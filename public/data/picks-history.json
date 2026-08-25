@@ -2709,7 +2709,7 @@
           "ml": "-191",
           "ou_line": 11.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Chicago White Sox",
@@ -2722,7 +2722,7 @@
           "ml": "-175",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Philadelphia Phillies",
@@ -2735,7 +2735,7 @@
           "ml": "-133",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
