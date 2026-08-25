@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 107,
-    "l": 61
+    "w": 108,
+    "l": 63
   },
   "picks": [
     {
@@ -2696,7 +2696,7 @@
     },
     {
       "date": "2026-08-24",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Washington Nationals",
@@ -2709,7 +2709,8 @@
           "ml": "-191",
           "ou_line": 11.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "3-13"
         },
         {
           "fav": "Chicago White Sox",
@@ -2722,7 +2723,8 @@
           "ml": "-175",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "11-2"
         },
         {
           "fav": "Philadelphia Phillies",
@@ -2735,7 +2737,8 @@
           "ml": "-133",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "2-9"
         }
       ]
     }
