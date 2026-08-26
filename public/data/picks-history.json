@@ -2757,7 +2757,7 @@
           "ml": "-191",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Washington Nationals",
@@ -2770,7 +2770,7 @@
           "ml": "-176",
           "ou_line": 10.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Los Angeles Dodgers",
@@ -2783,7 +2783,7 @@
           "ml": "-146",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
