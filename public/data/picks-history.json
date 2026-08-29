@@ -2837,6 +2837,51 @@
           "final_score": "13-1"
         }
       ]
+    },
+    {
+      "date": "2026-08-29",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Atlanta Braves",
+          "fav_id": 144,
+          "home_id": 144,
+          "away_id": 115,
+          "home": "Atlanta Braves",
+          "away": "Colorado Rockies",
+          "prob": 76.5,
+          "ml": "-326",
+          "ou_line": 11.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Milwaukee Brewers",
+          "fav_id": 158,
+          "home_id": 158,
+          "away_id": 140,
+          "home": "Milwaukee Brewers",
+          "away": "Texas Rangers",
+          "prob": 71.5,
+          "ml": "-251",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Philadelphia Phillies",
+          "fav_id": 143,
+          "home_id": 108,
+          "away_id": 143,
+          "home": "Los Angeles Angels",
+          "away": "Philadelphia Phillies",
+          "prob": 68.8,
+          "ml": "-220",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
