@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 109,
+    "w": 111,
     "l": 68
   },
   "picks": [
@@ -2853,7 +2853,8 @@
           "ml": "-326",
           "ou_line": 11.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-2"
         },
         {
           "fav": "Milwaukee Brewers",
@@ -2866,7 +2867,8 @@
           "ml": "-251",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-5"
         },
         {
           "fav": "Philadelphia Phillies",
@@ -2879,7 +2881,7 @@
           "ml": "-220",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
