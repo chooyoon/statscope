@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 111,
+    "w": 112,
     "l": 68
   },
   "picks": [
@@ -2840,7 +2840,7 @@
     },
     {
       "date": "2026-08-29",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Atlanta Braves",
@@ -2881,7 +2881,8 @@
           "ml": "-220",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "4-2"
         }
       ]
     }
