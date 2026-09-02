@@ -2885,6 +2885,51 @@
           "final_score": "4-2"
         }
       ]
+    },
+    {
+      "date": "2026-09-02",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 138,
+          "home": "Los Angeles Dodgers",
+          "away": "St. Louis Cardinals",
+          "prob": 68.6,
+          "ml": "-218",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Tampa Bay Rays",
+          "fav_id": 139,
+          "home_id": 139,
+          "away_id": 121,
+          "home": "Tampa Bay Rays",
+          "away": "New York Mets",
+          "prob": 67.2,
+          "ml": "-205",
+          "ou_line": 8.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Texas Rangers",
+          "fav_id": 140,
+          "home_id": 140,
+          "away_id": 133,
+          "home": "Texas Rangers",
+          "away": "Athletics",
+          "prob": 66.2,
+          "ml": "-196",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
