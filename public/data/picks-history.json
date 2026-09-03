@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 112,
-    "l": 68
+    "l": 70
   },
   "picks": [
     {
@@ -2901,7 +2901,7 @@
           "ml": "-218",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2914,7 +2914,8 @@
           "ml": "-205",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "10-4"
         },
         {
           "fav": "Texas Rangers",
@@ -2927,7 +2928,8 @@
           "ml": "-196",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "9-2"
         }
       ]
     }
