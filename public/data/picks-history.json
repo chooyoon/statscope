@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 112,
-    "l": 70
+    "l": 72
   },
   "picks": [
     {
@@ -2888,7 +2888,7 @@
     },
     {
       "date": "2026-09-02",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Los Angeles Dodgers",
@@ -2901,7 +2901,8 @@
           "ml": "-218",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "8-6"
         },
         {
           "fav": "Tampa Bay Rays",
@@ -2948,7 +2949,7 @@
           "ml": "-186",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Seattle Mariners",
@@ -2961,7 +2962,7 @@
           "ml": "-156",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Cleveland Guardians",
@@ -2974,7 +2975,8 @@
           "ml": "-132",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "6-3"
         }
       ]
     }
