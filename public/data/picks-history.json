@@ -2979,6 +2979,51 @@
           "final_score": "6-3"
         }
       ]
+    },
+    {
+      "date": "2026-09-04",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Pittsburgh Pirates",
+          "fav_id": 134,
+          "home_id": 134,
+          "away_id": 108,
+          "home": "Pittsburgh Pirates",
+          "away": "Los Angeles Angels",
+          "prob": 76.1,
+          "ml": "-319",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Seattle Mariners",
+          "fav_id": 136,
+          "home_id": 136,
+          "away_id": 133,
+          "home": "Seattle Mariners",
+          "away": "Athletics",
+          "prob": 62.5,
+          "ml": "-167",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Kansas City Royals",
+          "fav_id": 118,
+          "home_id": 118,
+          "away_id": 141,
+          "home": "Kansas City Royals",
+          "away": "Toronto Blue Jays",
+          "prob": 61.9,
+          "ml": "-163",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
