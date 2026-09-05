@@ -3,7 +3,7 @@
   "start_date": "2026-04-14",
   "record": {
     "w": 114,
-    "l": 74
+    "l": 75
   },
   "picks": [
     {
@@ -2984,7 +2984,7 @@
     },
     {
       "date": "2026-09-04",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Pittsburgh Pirates",
@@ -3011,7 +3011,8 @@
           "ml": "-167",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "7-6"
         },
         {
           "fav": "Kansas City Royals",
