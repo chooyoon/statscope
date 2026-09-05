@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 112,
-    "l": 72
+    "w": 114,
+    "l": 74
   },
   "picks": [
     {
@@ -2936,7 +2936,7 @@
     },
     {
       "date": "2026-09-03",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Los Angeles Dodgers",
@@ -2949,7 +2949,8 @@
           "ml": "-186",
           "ou_line": 8.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "2-3"
         },
         {
           "fav": "Seattle Mariners",
@@ -2962,7 +2963,8 @@
           "ml": "-156",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "L",
+          "final_score": "7-4"
         },
         {
           "fav": "Cleveland Guardians",
@@ -2995,7 +2997,8 @@
           "ml": "-319",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "0-1"
         },
         {
           "fav": "Seattle Mariners",
@@ -3008,7 +3011,7 @@
           "ml": "-167",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Kansas City Royals",
@@ -3021,7 +3024,8 @@
           "ml": "-163",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "9-2"
         }
       ]
     }
