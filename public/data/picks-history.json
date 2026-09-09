@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 114,
-    "l": 75
+    "w": 115,
+    "l": 76
   },
   "picks": [
     {
@@ -3045,7 +3045,7 @@
           "ml": "-313",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "New York Yankees",
@@ -3058,7 +3058,8 @@
           "ml": "-297",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-5"
         },
         {
           "fav": "Boston Red Sox",
@@ -3071,7 +3072,8 @@
           "ml": "-217",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "6-1"
         }
       ]
     }
