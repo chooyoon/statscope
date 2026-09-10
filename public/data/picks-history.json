@@ -3124,6 +3124,51 @@
           "result": "no_result"
         }
       ]
+    },
+    {
+      "date": "2026-09-10",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "New York Yankees",
+          "fav_id": 147,
+          "home_id": 147,
+          "away_id": 115,
+          "home": "New York Yankees",
+          "away": "Colorado Rockies",
+          "prob": 79.5,
+          "ml": "-387",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Pittsburgh Pirates",
+          "fav_id": 134,
+          "home_id": 145,
+          "away_id": 134,
+          "home": "Chicago White Sox",
+          "away": "Pittsburgh Pirates",
+          "prob": 55.5,
+          "ml": "-125",
+          "ou_line": 9.5,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Texas Rangers",
+          "fav_id": 140,
+          "home_id": 136,
+          "away_id": 140,
+          "home": "Seattle Mariners",
+          "away": "Texas Rangers",
+          "prob": 53.1,
+          "ml": "-113",
+          "ou_line": 7.5,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
