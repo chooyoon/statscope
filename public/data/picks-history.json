@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 123,
+    "w": 124,
     "l": 81
   },
   "picks": [
@@ -3285,7 +3285,8 @@
           "ml": "-277",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-5"
         },
         {
           "fav": "Los Angeles Dodgers",
@@ -3298,7 +3299,7 @@
           "ml": "-259",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "San Diego Padres",
@@ -3311,7 +3312,7 @@
           "ml": "-235",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         }
       ]
     }
