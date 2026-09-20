@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 124,
+    "w": 127,
     "l": 81
   },
   "picks": [
@@ -3272,7 +3272,7 @@
     },
     {
       "date": "2026-09-18",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Cleveland Guardians",
@@ -3299,7 +3299,8 @@
           "ml": "-259",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "2-8"
         },
         {
           "fav": "San Diego Padres",
@@ -3312,7 +3313,8 @@
           "ml": "-235",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "2-8"
         }
       ]
     },
@@ -3331,7 +3333,7 @@
           "ml": "-276",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "San Diego Padres",
@@ -3344,7 +3346,7 @@
           "ml": "-223",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": null
+          "result": "no_result"
         },
         {
           "fav": "Cleveland Guardians",
@@ -3357,7 +3359,8 @@
           "ml": "-211",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "6-12"
         }
       ]
     }
