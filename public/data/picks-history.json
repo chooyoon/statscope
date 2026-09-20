@@ -3363,6 +3363,51 @@
           "final_score": "6-12"
         }
       ]
+    },
+    {
+      "date": "2026-09-20",
+      "checked": false,
+      "picks": [
+        {
+          "fav": "Cleveland Guardians",
+          "fav_id": 114,
+          "home_id": 114,
+          "away_id": 133,
+          "home": "Cleveland Guardians",
+          "away": "Athletics",
+          "prob": 74.2,
+          "ml": "-288",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "Los Angeles Dodgers",
+          "fav_id": 119,
+          "home_id": 119,
+          "away_id": 137,
+          "home": "Los Angeles Dodgers",
+          "away": "San Francisco Giants",
+          "prob": 73.0,
+          "ml": "-271",
+          "ou_line": 10.0,
+          "ou_lean": "push",
+          "result": null
+        },
+        {
+          "fav": "San Diego Padres",
+          "fav_id": 135,
+          "home_id": 135,
+          "away_id": 146,
+          "home": "San Diego Padres",
+          "away": "Miami Marlins",
+          "prob": 66.9,
+          "ml": "-202",
+          "ou_line": 9.0,
+          "ou_lean": "push",
+          "result": null
+        }
+      ]
     }
   ]
 }
