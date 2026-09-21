@@ -2,7 +2,7 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 127,
+    "w": 132,
     "l": 81
   },
   "picks": [
@@ -3320,7 +3320,7 @@
     },
     {
       "date": "2026-09-19",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Los Angeles Dodgers",
@@ -3333,7 +3333,8 @@
           "ml": "-276",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "4-10"
         },
         {
           "fav": "San Diego Padres",
@@ -3346,7 +3347,8 @@
           "ml": "-223",
           "ou_line": 8.5,
           "ou_lean": "push",
-          "result": "no_result"
+          "result": "W",
+          "final_score": "6-7"
         },
         {
           "fav": "Cleveland Guardians",
@@ -3366,7 +3368,7 @@
     },
     {
       "date": "2026-09-20",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Cleveland Guardians",
@@ -3379,7 +3381,8 @@
           "ml": "-288",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "0-1"
         },
         {
           "fav": "Los Angeles Dodgers",
@@ -3392,7 +3395,8 @@
           "ml": "-271",
           "ou_line": 10.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "1-3"
         },
         {
           "fav": "San Diego Padres",
@@ -3405,7 +3409,8 @@
           "ml": "-202",
           "ou_line": 9.0,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "3-7"
         }
       ]
     }
