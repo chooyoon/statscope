@@ -2,8 +2,8 @@
   "schema_version": 1,
   "start_date": "2026-04-14",
   "record": {
-    "w": 132,
-    "l": 81
+    "w": 134,
+    "l": 82
   },
   "picks": [
     {
@@ -3416,7 +3416,7 @@
     },
     {
       "date": "2026-09-26",
-      "checked": false,
+      "checked": true,
       "picks": [
         {
           "fav": "Chicago White Sox",
@@ -3429,7 +3429,8 @@
           "ml": "-315",
           "ou_line": 11.5,
           "ou_lean": "push",
-          "result": null
+          "result": "L",
+          "final_score": "9-6"
         },
         {
           "fav": "Milwaukee Brewers",
@@ -3442,7 +3443,8 @@
           "ml": "-301",
           "ou_line": 9.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "2-3"
         },
         {
           "fav": "Los Angeles Dodgers",
@@ -3455,7 +3457,8 @@
           "ml": "-212",
           "ou_line": 7.5,
           "ou_lean": "push",
-          "result": null
+          "result": "W",
+          "final_score": "4-3"
         }
       ]
     }
